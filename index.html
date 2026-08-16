@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>antzhang.com — under construction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #16130f;
+    --panel: #1c1712;
+    --amber: #ffb000;
+    --amber-dim: #9c7226;
+    --amber-faint: rgba(255, 176, 0, 0.12);
+    --border: rgba(255, 176, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    min-height: 100vh;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+  }
+
+  .terminal {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 0 40px var(--amber-faint), 0 0 0 1px rgba(255,176,0,0.05) inset;
+    overflow: hidden;
+  }
+
+  .terminal::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,176,0,0.025) 0px,
+      rgba(255,176,0,0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+
+  .titlebar {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--amber-dim);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .screen {
+    padding: 28px 24px 32px;
+    color: var(--amber);
+    font-size: 14px;
+    line-height: 1.9;
+    text-shadow: 0 0 6px rgba(255,176,0,0.35);
+  }
+
+  .line {
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .line.show { opacity: 1; transform: translateY(0); }
+
+  .line .prompt { color: var(--amber); opacity: 0.85; margin-right: 6px; }
+  .line.output { color: var(--amber-dim); padding-left: 18px; }
+  .line.comment { color: var(--amber-dim); opacity: 0.8; }
+
+  .bar-row {
+    margin: 14px 0 6px 18px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .bar-row.show { opacity: 1; }
+
+  .bar-track {
+    width: 100%;
+    max-width: 380px;
+    height: 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    background: rgba(255,176,0,0.05);
+  }
+
+  .bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--amber);
+    box-shadow: 0 0 8px rgba(255,176,0,0.6);
+    animation: building 3.2s ease-in-out infinite;
+  }
+
+  @keyframes building {
+    0%   { width: 4%; }
+    55%  { width: 71%; }
+    75%  { width: 66%; }
+    100% { width: 4%; }
+  }
+
+  .bar-label {
+    color: var(--amber-dim);
+    font-size: 12px;
+    margin-top: 6px;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: var(--amber);
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: blink 1s steps(1) infinite;
+  }
+
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  .footer {
+    margin-top: 26px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--amber-dim);
+  }
+
+  .footer a {
+    color: var(--amber);
+    text-decoration: none;
+    border-bottom: 1px solid var(--amber-dim);
+  }
+  .footer a:hover, .footer a:focus-visible {
+    color: var(--amber);
+    border-bottom-color: var(--amber);
+  }
+  a:focus-visible, .footer a:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 480px) {
+    .screen { padding: 20px 16px 26px; font-size: 13px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar-fill { animation: none; width: 68%; }
+    .cursor { animation: none; opacity: 1; }
+    .line { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<h1 class="sr-only">Anthony Zhang — personal portfolio site, currently under construction</h1>
+
+<main class="terminal">
+  <div class="titlebar">anthony@antzhang:~$ status</div>
+  <div class="screen" id="screen">
+    <div class="line"><span class="prompt">$</span>whoami</div>
+    <div class="line output">anthony_zhang</div>
+    <div class="line"><span class="prompt">$</span>cat site_status.log</div>
+    <div class="line output">learning: html, css, javascript</div>
+    <div class="line output">risk_of_finishing: low variance, high confidence</div>
+    <div class="line"><span class="prompt">$</span>./deploy_portfolio.sh</div>
+    <div class="bar-row" id="barRow">
+      <div class="bar-track"><div class="bar-fill"></div></div>
+      <div class="bar-label">building...</div>
+    </div>
+    <div class="line comment"># eta: a few weeks, per the analyst's own estimate</div>
+    <div class="line comment"># note: antzhang.com is Anthony Zhang, not a site about insects. carry on.</div>
+    <div class="line" id="finalLine">&nbsp;<span class="cursor"></span></div>
+  </div>
+  <div class="footer" style="margin: 0 24px 24px;">
+    in the meantime → <a href="mailto:zhanganthony04@gmail.com">zhanganthony04@gmail.com</a>
+  </div>
+</main>
+
+<script>
+  var lines = document.querySelectorAll('#screen .line:not(#finalLine)');
+  var barRow = document.getElementById('barRow');
+  var finalLine = document.getElementById('finalLine');
+  var delay = 0;
+  var step = 260;
+
+  lines.forEach(function(line) {
+    setTimeout(function() { line.classList.add('show'); }, delay);
+    if (line.textContent.trim() === '$./deploy_portfolio.sh' || line.querySelector('.prompt')) {
+      delay += step;
+    } else {
+      delay += step * 0.8;
+    }
+  });
+
+  setTimeout(function() { barRow.classList.add('show'); }, delay - step * 0.8);
+  delay += step * 2;
+
+  setTimeout(function() { finalLine.classList.add('show'); }, delay + 400);
+</script>
+
+</body>
+</html>
