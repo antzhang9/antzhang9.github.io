@@ -43,6 +43,7 @@
   body{
     font-family:'IBM Plex Sans', sans-serif;
     color:var(--ink);
+    background:#eee7da;
   }
   h1,h2{font-family:'Fraunces', serif; font-weight:500; margin:0; letter-spacing:-0.01em;}
   a{color:inherit;}
@@ -80,6 +81,7 @@
     top:0;
     height:100vh;
     height:100svh;
+    height:100dvh;
     overflow:hidden;
     background:
       radial-gradient(ellipse at 50% 78%, rgba(0,0,0,0.05), transparent 60%),
@@ -370,7 +372,6 @@
     position:absolute;
     top:50%;
     left:50%;
-    width:clamp(280px,31vw,460px);
     padding:8px;
     border:0;
     border-radius:1px;
@@ -385,10 +386,10 @@
   }
   .gallery-item img{
     display:block;
-    width:100%;
+    width:auto;
     height:auto;
-    max-height:70vh;
-    object-fit:contain;
+    max-height:60vh;
+    max-width:34vw;
     user-select:none;
     -webkit-user-drag:none;
   }
@@ -478,17 +479,17 @@
       left:50%;
       top:52%;
       width:90vw;
-      height:42vh;
-      height:42svh;
+      height:44vh;
+      height:44svh;
     }
-    .gallery-item{ width:min(62vw,260px); padding:6px; }
-    .gallery-item img{ max-height:34vh; max-height:34svh; }
+    .gallery-item{ padding:6px; }
+    .gallery-item img{ max-height:36vh; max-height:36svh; max-width:70vw; }
     .gallery-item.is-prev{ transform:translate(calc(-50% - 38px),-50%) scale(.9) rotate(-1deg); }
     .gallery-item.is-next{ transform:translate(calc(-50% + 38px),-50%) scale(.91) rotate(1deg); }
     .gallery-item.is-prev-2{ transform:translate(calc(-50% - 70px),-50%) scale(.78) rotate(-1.5deg); }
     .gallery-item.is-next-2{ transform:translate(calc(-50% + 70px),-50%) scale(.79) rotate(1.5deg); }
     .gallery-controls{
-      bottom:-38px;
+      bottom:-56px;
       gap:22px;
       padding:6px 12px;
       background:rgba(18,18,16,.82);
@@ -1340,8 +1341,7 @@
       height:68vh;
       height:68svh;
     }
-    .gallery-item{ width:min(38vw,300px); }
-    .gallery-item img{ max-height:58vh; max-height:58svh; }
+    .gallery-item img{ max-height:58vh; max-height:58svh; max-width:32vw; }
     .gallery-item.is-prev{ transform:translate(calc(-50% - 58px),-50%) scale(.88) rotate(-1deg); }
     .gallery-item.is-next{ transform:translate(calc(-50% + 58px),-50%) scale(.89) rotate(1deg); }
     .gallery-item.is-prev-2{ transform:translate(calc(-50% - 100px),-50%) scale(.76) rotate(-1.5deg); }
