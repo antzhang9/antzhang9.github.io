@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-08-19T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="flight-arbitrage" name="Flight Arbitrage Workflow">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Flight Arbitrage Optimizer &#8212; UML Activity Workflow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#201D18;" vertex="1" parent="1">
+          <mxGeometry x="350" y="20" width="700" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="start" value="Start" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FAF7F0;strokeColor=#B23A26;strokeWidth=2;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="655" y="80" width="80" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="input" value="Enter trip dates, home airport, and at least 3 candidate cities" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAF7F0;strokeColor=#6B6455;strokeWidth=1.5;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="510" y="165" width="370" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="valid" value="Inputs valid?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFF3CD;strokeColor=#B58B00;strokeWidth=1.5;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="605" y="270" width="180" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="error" value="Show validation message" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE8E6;strokeColor=#B23A26;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="260" y="285" width="210" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="load" value="Load directional fare snapshot for selected date window" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F1FB;strokeColor=#2A78D6;strokeWidth=1.5;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="510" y="410" width="370" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="fork" value="" style="shape=line;html=1;strokeWidth=6;strokeColor=#201D18;" vertex="1" parent="1">
+          <mxGeometry x="350" y="525" width="690" height="10" as="geometry"/>
+        </mxCell>
+        <mxCell id="outbound" value="Price every outbound edge&#xa;Home &#8594; each candidate city" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF6ED;strokeColor=#4F8A4F;strokeWidth=1.5;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="245" y="575" width="300" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="inbound" value="Price every return edge&#xa;Each candidate city &#8594; Home" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF6ED;strokeColor=#4F8A4F;strokeWidth=1.5;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="845" y="575" width="300" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="topout" value="Sort ascending and retain the 2 cheapest outbound edges" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAF7F0;strokeColor=#6B6455;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="245" y="700" width="300" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="topin" value="Sort ascending and retain the 2 cheapest return edges" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAF7F0;strokeColor=#6B6455;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="845" y="700" width="300" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="join" value="" style="shape=line;html=1;strokeWidth=6;strokeColor=#201D18;" vertex="1" parent="1">
+          <mxGeometry x="350" y="825" width="690" height="10" as="geometry"/>
+        </mxCell>
+        <mxCell id="overlap" value="Same city appears in both top-2 lists?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFF3CD;strokeColor=#B58B00;strokeWidth=1.5;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="585" y="875" width="220" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="block" value="Compare the two opposing fares for that city; keep its cheaper direction and block the alternative" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE8E6;strokeColor=#B23A26;strokeWidth=1.5;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="220" y="1025" width="330" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="pairs" value="Generate valid boundary pairs&#xa;Home &#8594; A and B &#8594; Home, where A &#8800; B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F1FB;strokeColor=#2A78D6;strokeWidth=1.5;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="530" y="1160" width="330" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="boundary" value="Select the boundary pair with the lowest combined directional fare" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF6ED;strokeColor=#4F8A4F;strokeWidth=1.5;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="530" y="1280" width="330" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="middle" value="For each remaining city C, calculate insertion cost: A &#8594; C + C &#8594; B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAF7F0;strokeColor=#6B6455;strokeWidth=1.5;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="530" y="1400" width="330" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="choosemiddle" value="Choose the cheapest third-city insertion" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDF6ED;strokeColor=#4F8A4F;strokeWidth=1.5;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="530" y="1520" width="330" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="result" value="Return final trip: Home &#8594; A &#8594; C &#8594; B &#8594; Home&#xa;with total directional fare and ranked edge trace" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B23A26;strokeColor=#7A281B;fontColor=#FFFFFF;strokeWidth=2;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="1630" width="390" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="example" value="Example outcome&#xa;EWR &#8594; KIX &#8594; TPE &#8594; HKG &#8594; EWR&#xa;&#xa;Outbound leaders: KIX, HKG&#xa;Return leaders: HKG, PVG&#xa;HKG outbound blocked&#xa;TPE wins middle insertion" style="shape=note;whiteSpace=wrap;html=1;fillColor=#FFF8E8;strokeColor=#B58B00;fontSize=13;align=left;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="990" y="1125" width="300" height="230" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" edge="1" parent="1" source="start" target="input"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" edge="1" parent="1" source="input" target="valid"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#B23A26;fontColor=#B23A26;" edge="1" parent="1" source="valid" target="error"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="Correct inputs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;dashed=1;" edge="1" parent="1" source="error" target="input"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4F8A4F;fontColor=#4F8A4F;" edge="1" parent="1" source="valid" target="load"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeWidth=1.5;" edge="1" parent="1" source="load" target="fork"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="fork" target="outbound"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="fork" target="inbound"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="outbound" target="topout"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="inbound" target="topin"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;" edge="1" parent="1" source="topout" target="join"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;" edge="1" parent="1" source="topin" target="join"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="join" target="overlap"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e14" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#B23A26;fontColor=#B23A26;" edge="1" parent="1" source="overlap" target="block"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e15" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4F8A4F;fontColor=#4F8A4F;" edge="1" parent="1" source="overlap" target="pairs"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="block" target="pairs"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="pairs" target="boundary"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="boundary" target="middle"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="middle" target="choosemiddle"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#B23A26;" edge="1" parent="1" source="choosemiddle" target="result"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e21" value="Concrete trace" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;dashed=1;strokeColor=#B58B00;fontColor=#8A6900;" edge="1" parent="1" source="example" target="boundary"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

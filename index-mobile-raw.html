@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Anthony Zhang</title>
+<title>Anthony Zhang — Raw Mobile Comparison</title>
+<meta name="robots" content="noindex">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#eee7da">
 <link rel="icon" href="data:,">
@@ -98,7 +99,6 @@
     top:48%; left:50%;
     transform:translate(-50%,-50%);
     text-align:center;
-    white-space:nowrap;
     z-index:5;
     pointer-events:none;
   }
@@ -207,6 +207,21 @@
     opacity:0.5;
     transition:opacity .3s ease, transform .3s ease;
   }
+  .scene-nav-label{
+    font-size:0.78rem;
+    letter-spacing:0.02em;
+    white-space:nowrap;
+    max-width:0;
+    overflow:hidden;
+    opacity:0;
+    transition:max-width .25s ease, opacity .2s ease;
+  }
+  .scene-nav a:hover .scene-nav-label,
+  .scene-nav a:focus-visible .scene-nav-label,
+  .scene-nav a[aria-current="true"] .scene-nav-label{
+    max-width:160px;
+    opacity:1;
+  }
   .scene-nav a:hover .scene-nav-dot,
   .scene-nav a:focus-visible .scene-nav-dot,
   .scene-nav a[aria-current="true"] .scene-nav-dot{
@@ -214,7 +229,12 @@
     transform:scale(1.3);
     color:var(--brick);
   }
-  @media (max-width:600px){
+  .scene-nav a[aria-current="true"] .scene-nav-label{
+    color:var(--brick);
+    font-weight:500;
+  }
+
+  @media (max-width:800px){
     .painting{
       top:36%;
       max-height:38vh;
@@ -230,29 +250,40 @@
       border-top:2px solid var(--brick);
       box-shadow:0 -10px 24px rgba(30,25,15,0.10);
     }
-    /* Keep navigation as a compact dot rail on phones. */
+    /* Replace the vertical dot rail with a labeled horizontal bar --
+       touch has no hover, so labels are always visible here. */
     .scene-nav{
       position:fixed;
-      left:auto; right:6px; top:50%;
-      bottom:auto; transform:translateY(-50%);
-      flex-direction:column;
-      justify-content:center;
-      gap:6px;
-      background:transparent;
-      border:0;
-      padding:0;
+      left:0; right:0; top:auto;
+      bottom:0; transform:none;
+      flex-direction:row;
+      justify-content:space-between;
+      gap:0;
+      background:rgba(250,247,240,0.97);
+      border-top:1px solid var(--rule);
+      padding:6px max(4px, env(safe-area-inset-left,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(4px, env(safe-area-inset-right,0px));
       z-index:250;
     }
     .scene-nav a{
-      flex:0 0 auto;
-      width:30px;
-      height:30px;
+      flex-direction:column;
       justify-content:center;
-      padding:0;
+      gap:3px;
+      height:52px;
+      flex:1 1 0;
+      padding:2px;
     }
-    .scene-nav-dot{ width:8px; height:8px; }
+    .scene-nav-label{
+      max-width:none;
+      opacity:1;
+      overflow:visible;
+      font-size:0.62rem;
+      text-align:center;
+      white-space:normal;
+      line-height:1.1;
+    }
     .scene-nav a[aria-current="true"] .scene-nav-dot{ opacity:1; transform:scale(1.3); color:var(--brick); }
-    .stage{ padding-bottom:0; }
+    /* Mobile content panels sit below the fold of the nav bar. */
+    .stage{ padding-bottom:64px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -455,7 +486,7 @@
     clip-path:inset(50%);
   }
 
-  @media (max-width:600px){
+  @media (max-width:800px){
     .gallery-wrap .content-panel{
       top:5%;
       left:6vw;
@@ -920,7 +951,7 @@
   .word-result.active{ border-color:var(--brick); color:var(--brick); }
   .demo-status{ min-height:1.4em; margin:0; color:#625b50; font-size:.76rem; line-height:1.4; }
 
-  @media (max-width:600px){
+  @media (max-width:800px){
     .project-demo-trigger{ min-height:36px; margin-top:8px; }
     .project-demo-modal{ padding:0; align-items:stretch; }
     .project-demo-shell{ width:100%; height:100svh; }
@@ -945,380 +976,6 @@
     .word-cell,
     .project-demo-trigger::after{ transition:none; }
     .word-cell.is-scanning{ animation:none; }
-  }
-
-  /* ---------- CLASSIFIED PROJECT FOLDER ---------- */
-  .project-demo-modal{
-    perspective:1500px;
-    background:
-      radial-gradient(circle at 18% 20%, rgba(255,255,255,.05), transparent 25%),
-      repeating-linear-gradient(92deg, rgba(255,255,255,.018) 0 1px, transparent 1px 7px),
-      #302f2b;
-  }
-  .project-demo-shell{
-    position:relative;
-    isolation:isolate;
-    overflow:visible;
-    border:1px solid #8e7442;
-    border-top:0;
-    background:#cdb47d;
-    box-shadow:0 35px 100px rgba(0,0,0,.48), 0 2px 0 #e8d5a9 inset;
-    transform-style:preserve-3d;
-  }
-  .folder-tab-physical{
-    position:absolute;
-    left:28px;
-    top:-29px;
-    z-index:-1;
-    min-width:220px;
-    height:31px;
-    padding:9px 22px 0;
-    border:1px solid #8e7442;
-    border-bottom:0;
-    border-radius:8px 22px 0 0;
-    background:#cdb47d;
-    color:#594a2f;
-    font:700 .62rem 'IBM Plex Sans',sans-serif;
-    letter-spacing:.16em;
-  }
-  .folder-cover{
-    position:absolute;
-    inset:0;
-    z-index:60;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-    border:1px solid #8e7442;
-    background:
-      repeating-linear-gradient(0deg, rgba(78,59,28,.025) 0 1px, transparent 1px 5px),
-      linear-gradient(145deg,#dcc38c,#c9aa68);
-    color:#5d482a;
-    backface-visibility:hidden;
-    transform-origin:50% 100%;
-    pointer-events:none;
-  }
-  .folder-cover::before{
-    content:'';
-    position:absolute;
-    inset:24px;
-    border:1px solid rgba(85,60,29,.25);
-  }
-  .folder-cover-code{
-    position:absolute;
-    top:52px; left:58px;
-    font:700 .66rem 'IBM Plex Sans',sans-serif;
-    letter-spacing:.2em;
-  }
-  .folder-cover strong{
-    display:block;
-    padding:10px 20px 7px;
-    border:4px double #a63527;
-    color:#a63527;
-    font:800 clamp(2rem,6vw,4.7rem) 'IBM Plex Sans',sans-serif;
-    letter-spacing:.12em;
-    line-height:1;
-    transform:rotate(-5deg);
-    opacity:.88;
-  }
-  .folder-cover-lines{
-    position:absolute;
-    right:70px; bottom:65px;
-    width:210px; height:76px;
-    border-top:1px solid rgba(85,60,29,.35);
-    border-bottom:1px solid rgba(85,60,29,.35);
-  }
-  .folder-cover-lines::before,
-  .folder-cover-lines::after{
-    content:'';
-    position:absolute;
-    left:0; right:0;
-    border-top:1px solid rgba(85,60,29,.24);
-  }
-  .folder-cover-lines::before{ top:24px; }
-  .folder-cover-lines::after{ top:49px; }
-  .project-demo-modal.open .folder-cover{
-    animation:folder-open .9s cubic-bezier(.18,.76,.18,1) .12s both;
-  }
-  @keyframes folder-open{
-    0%{ opacity:1; transform:translateY(0) rotateX(0deg); visibility:visible; }
-    48%{ opacity:1; transform:translateY(5%) rotateX(-24deg); }
-    100%{ opacity:0; transform:translateY(88%) rotateX(-105deg); visibility:hidden; }
-  }
-  .demo-header,
-  .folder-paper{ opacity:0; transform:translateY(10px); }
-  .project-demo-modal.open .demo-header,
-  .project-demo-modal.open .folder-paper{
-    animation:dossier-reveal .38s ease .57s both;
-  }
-  @keyframes dossier-reveal{ to{opacity:1;transform:none;} }
-  .demo-header{
-    position:relative;
-    z-index:10;
-    grid-template-columns:minmax(240px,1fr) auto auto;
-    align-items:end;
-    padding:17px 22px 14px;
-    background:
-      repeating-linear-gradient(0deg, rgba(76,59,31,.02) 0 1px, transparent 1px 4px),
-      #f7f0df;
-    border-bottom:1px solid #bca777;
-  }
-  .demo-heading{ min-width:0; }
-  .demo-header h2{ font-size:clamp(1.35rem,2.4vw,2rem); }
-  .dossier-tabs{
-    display:flex;
-    align-items:flex-end;
-    gap:4px;
-    margin-bottom:-15px;
-  }
-  .dossier-tab{
-    position:relative;
-    min-height:40px;
-    padding:0 17px;
-    border:1px solid #9c824e;
-    border-bottom:0;
-    border-radius:6px 6px 0 0;
-    background:#cdb47d;
-    color:#4d402a;
-    font:700 .68rem 'IBM Plex Sans',sans-serif;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    cursor:pointer;
-    box-shadow:0 -3px 8px rgba(61,48,24,.09);
-  }
-  .dossier-tab.uml-tab{ transform:rotate(2deg) translateY(-1px); transform-origin:bottom left; }
-  .dossier-tab.active{
-    z-index:2;
-    background:#fbf6e9;
-    color:#8f2e22;
-  }
-  .dossier-tab:focus-visible,
-  .uml-toolbar button:focus-visible,
-  .uml-download:focus-visible,
-  .uml-viewport:focus-visible{ outline:2px solid var(--brick); outline-offset:2px; }
-  .demo-close{
-    align-self:center;
-    border-color:#8e7442;
-    background:#eadbb9;
-    color:#4d402a;
-  }
-  .folder-paper{
-    position:relative;
-    z-index:5;
-    min-height:0;
-    overflow:hidden;
-    background:
-      repeating-linear-gradient(0deg, rgba(76,59,31,.018) 0 1px, transparent 1px 5px),
-      #f7f0df;
-  }
-  .folder-paper::after{
-    content:'DECLASSIFIED FOR PORTFOLIO REVIEW';
-    position:absolute;
-    right:24px; bottom:17px;
-    z-index:0;
-    color:rgba(160,48,36,.12);
-    font:800 .72rem 'IBM Plex Sans',sans-serif;
-    letter-spacing:.18em;
-    transform:rotate(-2deg);
-    pointer-events:none;
-  }
-  .folder-paper .demo-view{ position:relative; z-index:1; height:100%; background:transparent; }
-  .demo-button{ background:#4c3d29; border-color:#4c3d29; }
-  .demo-button:hover{ background:#8f2e22; border-color:#8f2e22; }
-  .route-visual{ background:#e6d8b8; }
-  .word-cell,
-  .demo-select,
-  .demo-input,
-  .city-choice,
-  .word-result{ background:#fffaf0; }
-
-  .uml-view{
-    position:relative;
-    z-index:2;
-    height:100%;
-    min-height:0;
-    display:grid;
-    grid-template-rows:auto auto minmax(0,1fr);
-    gap:12px;
-    padding:22px;
-  }
-  .uml-view[hidden]{ display:none; }
-  .uml-document-header{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:24px;
-    padding-bottom:12px;
-    border-bottom:1px solid rgba(82,65,35,.2);
-  }
-  .uml-document-header h3{ margin:2px 0 5px; font:500 clamp(1.25rem,2.5vw,1.8rem) 'Fraunces',serif; }
-  .uml-document-header p{ margin:0; color:#655d50; font-size:.78rem; line-height:1.45; }
-  .uml-download{
-    flex:none;
-    display:inline-flex;
-    align-items:center;
-    min-height:39px;
-    padding:0 12px;
-    border:2px solid #9a3326;
-    color:#9a3326;
-    background:rgba(255,250,240,.6);
-    text-decoration:none;
-    font:800 .63rem 'IBM Plex Sans',sans-serif;
-    letter-spacing:.09em;
-    text-transform:uppercase;
-    transform:rotate(-1.5deg);
-  }
-  .uml-toolbar{
-    display:flex;
-    align-items:center;
-    justify-content:flex-end;
-    gap:6px;
-  }
-  .uml-toolbar button{
-    min-width:34px;
-    min-height:32px;
-    border:1px solid #9c824e;
-    background:#eadbb9;
-    color:#4c3d29;
-    font:700 .72rem 'IBM Plex Sans',sans-serif;
-    cursor:pointer;
-  }
-  .uml-toolbar output{ min-width:48px; text-align:center; color:#5d5547; font-size:.7rem; }
-  .uml-viewport{
-    min-height:0;
-    overflow:auto;
-    border:1px solid #b6a273;
-    background:
-      linear-gradient(rgba(255,255,255,.45),rgba(255,255,255,.45)),
-      #e9ddc3;
-    box-shadow:inset 0 0 24px rgba(75,57,27,.1);
-    cursor:grab;
-  }
-  .uml-viewport:active{ cursor:grabbing; }
-  .uml-viewport.dragging{ cursor:grabbing; user-select:none; }
-  .uml-viewport img{
-    display:block;
-    width:1120px;
-    max-width:none;
-    height:auto;
-    margin:18px auto;
-    background:#f4efe5;
-    box-shadow:0 5px 18px rgba(65,49,23,.12);
-    transition:width .18s ease;
-  }
-
-  @media (max-width:600px){
-    .project-demo-modal{ padding:22px 6px 7px; align-items:center; }
-    .project-demo-shell{ width:calc(100% - 8px); height:calc(100svh - 32px); }
-    .folder-tab-physical{ left:10px; top:-21px; height:23px; min-width:150px; padding:6px 12px 0; font-size:.52rem; }
-    .folder-cover::before{ inset:12px; }
-    .folder-cover-code{ top:32px; left:24px; font-size:.55rem; }
-    .folder-cover-lines{ right:24px; bottom:35px; width:145px; }
-    .demo-header{
-      grid-template-columns:minmax(0,1fr) auto;
-      gap:9px;
-      padding:11px 11px 9px;
-    }
-    .demo-heading h2{ font-size:1.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .demo-kicker{ font-size:.58rem; margin-bottom:3px; }
-    .dossier-tabs{ grid-column:1 / -1; grid-row:2; justify-content:flex-start; margin:0 0 -10px; }
-    .dossier-tab{ min-height:35px; padding:0 11px; font-size:.58rem; }
-    .demo-close{ grid-column:2; grid-row:1; width:36px; height:36px; }
-    .folder-paper{ min-height:0; }
-    .folder-paper .demo-view{ padding:17px 13px calc(22px + env(safe-area-inset-bottom,0px)); }
-    .uml-view{ padding:13px 10px calc(12px + env(safe-area-inset-bottom,0px)); gap:8px; }
-    .uml-document-header{ display:block; padding-bottom:8px; }
-    .uml-document-header h3{ font-size:1.18rem; }
-    .uml-document-header p{ font-size:.7rem; }
-    .uml-download{ min-height:34px; margin-top:9px; font-size:.56rem; }
-    .uml-toolbar{ justify-content:flex-start; }
-    .uml-viewport img{ width:960px; margin:10px; }
-  }
-  @media (prefers-reduced-motion:reduce){
-    .project-demo-modal.open .folder-cover{ animation:none; opacity:0; visibility:hidden; }
-    .project-demo-modal.open .demo-header,
-    .project-demo-modal.open .folder-paper{ animation:none; opacity:1; transform:none; }
-    .uml-viewport img{ transition:none; }
-  }
-
-  /* ---------- NARROW DESKTOP / TABLET ----------
-     Preserve the room composition in resized desktop windows. Phones still
-     use the purpose-built stacked layout below 600px. */
-  @media (min-width:601px) and (max-width:900px){
-    .room-title{ top:52%; }
-    .room-title h1{ font-size:clamp(2.65rem,7.5vw,4rem); white-space:nowrap; }
-    .painting{
-      top:50%;
-      max-height:58vh;
-      max-width:48vw;
-    }
-    .content-panel{
-      top:50%;
-      left:3.5vw;
-      right:auto;
-      bottom:auto;
-      width:min(320px,46vw);
-      max-width:none;
-      transform:translateY(-50%);
-      padding:1.35rem 1.25rem;
-      border-radius:2px;
-      box-shadow:0 9px 24px rgba(30,25,15,.10);
-    }
-    .content-panel h2{ font-size:clamp(1.35rem,3.5vw,1.8rem); }
-    .content-panel p{ font-size:.88rem; line-height:1.5; }
-    .scene-nav{ right:8px; gap:6px; }
-    .scene-nav a{ width:28px; height:28px; justify-content:center; padding:0; }
-
-    .gallery-wrap .content-panel{
-      top:50%; left:3vw; right:auto; bottom:auto;
-      width:min(290px,43vw);
-      padding:1.15rem 1.1rem;
-      transform:translateY(-50%);
-    }
-    .gallery-wrap .content-panel h2{ font-size:1.4rem; }
-    .gallery-wrap .content-panel p{ font-size:.82rem; line-height:1.45; }
-    .gallery-stage{
-      left:72%;
-      top:50%;
-      width:44vw;
-      height:68vh;
-      height:68svh;
-    }
-    .gallery-item{ width:min(38vw,300px); }
-    .gallery-item img{ max-height:58vh; max-height:58svh; }
-    .gallery-item.is-prev{ transform:translate(calc(-50% - 58px),-50%) scale(.88) rotate(-1deg); }
-    .gallery-item.is-next{ transform:translate(calc(-50% + 58px),-50%) scale(.89) rotate(1deg); }
-    .gallery-item.is-prev-2{ transform:translate(calc(-50% - 100px),-50%) scale(.76) rotate(-1.5deg); }
-    .gallery-item.is-next-2{ transform:translate(calc(-50% + 100px),-50%) scale(.77) rotate(1.5deg); }
-    .gallery-controls{ bottom:-28px; }
-
-    .project-demo-modal{ padding:32px 14px 14px; align-items:center; }
-    .project-demo-shell{
-      width:calc(100% - 16px);
-      height:min(720px,calc(100svh - 54px));
-    }
-    .folder-tab-physical{ left:18px; top:-25px; height:27px; min-width:185px; padding:7px 16px 0; }
-    .demo-header{
-      grid-template-columns:minmax(0,1fr) auto;
-      gap:10px;
-      padding:13px 15px 10px;
-    }
-    .demo-heading h2{ font-size:1.35rem; }
-    .dossier-tabs{
-      grid-column:1 / -1;
-      grid-row:2;
-      justify-content:flex-start;
-      margin:0 0 -11px;
-    }
-    .dossier-tab{ min-height:37px; padding:0 14px; font-size:.62rem; }
-    .demo-close{ grid-column:2; grid-row:1; width:38px; height:38px; }
-    .demo-view{ padding:20px 18px 24px; }
-    .demo-layout{ grid-template-columns:1fr; gap:24px; }
-    .demo-sidebar{ position:static; }
-    .edge-analysis{ grid-template-columns:1fr; }
-    .uml-view{ padding:16px; }
-    .uml-viewport img{ width:1050px; }
   }
 
   /* ---------- BOBA EASTER EGG (unchanged) ---------- */
@@ -1362,6 +1019,7 @@
     box-shadow: 0 2px 10px rgba(0,0,0,0.12);
   }
 </style>
+<link rel="stylesheet" href="raw-mobile.css">
 </head>
 <body>
 
@@ -1471,35 +1129,24 @@
 </div><!-- /.story -->
 
 <nav class="scene-nav" id="sceneNav" aria-label="Page sections">
-  <a href="#scene-about" data-i="0" aria-label="About"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-proj1" data-i="1" aria-label="Flight Optimizer"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-proj2" data-i="2" aria-label="WordHunt"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-sketchbook" data-i="3" aria-label="Sketchbook"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-resume" data-i="4" aria-label="Resume"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-contact" data-i="5" aria-label="Contact"><span class="scene-nav-dot" aria-hidden="true"></span></a>
+  <a href="#scene-about" data-i="0"><span class="scene-nav-dot" aria-hidden="true"></span><span class="scene-nav-label">About</span></a>
+  <a href="#scene-proj1" data-i="1"><span class="scene-nav-dot" aria-hidden="true"></span><span class="scene-nav-label">Flight Optimizer</span></a>
+  <a href="#scene-proj2" data-i="2"><span class="scene-nav-dot" aria-hidden="true"></span><span class="scene-nav-label">WordHunt</span></a>
+  <a href="#scene-sketchbook" data-i="3"><span class="scene-nav-dot" aria-hidden="true"></span><span class="scene-nav-label">Sketchbook</span></a>
+  <a href="#scene-resume" data-i="4"><span class="scene-nav-dot" aria-hidden="true"></span><span class="scene-nav-label">Resume</span></a>
+  <a href="#scene-contact" data-i="5"><span class="scene-nav-dot" aria-hidden="true"></span><span class="scene-nav-label">Contact</span></a>
 </nav>
 
 <div class="project-demo-modal" id="projectDemoModal" aria-hidden="true">
   <div class="project-demo-shell" role="dialog" aria-modal="true" aria-labelledby="projectDemoTitle">
-    <div class="folder-tab-physical" aria-hidden="true">AZ / CASE FILE</div>
-    <div class="folder-cover" aria-hidden="true">
-      <span class="folder-cover-code">PROJECT DOSSIER / EYES ONLY</span>
-      <strong>TOP SECRET</strong>
-      <span class="folder-cover-lines"></span>
-    </div>
     <header class="demo-header">
-      <div class="demo-heading">
-        <span class="demo-kicker">Declassified project dossier</span>
+      <div>
+        <span class="demo-kicker">Curated interactive demo</span>
         <h2 id="projectDemoTitle">Project demo</h2>
-      </div>
-      <div class="dossier-tabs" role="tablist" aria-label="Project dossier views">
-        <button class="dossier-tab active" id="interactiveDemoTab" type="button" role="tab" data-folder-pane="demo" aria-selected="true">Interactive Demo</button>
-        <button class="dossier-tab uml-tab" id="umlDiagramTab" type="button" role="tab" data-folder-pane="uml" aria-selected="false">UML Diagram</button>
       </div>
       <button class="demo-close" id="projectDemoClose" type="button" aria-label="Close project demo">&times;</button>
     </header>
 
-    <div class="folder-paper">
     <section class="demo-view" id="flightDemo" data-demo-view="flight" hidden>
       <div class="demo-layout">
         <aside class="demo-sidebar">
@@ -1572,27 +1219,6 @@
         </div>
       </div>
     </section>
-
-    <section class="uml-view" id="projectUmlView" hidden>
-      <div class="uml-document-header">
-        <div>
-          <span class="demo-kicker">System workflow / activity diagram</span>
-          <h3 id="projectUmlTitle">Project UML Diagram</h3>
-          <p>Use the controls to enlarge the diagram. The source file remains editable in diagrams.net.</p>
-        </div>
-        <a class="uml-download" id="projectUmlDownload" href="#" download>Download .drawio source</a>
-      </div>
-      <div class="uml-toolbar" aria-label="Diagram zoom controls">
-        <button type="button" id="umlZoomOut" aria-label="Zoom out">&minus;</button>
-        <output id="umlZoomLevel" aria-live="polite">100%</output>
-        <button type="button" id="umlZoomIn" aria-label="Zoom in">+</button>
-        <button type="button" id="umlZoomReset">Reset</button>
-      </div>
-      <div class="uml-viewport" id="projectUmlViewport" tabindex="0">
-        <img id="projectUmlImage" src="" alt="">
-      </div>
-    </section>
-    </div>
   </div>
 </div>
 
@@ -1606,26 +1232,25 @@
 <script>
 (function(){
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var mqPhone = window.matchMedia('(max-width:600px)');
-  var mqCompact = window.matchMedia('(min-width:601px) and (max-width:900px)');
+  /* Comparison build: deliberately keep desktop positioning on narrow screens. */
+  var mq800 = { matches:false, addEventListener:null };
 
   // ---- Single source of truth for scene count/timing, read straight off
   // the CSS custom properties instead of a duplicated JS magic number. ----
   var segLen = 1 / 6;
   var FOCUS_X_DESKTOP = 9; // vw offset so zoomed figure clears the left text panel
-  var FOCUS_X_COMPACT = 18; // narrow desktop keeps the side panel and shifts the active work right
-  var FOCUS_X_MOBILE = 0;   // phone panel sits below, not beside -- no offset needed
+  var FOCUS_X_MOBILE = 0;  // mobile panel sits below, not beside -- no offset needed
 
   // Desktop room coordinates -- UNCHANGED, pixel/vw-for-vw identical to before.
   var ambientFigures = [
     { el: document.getElementById('pFlag'), content: document.getElementById('cAbout'),
-      segIndex:0, room:{x:-36,y:0,s:1.02}, roomCompact:{x:-31,y:2,s:.86}, roomMobile:{x:0,y:-10,s:0.56} },
+      segIndex:0, room:{x:-36,y:0,s:1.02}, roomMobile:{x:0,y:-10,s:0.56} },
     { el: document.getElementById('pWeights'), content: document.getElementById('cProj1'),
-      segIndex:1, room:{x:20,y:-22,s:0.68}, roomCompact:{x:20,y:-23,s:.58}, roomMobile:{x:0,y:-10,s:0.42} },
+      segIndex:1, room:{x:20,y:-22,s:0.68}, roomMobile:{x:0,y:-10,s:0.42} },
     { el: document.getElementById('pFish'), content: document.getElementById('cProj2'),
-      segIndex:2, room:{x:-6,y:28,s:0.84}, roomCompact:{x:-4,y:28,s:.70}, roomMobile:{x:0,y:-10,s:0.48} },
+      segIndex:2, room:{x:-6,y:28,s:0.84}, roomMobile:{x:0,y:-10,s:0.48} },
     { el: document.getElementById('pDancer'), content: document.getElementById('cContact'),
-      segIndex:5, room:{x:27,y:12,s:1.2}, roomCompact:{x:28,y:10,s:.92}, roomMobile:{x:0,y:-10,s:0.6} }
+      segIndex:5, room:{x:27,y:12,s:1.2}, roomMobile:{x:0,y:-10,s:0.6} }
   ];
 
   var pDancer = document.getElementById('pDancer');
@@ -1654,8 +1279,8 @@
   // Decorative (non-scene) figures -- also get mobile-specific placement
   // so they can't collide with the now full-width mobile text panel.
   var decorativeFigures = [
-    { el: document.getElementById('pHat'), room:{x:-22,y:-20,s:0.68}, roomCompact:{x:-24,y:-25,s:.50}, roomMobile:{x:-22,y:-32,s:0.30} },
-    { el: document.getElementById('pDadChild'), room:{x:38,y:-8,s:0.58}, roomCompact:{x:35,y:-13,s:.43}, roomMobile:{x:24,y:-34,s:0.28} }
+    { el: document.getElementById('pHat'), room:{x:-22,y:-20,s:0.68}, roomMobile:{x:-22,y:-32,s:0.30} },
+    { el: document.getElementById('pDadChild'), room:{x:38,y:-8,s:0.58}, roomMobile:{x:24,y:-34,s:0.28} }
   ];
 
   var SHADOW = 'drop-shadow(0 20px 18px rgba(30,25,15,0.26))';
@@ -1748,9 +1373,8 @@
 
   function update(){
     var progress = getProgress();
-    var isMobile = mqPhone.matches;
-    var isCompact = mqCompact.matches;
-    var FOCUS_X = isMobile ? FOCUS_X_MOBILE : (isCompact ? FOCUS_X_COMPACT : FOCUS_X_DESKTOP);
+    var isMobile = mq800.matches;
+    var FOCUS_X = isMobile ? FOCUS_X_MOBILE : FOCUS_X_DESKTOP;
 
     var activeIndex = Math.min(5, Math.floor(progress / segLen));
 
@@ -1792,7 +1416,7 @@
     var whiteFactor = smoothstep(contactZoneStart - 0.02, contactZoneStart + 0.06, progress);
 
     ambientFigures.forEach(function(p){
-      var room = isMobile ? p.roomMobile : (isCompact ? p.roomCompact : p.room);
+      var room = isMobile ? p.roomMobile : p.room;
       var segStart = p.segIndex*segLen, segEnd = segStart+segLen;
       var scale, opacity, tx, ty, z, contentOpacity=0, blur=0;
 
@@ -1838,7 +1462,7 @@
       var focalScreenY = fishRect.top + fishRect.height*FISHBOWL_FOCUS_Y;
       var shiftX = (window.innerWidth/2 - focalScreenX) * portalIn;
       var shiftY = (window.innerHeight/2 - focalScreenY) * portalIn;
-      var portalScale = lerp(1, isMobile ? 7.2 : (isCompact ? 6.5 : 5.8), portalIn);
+      var portalScale = lerp(1, isMobile ? 7.2 : 5.8, portalIn);
       fishPortal.style.left = fishRect.left+'px';
       fishPortal.style.top = fishRect.top+'px';
       fishPortal.style.width = fishRect.width+'px';
@@ -1879,7 +1503,7 @@
     whiteOverlay.style.opacity = whiteFactor;
 
     decorativeFigures.forEach(function(p){
-      var room = isMobile ? p.roomMobile : (isCompact ? p.roomCompact : p.room);
+      var room = isMobile ? p.roomMobile : p.room;
       var opacity = 0.6 * ambientFade * roomVisibility;
       var blur = blurFor(room.s);
       p.el.style.transform = 'translate(-50%,-50%) translate(' + room.x + 'vw,' + room.y + 'vh) scale(' + room.s + ')';
@@ -1907,8 +1531,7 @@
   }
   window.addEventListener('scroll', onScroll, {passive:true});
   window.addEventListener('resize', onScroll);
-  if(mqPhone.addEventListener){ mqPhone.addEventListener('change', onScroll); }
-  if(mqCompact.addEventListener){ mqCompact.addEventListener('change', onScroll); }
+  if(mq800.addEventListener){ mq800.addEventListener('change', onScroll); }
   update();
 })();
 </script>
@@ -1921,44 +1544,44 @@
     {
       src:'images/wheel-floweraxe.jpg', width:579, height:900,
       alt:'Sketch of a figure reaching up with a flower',
-      title:'One of Us',
-      description:'When the axe came into the forest, the trees said, “The handle is one of us.”',
-      medium:'Company pen on company paper', year:''
+      title:'Reaching up',
+      description:'A quick study of a figure stretching toward a small bloom.',
+      medium:'Sketch study', year:''
     },
     {
       src:'images/wheel-girlshoulder.jpg', width:675, height:900,
       alt:'Sketch of a crouching figure',
-      title:'Eurydice',
-      description:'He doesn’t make the lover’s choice, but the poet’s.',
-      medium:'Company pen on company paper', year:''
+      title:'On all fours',
+      description:'A compact figure study built around weight, balance, and gesture.',
+      medium:'Sketch study', year:''
     },
     {
       src:'images/wheel-laptop.jpg', width:660, height:900,
       alt:'Sketch of a person sitting with a laptop',
-      title:'Solid State',
-      description:'A familiar posture.',
-      medium:'Company pen on company paper', year:''
+      title:'Working late',
+      description:'An observational sketch of a quiet, familiar working posture.',
+      medium:'Sketch study', year:''
     },
     {
       src:'images/wheel-somber.jpg', width:675, height:900,
       alt:'Cross-hatched sketch of a seated figure',
-      title:'Ego N',
-      description:'',
-      medium:'Company pen on company paper', year:''
+      title:'Heavy thoughts',
+      description:'Cross-hatching gives a seated pose a denser, more reflective mood.',
+      medium:'Cross-hatched study', year:''
     },
     {
       src:'images/wheel-ricesack.jpg', width:660, height:900,
       alt:'Sketch of a figure carrying a sack over one shoulder',
-      title:'Untitled',
-      description:'But how could you live and have no story to tell?',
-      medium:'Company pen on company paper', year:''
+      title:'Carrying the load',
+      description:'A gestural study of effort, imbalance, and forward movement.',
+      medium:'Sketch study', year:''
     },
     {
       src:'images/wheel-buckets.jpg', width:731, height:900,
       alt:'Sketch of a figure carrying two buckets on a shoulder bar',
-      title:'Untitled',
-      description:'What is hell? I maintain that it is the suffering of being unable to love.',
-      medium:'Company pen on company paper', year:''
+      title:'Balancing act',
+      description:'A figure study organized around the tension of a weighted shoulder bar.',
+      medium:'Sketch study', year:''
     }
   ];
 

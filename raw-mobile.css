@@ -1,0 +1,110 @@
+/*
+  Deliberately unoptimized mobile comparison.
+  This restores the desktop presentation below 800px so the original spatial
+  composition can be judged on a phone without changing the production page.
+*/
+@media (max-width:800px){
+  .painting{
+    top:50%;
+    max-height:66vh;
+    max-width:42vw;
+  }
+  .content-panel{
+    top:50%;
+    left:6vw;
+    right:auto;
+    bottom:auto;
+    transform:translateY(-50%);
+    width:340px;
+    max-width:80vw;
+    padding:1.9rem 1.7rem;
+    border-radius:2px;
+    box-shadow:0 10px 28px rgba(30,25,15,.10);
+  }
+  .scene-nav{
+    left:auto;
+    right:20px;
+    top:50%;
+    bottom:auto;
+    transform:translateY(-50%);
+    flex-direction:column;
+    justify-content:flex-start;
+    gap:8px;
+    padding:0;
+    border-top:0;
+    background:transparent;
+    z-index:70;
+  }
+  .scene-nav a{
+    flex:0 0 auto;
+    flex-direction:row;
+    justify-content:flex-end;
+    gap:10px;
+    height:32px;
+    padding:0 6px;
+  }
+  .scene-nav-label{
+    max-width:0;
+    opacity:0;
+    overflow:hidden;
+    font-size:.78rem;
+    line-height:normal;
+    text-align:left;
+    white-space:nowrap;
+  }
+  .scene-nav a[aria-current="true"] .scene-nav-label{
+    max-width:160px;
+    opacity:1;
+  }
+  .stage{ padding-bottom:0; }
+
+  .gallery-wrap .content-panel{
+    top:50%;
+    left:6vw;
+    right:auto;
+    bottom:auto;
+    width:340px;
+    max-width:80vw;
+    padding:1.9rem 1.7rem;
+    transform:translateY(-50%);
+    box-shadow:0 10px 28px rgba(30,25,15,.10);
+  }
+  .gallery-wrap .content-panel p{ font-size:.95rem; line-height:1.6; margin-bottom:10px; }
+  .gallery-wrap .content-panel h2{ font-size:clamp(1.4rem,3vw,2rem); margin-bottom:10px; }
+  .gallery-wrap .eyebrow{ margin-bottom:10px; }
+  .gallery-wrap .meta-line{ margin-top:12px; padding-top:10px; }
+  .gallery-stage{
+    left:56%;
+    top:50%;
+    width:min(44vw,600px);
+    height:min(78vh,720px);
+  }
+  .gallery-item{ width:clamp(280px,31vw,460px); padding:8px; }
+  .gallery-item img{ max-height:70vh; }
+  .gallery-controls{ bottom:-44px; }
+
+  .project-demo-trigger{ min-height:42px; margin-top:16px; }
+  .project-demo-modal{
+    padding:clamp(14px,3vw,42px);
+    align-items:center;
+  }
+  .project-demo-shell{
+    width:min(1120px,96vw);
+    height:min(760px,92svh);
+  }
+  .demo-header{ padding:20px 24px 18px; }
+  .demo-close{ width:44px; height:44px; }
+  .demo-view{ padding:clamp(18px,3vw,34px); }
+  .demo-layout{
+    grid-template-columns:minmax(240px,.72fr) minmax(0,1.45fr);
+    gap:clamp(22px,4vw,50px);
+  }
+  .demo-sidebar{ position:sticky; }
+  .wordhunt-workspace{
+    grid-template-columns:minmax(230px,.8fr) minmax(250px,1.1fr);
+  }
+  .word-grid{ width:min(100%,390px); margin:0; }
+  .route-option{ grid-template-columns:minmax(130px,1fr) repeat(3,minmax(68px,.45fr)); }
+  .route-option .route-duration{ display:block; }
+  .edge-analysis{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}

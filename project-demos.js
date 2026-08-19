@@ -63,10 +63,10 @@
       },
       {
         id:'flight-grid', label:'Flight grid',
-        letters:['F','L','I','G','A','H','T','S','R','O','U','T','E','C','I','E'],
+        letters:['F','L','I','G','A','T','H','S','R','O','U','T','E','C','I','E'],
         candidates:4456, pruneRatio:.165, recall:.905, runtime:126,
         words:[
-          { word:'FLIGHT', confidence:.95, path:[0,1,2,3,5,6] },
+          { word:'FLIGHT', confidence:.95, path:[0,1,2,3,6,5] },
           { word:'ROUTE', confidence:.94, path:[8,9,10,11,15] },
           { word:'FARE', confidence:.89, path:[0,4,8,12] }
         ]
@@ -81,8 +81,34 @@
   var closeButton = document.getElementById('projectDemoClose');
   var triggers = document.querySelectorAll('.project-demo-trigger');
   var views = document.querySelectorAll('[data-demo-view]');
+  var folderTabs = document.querySelectorAll('[data-folder-pane]');
+  var umlView = document.getElementById('projectUmlView');
+  var umlTitle = document.getElementById('projectUmlTitle');
+  var umlImage = document.getElementById('projectUmlImage');
+  var umlDownload = document.getElementById('projectUmlDownload');
+  var umlViewport = document.getElementById('projectUmlViewport');
+  var umlZoomOut = document.getElementById('umlZoomOut');
+  var umlZoomIn = document.getElementById('umlZoomIn');
+  var umlZoomReset = document.getElementById('umlZoomReset');
+  var umlZoomLevel = document.getElementById('umlZoomLevel');
   var lastTrigger = null;
   var activeDemo = null;
+  var activeFolderPane = 'demo';
+  var umlZoom = 1;
+  var umlAssets = {
+    flight: {
+      title:'Flight Arbitrage Optimizer UML',
+      image:'uml/flight-arbitrage-workflow.svg',
+      source:'uml/flight-arbitrage-workflow.drawio',
+      alt:'UML activity workflow for the Flight Arbitrage Optimizer, from trip inputs through directional fare comparison, conflict resolution, middle-city testing, and the final itinerary.'
+    },
+    wordhunt: {
+      title:'WordHunt Neural Solver UML',
+      image:'uml/wordhunt-neural-solver-workflow.svg',
+      source:'uml/wordhunt-neural-solver-workflow.drawio',
+      alt:'UML activity workflow for the WordHunt Neural Solver, showing offline model training and the runtime board-search and pruning process.'
+    }
+  };
 
   function escapeHtml(value){
     return String(value).replace(/[&<>'"]/g,function(character){
@@ -97,18 +123,60 @@
     return whole+'h '+String(minutes).padStart(2,'0')+'m';
   }
 
+  function configureUml(name){
+    var asset = umlAssets[name];
+    if(!asset) return;
+    umlTitle.textContent = asset.title;
+    umlImage.src = asset.image;
+    umlImage.alt = asset.alt;
+    umlDownload.href = asset.source;
+    umlDownload.setAttribute('download',asset.source.split('/').pop());
+  }
+
+  function setUmlZoom(value){
+    umlZoom = clamp(.55,1.8,value);
+    var baseWidth = window.innerWidth <= 600 ? 960 : (window.innerWidth <= 900 ? 1050 : 1120);
+    umlImage.style.width = Math.round(baseWidth*umlZoom)+'px';
+    umlZoomLevel.textContent = Math.round(umlZoom*100)+'%';
+  }
+
+  function showFolderPane(pane,focusTab){
+    activeFolderPane = pane === 'uml' ? 'uml' : 'demo';
+    views.forEach(function(view){
+      view.hidden = activeFolderPane !== 'demo' || view.getAttribute('data-demo-view') !== activeDemo;
+    });
+    umlView.hidden = activeFolderPane !== 'uml';
+    folderTabs.forEach(function(tab){
+      var selected = tab.getAttribute('data-folder-pane') === activeFolderPane;
+      tab.classList.toggle('active',selected);
+      tab.setAttribute('aria-selected',selected ? 'true' : 'false');
+      tab.tabIndex = selected ? 0 : -1;
+      if(selected && focusTab) tab.focus();
+    });
+    if(activeFolderPane === 'uml'){
+      setUmlZoom(1);
+      window.requestAnimationFrame(function(){
+        umlViewport.scrollLeft = 0;
+        umlViewport.scrollTop = 0;
+      });
+    }
+  }
+
   function openDemo(name,trigger){
     activeDemo = name;
     lastTrigger = trigger;
-    views.forEach(function(view){ view.hidden = view.getAttribute('data-demo-view') !== name; });
+    configureUml(name);
+    showFolderPane('demo',false);
     modalTitle.textContent = name === 'flight' ? 'Flight Arbitrage Optimizer' : 'WordHunt Neural Solver';
+    modal.classList.remove('open');
+    void modal.offsetWidth;
     modal.classList.add('open');
     modal.setAttribute('aria-hidden','false');
     document.documentElement.classList.add('project-demo-open');
     document.body.classList.add('project-demo-open');
     if(name === 'flight'){ initializeFlight(); }
     if(name === 'wordhunt'){ initializeWordhunt(); }
-    window.setTimeout(function(){ closeButton.focus(); }, reducedMotion ? 0 : 180);
+    window.setTimeout(function(){ closeButton.focus(); }, reducedMotion ? 0 : 850);
   }
 
   function closeDemo(){
@@ -124,6 +192,35 @@
   triggers.forEach(function(trigger){
     trigger.addEventListener('click',function(){ openDemo(trigger.getAttribute('data-demo'),trigger); });
   });
+  folderTabs.forEach(function(tab,index){
+    tab.addEventListener('click',function(){ showFolderPane(tab.getAttribute('data-folder-pane'),false); });
+    tab.addEventListener('keydown',function(event){
+      if(event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      event.preventDefault();
+      var direction = event.key === 'ArrowRight' ? 1 : -1;
+      var next = (index+direction+folderTabs.length)%folderTabs.length;
+      showFolderPane(folderTabs[next].getAttribute('data-folder-pane'),true);
+    });
+  });
+  umlZoomOut.addEventListener('click',function(){ setUmlZoom(umlZoom-.15); });
+  umlZoomIn.addEventListener('click',function(){ setUmlZoom(umlZoom+.15); });
+  umlZoomReset.addEventListener('click',function(){ setUmlZoom(1); });
+
+  var umlDrag = null;
+  umlViewport.addEventListener('pointerdown',function(event){
+    if(event.button !== 0) return;
+    umlDrag = {x:event.clientX,y:event.clientY,left:umlViewport.scrollLeft,top:umlViewport.scrollTop};
+    umlViewport.classList.add('dragging');
+    umlViewport.setPointerCapture(event.pointerId);
+  });
+  umlViewport.addEventListener('pointermove',function(event){
+    if(!umlDrag) return;
+    umlViewport.scrollLeft = umlDrag.left-(event.clientX-umlDrag.x);
+    umlViewport.scrollTop = umlDrag.top-(event.clientY-umlDrag.y);
+  });
+  function stopUmlDrag(){ umlDrag = null; umlViewport.classList.remove('dragging'); }
+  umlViewport.addEventListener('pointerup',stopUmlDrag);
+  umlViewport.addEventListener('pointercancel',stopUmlDrag);
   closeButton.addEventListener('click',closeDemo);
   modal.addEventListener('click',function(event){ if(event.target === modal) closeDemo(); });
   modal.addEventListener('keydown',function(event){

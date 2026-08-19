@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1540" role="img" aria-labelledby="title desc">
+  <title id="title">Flight Arbitrage Optimizer UML activity workflow</title>
+  <desc id="desc">Directional flight fares are ranked independently, conflicts are resolved, boundaries are selected, and a third city is inserted.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#3d3933"/></marker>
+    <style>
+      .title{font:700 28px Arial,sans-serif;fill:#201d18}.lane{font:700 13px Arial,sans-serif;letter-spacing:2px;fill:#8d2d1f}.body{font:500 17px Arial,sans-serif;fill:#201d18}.small{font:500 14px Arial,sans-serif;fill:#5d574d}.edge{fill:none;stroke:#3d3933;stroke-width:2;marker-end:url(#arrow)}.dash{stroke-dasharray:8 7}.box{fill:#faf7f0;stroke:#6b6455;stroke-width:2}.blue{fill:#e8f1fb;stroke:#2a78d6}.green{fill:#edf6ed;stroke:#4f8a4f}.red{fill:#fce8e6;stroke:#b23a26}.decision{fill:#fff3cd;stroke:#b58b00;stroke-width:2}.label{font:700 14px Arial,sans-serif;fill:#8d2d1f}.final{fill:#b23a26;stroke:#7a281b;stroke-width:3}.white{fill:#fff;font:700 17px Arial,sans-serif}.note{fill:#fff8e8;stroke:#b58b00;stroke-width:2}
+    </style>
+  </defs>
+  <rect width="1400" height="1540" fill="#f4efe5"/>
+  <text class="title" x="700" y="48" text-anchor="middle">Flight Arbitrage Optimizer &#8212; Activity Workflow</text>
+
+  <ellipse class="box" cx="700" cy="100" rx="60" ry="30"/>
+  <text class="body" x="700" y="106" text-anchor="middle">Start</text>
+  <path class="edge" d="M700 130 V165"/>
+
+  <rect class="box" x="485" y="165" width="430" height="78" rx="12"/>
+  <text class="body" x="700" y="196" text-anchor="middle"><tspan x="700">Enter dates, home airport, and at least</tspan><tspan x="700" dy="23">three candidate cities</tspan></text>
+  <path class="edge" d="M700 243 V279"/>
+
+  <path class="decision" d="M700 279 L820 344 L700 409 L580 344 Z"/>
+  <text class="body" x="700" y="339" text-anchor="middle"><tspan x="700">Valid dates and</tspan><tspan x="700" dy="22">city count?</tspan></text>
+  <text class="label" x="832" y="329">NO</text>
+  <path class="edge" d="M820 344 H1020"/>
+  <rect class="red" x="1020" y="305" width="250" height="78" rx="12"/>
+  <text class="body" x="1145" y="338" text-anchor="middle"><tspan x="1145">Show validation</tspan><tspan x="1145" dy="22">message</tspan></text>
+  <path class="edge dash" d="M1145 305 V204 H915"/>
+  <text class="label" x="714" y="434">YES</text>
+  <path class="edge" d="M700 409 V457"/>
+
+  <rect class="blue" x="490" y="457" width="420" height="78" rx="12"/>
+  <text class="body" x="700" y="489" text-anchor="middle"><tspan x="700">Load directional fare snapshot</tspan><tspan x="700" dy="23">for the selected date window</tspan></text>
+  <path class="edge" d="M700 535 V578"/>
+  <rect x="300" y="578" width="800" height="8" fill="#201d18"/>
+
+  <path class="edge" d="M430 586 V625"/>
+  <path class="edge" d="M970 586 V625"/>
+  <rect class="green" x="255" y="625" width="350" height="88" rx="12"/>
+  <text class="body" x="430" y="657" text-anchor="middle"><tspan x="430">Price outbound edges</tspan><tspan x="430" dy="23">Home &#8594; each candidate city</tspan></text>
+  <rect class="green" x="795" y="625" width="350" height="88" rx="12"/>
+  <text class="body" x="970" y="657" text-anchor="middle"><tspan x="970">Price return edges</tspan><tspan x="970" dy="23">Each candidate city &#8594; Home</tspan></text>
+
+  <path class="edge" d="M430 713 V755"/>
+  <path class="edge" d="M970 713 V755"/>
+  <rect class="box" x="255" y="755" width="350" height="82" rx="12"/>
+  <text class="body" x="430" y="787" text-anchor="middle"><tspan x="430">Sort ascending</tspan><tspan x="430" dy="23">Keep cheapest two outbound</tspan></text>
+  <rect class="box" x="795" y="755" width="350" height="82" rx="12"/>
+  <text class="body" x="970" y="787" text-anchor="middle"><tspan x="970">Sort ascending</tspan><tspan x="970" dy="23">Keep cheapest two returns</tspan></text>
+  <path class="edge" d="M430 837 V875"/>
+  <path class="edge" d="M970 837 V875"/>
+  <rect x="300" y="875" width="800" height="8" fill="#201d18"/>
+  <path class="edge" d="M700 883 V918"/>
+
+  <path class="decision" d="M700 918 L835 990 L700 1062 L565 990 Z"/>
+  <text class="body" x="700" y="981" text-anchor="middle"><tspan x="700">Same city in both</tspan><tspan x="700" dy="22">top-two lists?</tspan></text>
+  <text class="label" x="515" y="975">YES</text>
+  <path class="edge" d="M565 990 H330 V1080"/>
+  <rect class="red" x="170" y="1080" width="320" height="98" rx="12"/>
+  <text class="body" x="330" y="1112" text-anchor="middle"><tspan x="330">Keep the cheaper direction</tspan><tspan x="330" dy="23">Block the opposing edge</tspan><tspan class="small" x="330" dy="21">Example: block EWR &#8594; HKG</tspan></text>
+  <text class="label" x="850" y="975">NO</text>
+
+  <path class="edge" d="M700 1062 V1125"/>
+  <path class="edge" d="M490 1129 H515"/>
+  <rect class="blue" x="515" y="1090" width="370" height="82" rx="12"/>
+  <text class="body" x="700" y="1122" text-anchor="middle"><tspan x="700">Generate valid boundary pairs</tspan><tspan x="700" dy="23">Home &#8594; A and B &#8594; Home; A &#8800; B</tspan></text>
+  <path class="edge" d="M700 1172 V1210"/>
+
+  <rect class="green" x="515" y="1210" width="370" height="78" rx="12"/>
+  <text class="body" x="700" y="1242" text-anchor="middle"><tspan x="700">Choose the lowest-cost</tspan><tspan x="700" dy="23">valid boundary pair</tspan></text>
+  <path class="edge" d="M700 1288 V1325"/>
+  <rect class="box" x="500" y="1325" width="400" height="82" rx="12"/>
+  <text class="body" x="700" y="1357" text-anchor="middle"><tspan x="700">For every remaining city C, price</tspan><tspan x="700" dy="23">A &#8594; C + C &#8594; B</tspan></text>
+  <path class="edge" d="M700 1407 V1440"/>
+
+  <rect class="final" x="455" y="1440" width="490" height="78" rx="12"/>
+  <text class="white" x="700" y="1470" text-anchor="middle"><tspan x="700">Return Home &#8594; A &#8594; C &#8594; B &#8594; Home</tspan><tspan x="700" dy="24">with the lowest directional fare total</tspan></text>
+
+  <path class="note" d="M1000 1090 H1280 V1300 H1000 Z M1240 1090 V1130 H1280"/>
+  <text class="lane" x="1025" y="1125">EXAMPLE TRACE</text>
+  <text class="small" x="1025" y="1160"><tspan x="1025">EWR &#8594; KIX &#8594; TPE</tspan><tspan x="1025" dy="22">&#8594; HKG &#8594; EWR</tspan><tspan x="1025" dy="32">Outbound: KIX, HKG</tspan><tspan x="1025" dy="22">Return: HKG, PVG</tspan><tspan x="1025" dy="22">Middle winner: TPE</tspan></text>
+</svg>
