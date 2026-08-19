@@ -214,7 +214,9 @@
     transform:scale(1.3);
     color:var(--brick);
   }
-  @media (max-width:600px){
+  @media (max-width:600px),
+         (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
+    .room-title{ top:54%; }
     .painting{
       top:36%;
       max-height:38vh;
@@ -455,7 +457,8 @@
     clip-path:inset(50%);
   }
 
-  @media (max-width:600px){
+  @media (max-width:600px),
+         (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
     .gallery-wrap .content-panel{
       top:5%;
       left:6vw;
@@ -473,18 +476,24 @@
     .gallery-wrap .meta-line{ margin-top:7px; padding-top:7px; }
     .gallery-stage{
       left:50%;
-      top:62%;
-      width:86vw;
-      height:42vh;
-      height:42svh;
+      top:63%;
+      width:90vw;
+      height:50vh;
+      height:50svh;
     }
-    .gallery-item{ width:min(58vw,240px); padding:6px; }
+    .gallery-item{ width:min(62vw,260px); padding:6px; }
     .gallery-item img{ max-height:34vh; max-height:34svh; }
     .gallery-item.is-prev{ transform:translate(calc(-50% - 38px),-50%) scale(.9) rotate(-1deg); }
     .gallery-item.is-next{ transform:translate(calc(-50% + 38px),-50%) scale(.91) rotate(1deg); }
     .gallery-item.is-prev-2{ transform:translate(calc(-50% - 70px),-50%) scale(.78) rotate(-1.5deg); }
     .gallery-item.is-next-2{ transform:translate(calc(-50% + 70px),-50%) scale(.79) rotate(1.5deg); }
-    .gallery-controls{ bottom:-7px; }
+    .gallery-controls{
+      bottom:2px;
+      gap:22px;
+      padding:6px 12px;
+      background:rgba(18,18,16,.82);
+      border:1px solid rgba(255,255,255,.10);
+    }
   }
   @media (prefers-reduced-motion:reduce){
     .fish-portal,
@@ -920,7 +929,8 @@
   .word-result.active{ border-color:var(--brick); color:var(--brick); }
   .demo-status{ min-height:1.4em; margin:0; color:#625b50; font-size:.76rem; line-height:1.4; }
 
-  @media (max-width:600px){
+  @media (max-width:600px),
+         (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
     .project-demo-trigger{ min-height:36px; margin-top:8px; }
     .project-demo-modal{ padding:0; align-items:stretch; }
     .project-demo-shell{ width:100%; height:100svh; }
@@ -1208,7 +1218,8 @@
     transition:width .18s ease;
   }
 
-  @media (max-width:600px){
+  @media (max-width:600px),
+         (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
     .project-demo-modal{ padding:22px 6px 7px; align-items:center; }
     .project-demo-shell{ width:calc(100% - 8px); height:calc(100svh - 32px); }
     .folder-tab-physical{ left:10px; top:-21px; height:23px; min-width:150px; padding:6px 12px 0; font-size:.52rem; }
@@ -1245,7 +1256,7 @@
   /* ---------- NARROW DESKTOP / TABLET ----------
      Preserve the room composition in resized desktop windows. Phones still
      use the purpose-built stacked layout below 600px. */
-  @media (min-width:601px) and (max-width:900px){
+  @media (min-width:601px) and (max-width:900px) and (hover:hover) and (pointer:fine){
     .room-title{ top:52%; }
     .room-title h1{ font-size:clamp(2.65rem,7.5vw,4rem); white-space:nowrap; }
     .painting{
@@ -1607,6 +1618,7 @@
 (function(){
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mqPhone = window.matchMedia('(max-width:600px)');
+  var mqTouchPortrait = window.matchMedia('(max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait)');
   var mqCompact = window.matchMedia('(min-width:601px) and (max-width:900px)');
 
   // ---- Single source of truth for scene count/timing, read straight off
@@ -1619,13 +1631,13 @@
   // Desktop room coordinates -- UNCHANGED, pixel/vw-for-vw identical to before.
   var ambientFigures = [
     { el: document.getElementById('pFlag'), content: document.getElementById('cAbout'),
-      segIndex:0, room:{x:-36,y:0,s:1.02}, roomCompact:{x:-31,y:2,s:.86}, roomMobile:{x:0,y:-10,s:0.56} },
+      segIndex:0, room:{x:-36,y:0,s:1.02}, roomCompact:{x:-31,y:2,s:.86}, roomMobile:{x:-23,y:-1,s:.44} },
     { el: document.getElementById('pWeights'), content: document.getElementById('cProj1'),
-      segIndex:1, room:{x:20,y:-22,s:0.68}, roomCompact:{x:20,y:-23,s:.58}, roomMobile:{x:0,y:-10,s:0.42} },
+      segIndex:1, room:{x:20,y:-22,s:0.68}, roomCompact:{x:20,y:-23,s:.58}, roomMobile:{x:20,y:-22,s:.33} },
     { el: document.getElementById('pFish'), content: document.getElementById('cProj2'),
-      segIndex:2, room:{x:-6,y:28,s:0.84}, roomCompact:{x:-4,y:28,s:.70}, roomMobile:{x:0,y:-10,s:0.48} },
+      segIndex:2, room:{x:-6,y:28,s:0.84}, roomCompact:{x:-4,y:28,s:.70}, roomMobile:{x:-17,y:24,s:.36} },
     { el: document.getElementById('pDancer'), content: document.getElementById('cContact'),
-      segIndex:5, room:{x:27,y:12,s:1.2}, roomCompact:{x:28,y:10,s:.92}, roomMobile:{x:0,y:-10,s:0.6} }
+      segIndex:5, room:{x:27,y:12,s:1.2}, roomCompact:{x:28,y:10,s:.92}, roomMobile:{x:18,y:22,s:.42} }
   ];
 
   var pDancer = document.getElementById('pDancer');
@@ -1654,8 +1666,8 @@
   // Decorative (non-scene) figures -- also get mobile-specific placement
   // so they can't collide with the now full-width mobile text panel.
   var decorativeFigures = [
-    { el: document.getElementById('pHat'), room:{x:-22,y:-20,s:0.68}, roomCompact:{x:-24,y:-25,s:.50}, roomMobile:{x:-22,y:-32,s:0.30} },
-    { el: document.getElementById('pDadChild'), room:{x:38,y:-8,s:0.58}, roomCompact:{x:35,y:-13,s:.43}, roomMobile:{x:24,y:-34,s:0.28} }
+    { el: document.getElementById('pHat'), room:{x:-22,y:-20,s:0.68}, roomCompact:{x:-24,y:-25,s:.50}, roomMobile:{x:-23,y:-27,s:.27} },
+    { el: document.getElementById('pDadChild'), room:{x:38,y:-8,s:0.58}, roomCompact:{x:35,y:-13,s:.43}, roomMobile:{x:26,y:-18,s:.24} }
   ];
 
   var SHADOW = 'drop-shadow(0 20px 18px rgba(30,25,15,0.26))';
@@ -1748,8 +1760,8 @@
 
   function update(){
     var progress = getProgress();
-    var isMobile = mqPhone.matches;
-    var isCompact = mqCompact.matches;
+    var isMobile = mqPhone.matches || mqTouchPortrait.matches;
+    var isCompact = !isMobile && mqCompact.matches;
     var FOCUS_X = isMobile ? FOCUS_X_MOBILE : (isCompact ? FOCUS_X_COMPACT : FOCUS_X_DESKTOP);
 
     var activeIndex = Math.min(5, Math.floor(progress / segLen));
@@ -1908,6 +1920,7 @@
   window.addEventListener('scroll', onScroll, {passive:true});
   window.addEventListener('resize', onScroll);
   if(mqPhone.addEventListener){ mqPhone.addEventListener('change', onScroll); }
+  if(mqTouchPortrait.addEventListener){ mqTouchPortrait.addEventListener('change', onScroll); }
   if(mqCompact.addEventListener){ mqCompact.addEventListener('change', onScroll); }
   update();
 })();
@@ -2098,6 +2111,23 @@
     return true;
   }
 
+  function stepGallery(direction){
+    var touchPortrait = window.matchMedia('(max-width:600px), (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait)').matches;
+    if(!touchPortrait){
+      select(activeIndex+direction,true);
+      return;
+    }
+    var target = modulo(activeIndex+direction,galleryWorks.length);
+    forcedTarget = null;
+    velocity = 0;
+    position += circularDistance(target,position);
+    activeIndex = target;
+    pendingAnnouncement = false;
+    layout();
+    renderPosition();
+    updateCopy(true);
+  }
+
   function tick(now){
     var frameScale = Math.min(2,(now-lastFrame)/16.667 || 1);
     lastFrame = now;
@@ -2138,8 +2168,8 @@
     requestAnimationFrame(tick);
   }
 
-  prevButton.addEventListener('click', function(){ select(activeIndex-1, true); });
-  nextButton.addEventListener('click', function(){ select(activeIndex+1, true); });
+  prevButton.addEventListener('click', function(){ stepGallery(-1); });
+  nextButton.addEventListener('click', function(){ stepGallery(1); });
 
   galleryStage.addEventListener('keydown', function(e){
     if(e.key === 'ArrowLeft'){
