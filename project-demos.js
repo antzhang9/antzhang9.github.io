@@ -252,6 +252,9 @@
   var flightSummary = document.getElementById('flightSummary');
   var flightAnalysis = document.getElementById('flightAnalysis');
   var flightStatus = document.getElementById('flightStatus');
+  var flightDateError = document.getElementById('flightDateError');
+  var flightDateErrorText = document.getElementById('flightDateErrorText');
+  var flightDateSwap = document.getElementById('flightDateSwap');
   var flightTimer = null;
 
   function flightCity(code){
@@ -260,24 +263,65 @@
   function selectedFlightCities(){
     return Array.prototype.slice.call(flightCities.querySelectorAll('input:checked')).map(function(input){ return input.value; });
   }
-  function getDateWindow(){
+  function formatDateHuman(d){
+    return new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric'}).format(d);
+  }
+  function clearDateError(){
+    flightDateError.hidden = true;
+    flightDateSwap.hidden = true;
+    flightStartDate.classList.remove('field-invalid');
+    flightEndDate.classList.remove('field-invalid');
+    flightStartDate.removeAttribute('aria-invalid');
+    flightEndDate.removeAttribute('aria-invalid');
+  }
+  function showDateError(message, field, offerSwap){
+    flightDateErrorText.textContent = message;
+    flightDateError.hidden = false;
+    flightDateSwap.hidden = !offerSwap;
+    flightStartDate.classList.remove('field-invalid');
+    flightEndDate.classList.remove('field-invalid');
+    flightStartDate.removeAttribute('aria-invalid');
+    flightEndDate.removeAttribute('aria-invalid');
+    if(field){ field.classList.add('field-invalid'); field.setAttribute('aria-invalid','true'); }
+  }
+  // Precise, close-to-the-source validation: each actual cause gets its own
+  // plain-language message and highlights the specific field at fault,
+  // instead of one generic message for four different problems.
+  function validateDates(){
+    if(!flightStartDate.value){
+      showDateError('Add a departure date to continue.', flightStartDate, false);
+      return null;
+    }
+    if(!flightEndDate.value){
+      showDateError('Add a return date to continue.', flightEndDate, false);
+      return null;
+    }
     var start = new Date(flightStartDate.value+'T12:00:00');
     var end = new Date(flightEndDate.value+'T12:00:00');
-    if(!flightStartDate.value || !flightEndDate.value || isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) return null;
+    if(isNaN(start.getTime()) || isNaN(end.getTime())){
+      showDateError('That date isn\u2019t complete yet \u2014 pick a day from the calendar.', null, false);
+      return null;
+    }
+    if(end <= start){
+      showDateError('Return date needs to be after '+formatDateHuman(start)+'.', flightEndDate, true);
+      return null;
+    }
+    clearDateError();
     var days = Math.round((end-start)/86400000);
     var peakMonth = [5,6,11].indexOf(start.getMonth()) >= 0 ? .06 : 0;
     return { start:start, end:end, days:days, factor:1+Math.abs(days-9)*.008+peakMonth };
   }
+  function getDateWindow(){ return validateDates(); }
   function dateAdjusted(price,dateWindow){ return Math.round(price*dateWindow.factor); }
   function formatDateRange(dateWindow){
     var format = new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric'});
     return format.format(dateWindow.start)+' - '+format.format(dateWindow.end);
   }
   function computeFlightArbitrage(){
-    var dateWindow = getDateWindow();
+    var dateWindow = validateDates();
     var codes = selectedFlightCities();
-    if(!dateWindow) return {error:'Choose a return date after the departure date.'};
-    if(codes.length < 3) return {error:'Choose at least three candidate cities so a middle insertion can be tested.'};
+    if(!dateWindow) return {error:true, silent:true};
+    if(codes.length < 3) return {error:'Choose at least three candidate cities \u2014 you\u2019ve selected '+codes.length+'.'};
     var home = flightHome.value;
     var homePrices = data.flights.homeEdges[home];
     var outbound = codes.map(function(code){
@@ -335,7 +379,7 @@
     }).join('')+'</div>';
   }
   function renderFlight(result){
-    if(result.error){ flightStatus.textContent = result.error; return false; }
+    if(result.error){ if(!result.silent){ flightStatus.textContent = result.error; } return false; }
     var pathCodes = [result.home,result.boundary.outbound.to,result.middle.city,result.boundary.inbound.from,result.home];
     var airports = pathCodes.map(function(code){
       var city = code === result.home
@@ -405,8 +449,15 @@
       label.innerHTML = '<input type="checkbox" value="'+escapeHtml(city.code)+'" checked><span><strong>'+escapeHtml(city.city)+'</strong><small>'+escapeHtml(city.code)+'</small></span>';
       flightCities.appendChild(label);
     });
-    [flightStartDate,flightEndDate,flightHome].forEach(function(input){
-      input.addEventListener('change',function(){ flightStatus.textContent = 'Inputs changed. Run the edge search to recalculate the path.'; });
+    flightStartDate.addEventListener('change',function(){ validateDates(); flightStatus.textContent = 'Inputs changed. Run the edge search to recalculate the path.'; });
+    flightEndDate.addEventListener('change',function(){ validateDates(); flightStatus.textContent = 'Inputs changed. Run the edge search to recalculate the path.'; });
+    flightHome.addEventListener('change',function(){ flightStatus.textContent = 'Inputs changed. Run the edge search to recalculate the path.'; });
+    flightDateSwap.addEventListener('click',function(){
+      var a = flightStartDate.value, b = flightEndDate.value;
+      flightStartDate.value = b;
+      flightEndDate.value = a;
+      validateDates();
+      flightStatus.textContent = 'Dates swapped.';
     });
     flightCities.addEventListener('change',function(){ flightStatus.textContent = 'Candidate cities changed. Select at least three, then run the edge search.'; });
     flightRun.addEventListener('click',runFlight);

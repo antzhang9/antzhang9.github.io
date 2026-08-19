@@ -218,7 +218,7 @@
          (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
     .room-title{ top:54%; }
     .painting{
-      top:36%;
+      top:42%;
       max-height:38vh;
       max-width:82vw;
     }
@@ -476,10 +476,10 @@
     .gallery-wrap .meta-line{ margin-top:7px; padding-top:7px; }
     .gallery-stage{
       left:50%;
-      top:63%;
+      top:52%;
       width:90vw;
-      height:50vh;
-      height:50svh;
+      height:42vh;
+      height:42svh;
     }
     .gallery-item{ width:min(62vw,260px); padding:6px; }
     .gallery-item img{ max-height:34vh; max-height:34svh; }
@@ -488,7 +488,7 @@
     .gallery-item.is-prev-2{ transform:translate(calc(-50% - 70px),-50%) scale(.78) rotate(-1.5deg); }
     .gallery-item.is-next-2{ transform:translate(calc(-50% + 70px),-50%) scale(.79) rotate(1.5deg); }
     .gallery-controls{
-      bottom:2px;
+      bottom:-38px;
       gap:22px;
       padding:6px 12px;
       background:rgba(18,18,16,.82);
@@ -928,6 +928,50 @@
   }
   .word-result.active{ border-color:var(--brick); color:var(--brick); }
   .demo-status{ min-height:1.4em; margin:0; color:#625b50; font-size:.76rem; line-height:1.4; }
+  .demo-field-error{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:-8px 0 16px;
+    padding:8px 10px;
+    background:rgba(178,58,38,0.08);
+    border:1px solid rgba(178,58,38,0.4);
+    border-radius:3px;
+    color:var(--brick);
+    font-size:.78rem;
+    line-height:1.4;
+  }
+  .demo-field-error::before{
+    content:"!";
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--brick);
+    color:#fff;
+    font-size:.68rem;
+    font-weight:700;
+    flex:none;
+  }
+  .demo-input.field-invalid{
+    border-color:var(--brick);
+    box-shadow:0 0 0 1px var(--brick);
+  }
+  .demo-inline-fix{
+    margin-left:auto;
+    border:1px solid var(--brick);
+    background:transparent;
+    color:var(--brick);
+    font-size:.72rem;
+    padding:3px 9px;
+    border-radius:99px;
+    cursor:pointer;
+    white-space:nowrap;
+    flex:none;
+  }
+  .demo-inline-fix:hover{ background:var(--brick); color:#fff; }
+  .demo-inline-fix:focus-visible{ outline:2px solid var(--brick); outline-offset:2px; }
 
   @media (max-width:600px),
          (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
@@ -1518,13 +1562,17 @@
           <div class="demo-date-grid">
             <label class="demo-field">
               <span>Depart</span>
-              <input class="demo-input" id="flightStartDate" type="date" value="2026-09-04">
+              <input class="demo-input" id="flightStartDate" type="date" value="2026-09-04" aria-describedby="flightDateError">
             </label>
             <label class="demo-field">
               <span>Return</span>
-              <input class="demo-input" id="flightEndDate" type="date" value="2026-09-13">
+              <input class="demo-input" id="flightEndDate" type="date" value="2026-09-13" aria-describedby="flightDateError">
             </label>
           </div>
+          <p class="demo-field-error" id="flightDateError" aria-live="polite" hidden>
+            <span id="flightDateErrorText"></span>
+            <button type="button" id="flightDateSwap" class="demo-inline-fix" hidden>Swap dates</button>
+          </p>
           <label class="demo-field">
             <span>Home airport</span>
             <select class="demo-select" id="flightHome"></select>
@@ -1631,13 +1679,13 @@
   // Desktop room coordinates -- UNCHANGED, pixel/vw-for-vw identical to before.
   var ambientFigures = [
     { el: document.getElementById('pFlag'), content: document.getElementById('cAbout'),
-      segIndex:0, room:{x:-36,y:0,s:1.02}, roomCompact:{x:-31,y:2,s:.86}, roomMobile:{x:-23,y:-1,s:.44} },
+      segIndex:0, room:{x:-36,y:0,s:1.02}, roomCompact:{x:-31,y:2,s:.86}, roomMobile:{x:-30,y:-9,s:.78} },
     { el: document.getElementById('pWeights'), content: document.getElementById('cProj1'),
-      segIndex:1, room:{x:20,y:-22,s:0.68}, roomCompact:{x:20,y:-23,s:.58}, roomMobile:{x:20,y:-22,s:.33} },
+      segIndex:1, room:{x:20,y:-22,s:0.68}, roomCompact:{x:20,y:-23,s:.58}, roomMobile:{x:20,y:-22,s:.63} },
     { el: document.getElementById('pFish'), content: document.getElementById('cProj2'),
-      segIndex:2, room:{x:-6,y:28,s:0.84}, roomCompact:{x:-4,y:28,s:.70}, roomMobile:{x:-17,y:24,s:.36} },
+      segIndex:2, room:{x:-6,y:28,s:0.84}, roomCompact:{x:-4,y:28,s:.70}, roomMobile:{x:-24,y:28,s:.70} },
     { el: document.getElementById('pDancer'), content: document.getElementById('cContact'),
-      segIndex:5, room:{x:27,y:12,s:1.2}, roomCompact:{x:28,y:10,s:.92}, roomMobile:{x:18,y:22,s:.42} }
+      segIndex:5, room:{x:27,y:12,s:1.2}, roomCompact:{x:28,y:10,s:.92}, roomMobile:{x:22,y:28,s:.83} }
   ];
 
   var pDancer = document.getElementById('pDancer');
@@ -1666,8 +1714,8 @@
   // Decorative (non-scene) figures -- also get mobile-specific placement
   // so they can't collide with the now full-width mobile text panel.
   var decorativeFigures = [
-    { el: document.getElementById('pHat'), room:{x:-22,y:-20,s:0.68}, roomCompact:{x:-24,y:-25,s:.50}, roomMobile:{x:-23,y:-27,s:.27} },
-    { el: document.getElementById('pDadChild'), room:{x:38,y:-8,s:0.58}, roomCompact:{x:35,y:-13,s:.43}, roomMobile:{x:26,y:-18,s:.24} }
+    { el: document.getElementById('pHat'), room:{x:-22,y:-20,s:0.68}, roomCompact:{x:-24,y:-25,s:.50}, roomMobile:{x:-21,y:-26,s:.58} },
+    { el: document.getElementById('pDadChild'), room:{x:38,y:-8,s:0.58}, roomCompact:{x:35,y:-13,s:.43}, roomMobile:{x:31,y:-6,s:.50} }
   ];
 
   var SHADOW = 'drop-shadow(0 20px 18px rgba(30,25,15,0.26))';
@@ -2111,23 +2159,6 @@
     return true;
   }
 
-  function stepGallery(direction){
-    var touchPortrait = window.matchMedia('(max-width:600px), (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait)').matches;
-    if(!touchPortrait){
-      select(activeIndex+direction,true);
-      return;
-    }
-    var target = modulo(activeIndex+direction,galleryWorks.length);
-    forcedTarget = null;
-    velocity = 0;
-    position += circularDistance(target,position);
-    activeIndex = target;
-    pendingAnnouncement = false;
-    layout();
-    renderPosition();
-    updateCopy(true);
-  }
-
   function tick(now){
     var frameScale = Math.min(2,(now-lastFrame)/16.667 || 1);
     lastFrame = now;
@@ -2168,8 +2199,8 @@
     requestAnimationFrame(tick);
   }
 
-  prevButton.addEventListener('click', function(){ stepGallery(-1); });
-  nextButton.addEventListener('click', function(){ stepGallery(1); });
+  prevButton.addEventListener('click', function(){ select(activeIndex-1, true); });
+  nextButton.addEventListener('click', function(){ select(activeIndex+1, true); });
 
   galleryStage.addEventListener('keydown', function(e){
     if(e.key === 'ArrowLeft'){
