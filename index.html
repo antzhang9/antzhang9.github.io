@@ -39,7 +39,7 @@
     --story-height: calc(var(--scene-story-height) + var(--end-hold));
   }
   *{box-sizing:border-box;}
-  html,body{margin:0; padding:0; overscroll-behavior-y:none;}
+  html,body{margin:0; padding:0; touch-action:pan-y;}
   body{
     font-family:'IBM Plex Sans', sans-serif;
     color:var(--ink);
@@ -83,6 +83,7 @@
     height:100svh;
     height:100dvh;
     overflow:hidden;
+    touch-action:pan-y;
     background:
       radial-gradient(ellipse at 50% 78%, rgba(0,0,0,0.05), transparent 60%),
       linear-gradient(to bottom, #f7f4ee 0%, #efeae0 55%, #e6e0d2 100%);
@@ -1818,12 +1819,6 @@
     var gallerySegEnd = gallerySegStart+segLen;
     var galleryLocal = progress >= gallerySegStart && progress <= gallerySegEnd
       ? (progress-gallerySegStart)/segLen : -1;
-    var portalStart = 2*segLen + .62*segLen;
-    var portalPeak = gallerySegStart;
-    var portalEnd = gallerySegStart + .23*segLen;
-    var portalIn = reduced ? 0 : smoothstep(portalStart, portalPeak, progress);
-    var portalOut = reduced ? 0 : 1-smoothstep(portalPeak, portalEnd, progress);
-    var portalVisibility = portalIn * portalOut;
     var galleryCover = 0;
     var galleryOpacity = 0;
     var galleryBackdropOpacity = 0;
@@ -1837,9 +1832,9 @@
       galleryOpacity = smoothstep(.04,.12,galleryLocal) * (1-smoothstep(.76,.92,galleryLocal));
       galleryBackdropOpacity = galleryOpacity;
     }
-    // portalIn remains 1 after its peak, so use its complete in/out envelope
-    // here. This allows the room to return for Resume and Contact.
-    var roomVisibility = 1-Math.max(portalVisibility, galleryCover);
+    // The room simply fades as the gallery covers it, and returns the same
+    // way in reverse -- no separate zoom transition to reconcile.
+    var roomVisibility = 1-galleryCover;
 
     if (activeIndex === 5) {
       pDancer.classList.add('secret-active');
@@ -1858,15 +1853,10 @@
 
       var isFinalScene = p.segIndex === 5;
       if(progress >= segStart && (progress <= segEnd || isFinalScene)){
-        var rawX = (progress - segStart)/segLen;
-        var x = rawX;
-        if(p.el === pFish && x > .62){ x = .62; }
-        var e = isFinalScene ? finalEnvelope(rawX, room, FOCUS_X) : zoomEnvelope(x, room, FOCUS_X);
+        var x = (progress - segStart)/segLen;
+        var e = isFinalScene ? finalEnvelope(x, room, FOCUS_X) : zoomEnvelope(x, room, FOCUS_X);
         scale=e.scale; opacity=e.opacity; tx=e.tx; ty=e.ty; z=40;
         contentOpacity = e.contentOpacity;
-        if(p.el === pFish && rawX > .62){
-          contentOpacity = 1-smoothstep(.62,.90,rawX);
-        }
         blur = 0;
       } else {
         scale = room.s; tx = room.x; ty = room.y; z = 2;
@@ -1890,24 +1880,8 @@
       p.content.classList.toggle('interactive', contentOpacity > 0.5);
     });
 
-    // The original fish painting is held at its focused pose while a duplicate
-    // zooms from the bowl's measured position to fill the viewport.
-    if(portalVisibility > .001 && !reduced){
-      var fishRect = pFish.getBoundingClientRect();
-      var focalScreenX = fishRect.left + fishRect.width*FISHBOWL_FOCUS_X;
-      var focalScreenY = fishRect.top + fishRect.height*FISHBOWL_FOCUS_Y;
-      var shiftX = (window.innerWidth/2 - focalScreenX) * portalIn;
-      var shiftY = (window.innerHeight/2 - focalScreenY) * portalIn;
-      var portalScale = lerp(1, isMobile ? 7.2 : (isCompact ? 6.5 : 5.8), portalIn);
-      fishPortal.style.left = fishRect.left+'px';
-      fishPortal.style.top = fishRect.top+'px';
-      fishPortal.style.width = fishRect.width+'px';
-      fishPortal.style.height = fishRect.height+'px';
-      fishPortal.style.transformOrigin = (FISHBOWL_FOCUS_X*100)+'% '+(FISHBOWL_FOCUS_Y*100)+'%';
-      fishPortal.style.transform = 'translate('+shiftX.toFixed(1)+'px,'+shiftY.toFixed(1)+'px) scale('+portalScale.toFixed(3)+')';
-    }
-    fishPortal.style.opacity = portalVisibility;
-    portalWash.style.opacity = smoothstep(.58,.96,portalIn) * portalOut;
+    fishPortal.style.opacity = 0;
+    portalWash.style.opacity = 0;
     galleryBackdrop.style.opacity = galleryBackdropOpacity;
     galleryLight.style.opacity = galleryBackdropOpacity * .92;
     var inGalleryZone = galleryLocal >= 0;
@@ -1964,7 +1938,42 @@
       window.requestAnimationFrame(function(){ update(); ticking=false; });
       ticking = true;
     }
+    scheduleSettle();
   }
+
+  // ---- Scroll checkpoints ----------------------------------------------
+  // Rather than letting scroll stop at an arbitrary point mid-transition,
+  // once the user has actually stopped scrolling for a moment, ease to the
+  // nearest scene's settled point -- its hold-center, or the very end for
+  // the final Contact scene -- the same destinations the right-side nav
+  // already uses. This only fires after motion has stopped (debounced), so
+  // it never fights an active scroll or wheel/touch gesture in progress.
+  var settleTimer = null;
+  function nearestCheckpointProgress(p){
+    var count = 6;
+    var best = 0, bestDist = Infinity;
+    for(var i=0;i<count;i++){
+      var target = i===count-1 ? 1 : (i*segLen + segLen*0.5);
+      var dist = Math.abs(p-target);
+      if(dist < bestDist){ bestDist = dist; best = target; }
+    }
+    return best;
+  }
+  function maybeSettle(){
+    if(document.body.classList.contains('project-demo-open')) return;
+    var p = getProgress();
+    if(p <= 0.001 || p >= 0.999) return; // already at a natural start/end
+    var target = nearestCheckpointProgress(p);
+    if(Math.abs(p-target) < 0.015) return; // already settled close enough
+    var scrollable = getScrollable();
+    var storyTop = story.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: storyTop + target*scrollable, behavior: reduced ? 'auto' : 'smooth' });
+  }
+  function scheduleSettle(){
+    window.clearTimeout(settleTimer);
+    settleTimer = window.setTimeout(maybeSettle, 160);
+  }
+
   window.addEventListener('scroll', onScroll, {passive:true});
   window.addEventListener('resize', onScroll);
   if(mqPhone.addEventListener){ mqPhone.addEventListener('change', onScroll); }
