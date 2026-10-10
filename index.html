@@ -29,11 +29,11 @@
     --rule:rgba(32,29,24,0.12);
 
     /* ---- Single source of truth for the scroll-story timing ----
-       6 scenes, same total scroll distance as the old 650vh spacer
-       (6 * 108.3333vh = 650vh), so desktop pacing is numerically
-       identical to before -- only *how* it's expressed changed. */
-    --scenes: 6;
-    --scene-vh: 108.3333vh;
+       7 scenes. --scene-vh is chosen so each scene still takes exactly the
+       same scroll distance as before the 3D Canvas scene was added:
+       (7 * 105.9524vh - 100vh) / 7 = 91.667vh per scene. */
+    --scenes: 7;
+    --scene-vh: 105.9524vh;
     --end-hold: 0px;
     --scene-story-height: calc(var(--scenes) * var(--scene-vh));
     --story-height: calc(var(--scene-story-height) + var(--end-hold));
@@ -65,8 +65,9 @@
   #scene-proj1{ top:calc(1 * var(--scene-vh)); }
   #scene-proj2{ top:calc(2 * var(--scene-vh)); }
   #scene-sketchbook{ top:calc(3 * var(--scene-vh)); }
-  #scene-resume{ top:calc(4 * var(--scene-vh)); }
-  #scene-contact{ top:calc(5 * var(--scene-vh)); }
+  #scene-canvas{ top:calc(4 * var(--scene-vh)); }
+  #scene-resume{ top:calc(5 * var(--scene-vh)); }
+  #scene-contact{ top:calc(6 * var(--scene-vh)); }
   .terminal-hold{
     position:absolute;
     left:0;
@@ -461,7 +462,8 @@
 
   @media (max-width:600px),
          (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
-    .gallery-wrap .content-panel{
+    .gallery-wrap .content-panel,
+    .canvas3d-wrap .content-panel{
       top:5%;
       left:6vw;
       right:6vw;
@@ -472,10 +474,14 @@
       transform:none;
       box-shadow:0 8px 20px rgba(30,25,15,.09);
     }
-    .gallery-wrap .content-panel p{ font-size:.84rem; line-height:1.45; margin-bottom:6px; }
-    .gallery-wrap .content-panel h2{ font-size:1.35rem; margin-bottom:5px; }
-    .gallery-wrap .eyebrow{ margin-bottom:5px; }
-    .gallery-wrap .meta-line{ margin-top:7px; padding-top:7px; }
+    .gallery-wrap .content-panel p,
+    .canvas3d-wrap .content-panel p{ font-size:.84rem; line-height:1.45; margin-bottom:6px; }
+    .gallery-wrap .content-panel h2,
+    .canvas3d-wrap .content-panel h2{ font-size:1.35rem; margin-bottom:5px; }
+    .gallery-wrap .eyebrow,
+    .canvas3d-wrap .eyebrow{ margin-bottom:5px; }
+    .gallery-wrap .meta-line,
+    .canvas3d-wrap .meta-line{ margin-top:7px; padding-top:7px; }
     .gallery-stage{
       left:50%;
       top:52%;
@@ -502,6 +508,116 @@
     .gallery-copy,
     .gallery-item{ transition:none; }
     .gallery-light.is-flickering{ animation:none; }
+  }
+
+  /* ---------- 3D CANVAS (interactive painting) ---------- */
+  .canvas3d-wrap{
+    position:absolute;
+    inset:0;
+    z-index:20;
+    opacity:0;
+    pointer-events:none;
+  }
+  .canvas3d-wrap.interactive{ pointer-events:auto; }
+  .canvas3d-wrap .content-panel{ pointer-events:none; }
+  .canvas3d-wrap .content-panel.interactive{ pointer-events:auto; }
+  .canvas3d-stage{
+    position:absolute;
+    top:50%;
+    left:58%;
+    width:min(50vw,760px);
+    height:min(86vh,840px);
+    transform:translate(-50%,-50%);
+    touch-action:pan-y;
+  }
+  .canvas3d-stage.is-free{ touch-action:none; }
+  .canvas3d-view{ position:absolute; inset:0; }
+  .canvas3d-canvas{
+    display:block;
+    width:100%;
+    height:100%;
+    cursor:grab;
+    touch-action:pan-y;
+    outline:none;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .canvas3d-stage.is-free .canvas3d-canvas{ touch-action:none; }
+  .canvas3d-canvas.is-grabbing{ cursor:grabbing; }
+  .canvas3d-canvas:focus-visible{ outline:2px solid var(--brick); outline-offset:-3px; border-radius:2px; }
+  /* Flat stand-in shown until WebGL is ready (or if it is unavailable). */
+  .canvas3d-fallback{
+    position:absolute;
+    top:50%; left:50%;
+    max-height:78%; max-width:88%;
+    width:auto; height:auto;
+    transform:translate(-50%,-50%);
+    box-shadow:0 22px 46px rgba(0,0,0,.45);
+    pointer-events:none;
+  }
+  .canvas3d-stage.is-ready .canvas3d-fallback{ display:none; }
+  .canvas3d-hint{
+    position:absolute;
+    top:4px; left:50%;
+    transform:translateX(-50%);
+    margin:0;
+    color:#b9af9c;
+    font-size:.68rem;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    pointer-events:none;
+    transition:opacity .5s ease;
+  }
+  .canvas3d-stage.has-interacted .canvas3d-hint{ opacity:0; }
+  .hint-touch{ display:none; }
+  .canvas3d-controls{
+    position:absolute;
+    left:50%;
+    bottom:2px;
+    transform:translateX(-50%);
+    z-index:3;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .canvas3d-controls button{
+    min-width:44px;
+    min-height:44px;
+    border:0;
+    border-bottom:1px solid currentColor;
+    padding:0 8px;
+    background:transparent;
+    color:#d7cebd;
+    font:500 .76rem 'IBM Plex Sans',sans-serif;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .canvas3d-controls button.glyph{ font-size:1.15rem; letter-spacing:0; }
+  .canvas3d-controls button:focus-visible{ outline:2px solid var(--brick); outline-offset:3px; }
+  .canvas3d-controls .canvas3d-free{ display:none; }
+  .canvas3d-controls .canvas3d-free[aria-pressed="true"]{ color:#f0b8aa; }
+  @media (hover:none) and (pointer:coarse){
+    .canvas3d-controls .canvas3d-free{ display:inline-block; }
+    .hint-touch{ display:inline; }
+    .hint-pointer{ display:none; }
+  }
+  @media (min-width:601px) and (max-width:900px){
+    .canvas3d-stage{ left:72%; width:44vw; }
+  }
+  /* Phone / touch-portrait layout. Must come after the base and compact rules above so it wins. */
+  @media (max-width:600px),
+         (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
+    .canvas3d-stage{
+      left:50%;
+      top:55%;
+      width:94vw;
+      height:60vh;
+      height:60svh;
+    }
+    .canvas3d-controls{ bottom:calc(2px + env(safe-area-inset-bottom,0px)); }
   }
 
   /* ---------- CURATED PROJECT DEMOS ---------- */
@@ -1489,10 +1605,35 @@
       </div>
     </div>
 
+
+    <div class="canvas3d-wrap" id="canvas3dWrap">
+      <div class="content-panel" id="cCanvas3d">
+        <span class="eyebrow">05 — canvas</span>
+        <!-- Edit the title, line of text and medium below for the painting. -->
+        <h2 id="canvas3dTitle">Untitled</h2>
+        <p>Dedicated to Finnian, a truly free friend.</p>
+        <span class="meta-line">Painting on canvas</span>
+      </div>
+      <div class="canvas3d-stage" id="canvas3dStage" role="group"
+           aria-label="Interactive 3D painting. Drag to turn it, pinch or hold Ctrl and scroll to zoom."
+           data-src="images/canvas-painting.jpg"
+           data-alt="Acrylic painting of tumbling, dancing figures in blue, red, yellow and green on a white canvas, shown as a three-dimensional object">
+        <div class="canvas3d-view" id="canvas3dView"></div>
+        <img class="canvas3d-fallback" src="images/canvas-painting.jpg" width="1941" height="2610" alt="Acrylic painting of tumbling, dancing figures in blue, red, yellow and green on a white canvas">
+        <p class="canvas3d-hint" aria-hidden="true"><span class="hint-pointer">Drag to turn · Ctrl + scroll to zoom</span><span class="hint-touch">Drag to turn · Pinch to zoom</span></p>
+        <div class="canvas3d-controls" role="group" aria-label="3D view controls">
+          <button type="button" class="glyph" id="canvas3dZoomOut" aria-label="Zoom out">&minus;</button>
+          <button type="button" class="glyph" id="canvas3dZoomIn" aria-label="Zoom in">+</button>
+          <button type="button" id="canvas3dReset" aria-label="Reset view">Reset</button>
+          <button type="button" class="canvas3d-free" id="canvas3dFree" aria-pressed="false" aria-label="Free rotate: lets one finger tilt as well as spin; turn off to scroll the page again">Free rotate</button>
+        </div>
+      </div>
+    </div>
+
     <img id="doodle_ant_asset" src="images/doodle-ant.jpg" width="585" height="900" style="display:none" alt="">
 
     <div class="content-panel" id="cResume">
-      <span class="eyebrow">05 — resume</span>
+      <span class="eyebrow">06 — resume</span>
       <h2>Resume</h2>
       <p>The full version, PDF-shaped — everything that didn't make it onto these walls.</p>
       <p>Python · SQL · Power BI · Splunk · Excel</p>
@@ -1500,7 +1641,7 @@
     </div>
 
     <div class="content-panel" id="cContact">
-      <span class="eyebrow">06 — contact</span>
+      <span class="eyebrow">07 — contact</span>
       <h2>Let's talk</h2>
       <p>Reach out any time.</p>
       <a class="contact-link" id="emailLink" href="#">Email me</a>
@@ -1520,6 +1661,7 @@
   <section id="scene-proj1" class="scene-anchor" aria-hidden="true"></section>
   <section id="scene-proj2" class="scene-anchor" aria-hidden="true"></section>
   <section id="scene-sketchbook" class="scene-anchor" aria-hidden="true"></section>
+  <section id="scene-canvas" class="scene-anchor" aria-hidden="true"></section>
   <section id="scene-resume" class="scene-anchor" aria-hidden="true"></section>
   <section id="scene-contact" class="scene-anchor" aria-hidden="true"></section>
   <div class="terminal-hold" id="terminalHold" aria-hidden="true"></div>
@@ -1531,8 +1673,9 @@
   <a href="#scene-proj1" data-i="1" aria-label="Flight Optimizer"><span class="scene-nav-dot" aria-hidden="true"></span></a>
   <a href="#scene-proj2" data-i="2" aria-label="WordHunt"><span class="scene-nav-dot" aria-hidden="true"></span></a>
   <a href="#scene-sketchbook" data-i="3" aria-label="Sketchbook"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-resume" data-i="4" aria-label="Resume"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-contact" data-i="5" aria-label="Contact"><span class="scene-nav-dot" aria-hidden="true"></span></a>
+  <a href="#scene-canvas" data-i="4" aria-label="Canvas"><span class="scene-nav-dot" aria-hidden="true"></span></a>
+  <a href="#scene-resume" data-i="5" aria-label="Resume"><span class="scene-nav-dot" aria-hidden="true"></span></a>
+  <a href="#scene-contact" data-i="6" aria-label="Contact"><span class="scene-nav-dot" aria-hidden="true"></span></a>
 </nav>
 
 <div class="project-demo-modal" id="projectDemoModal" aria-hidden="true">
@@ -1672,7 +1815,7 @@
 
   // ---- Single source of truth for scene count/timing, read straight off
   // the CSS custom properties instead of a duplicated JS magic number. ----
-  var segLen = 1 / 6;
+  var segLen = 1 / 7;   // seven scenes; keep in step with --scenes in the CSS
   var FOCUS_X_DESKTOP = 9; // vw offset so zoomed figure clears the left text panel
   var FOCUS_X_COMPACT = 18; // narrow desktop keeps the side panel and shifts the active work right
   var FOCUS_X_MOBILE = 0;   // phone panel sits below, not beside -- no offset needed
@@ -1686,7 +1829,7 @@
     { el: document.getElementById('pFish'), content: document.getElementById('cProj2'),
       segIndex:2, room:{x:-6,y:28,s:0.84}, roomCompact:{x:-4,y:28,s:.70}, roomMobile:{x:-24,y:28,s:.70} },
     { el: document.getElementById('pDancer'), content: document.getElementById('cContact'),
-      segIndex:5, room:{x:27,y:12,s:1.2}, roomCompact:{x:28,y:10,s:.92}, roomMobile:{x:22,y:28,s:.83} }
+      segIndex:6, room:{x:27,y:12,s:1.2}, roomCompact:{x:28,y:10,s:.92}, roomMobile:{x:22,y:28,s:.83} }
   ];
 
   var pDancer = document.getElementById('pDancer');
@@ -1707,6 +1850,8 @@
   var resumeContent = document.getElementById('cResume');
   var galleryWrap = document.getElementById('galleryWrap');
   var galleryPanel = document.getElementById('cGallery');
+  var canvasWrap = document.getElementById('canvas3dWrap');
+  var canvasPanel = document.getElementById('cCanvas3d');
   var galleryBackdrop = document.getElementById('galleryBackdrop');
   var galleryLight = document.getElementById('galleryLight');
   var portalWash = document.getElementById('portalWash');
@@ -1767,24 +1912,24 @@
       var i = parseInt(link.getAttribute('data-i'), 10);
       var scrollable = getScrollable();
       var storyTop = story.getBoundingClientRect().top + window.scrollY;
-      var destination = i === 5 ? scrollable : (i*segLen + segLen*0.5) * scrollable;
+      var destination = i === 6 ? scrollable : (i*segLen + segLen*0.5) * scrollable;
       window.scrollTo({ top: storyTop + destination, behavior:'smooth' });
     });
   });
 
   function zoomEnvelope(x, room, focusX){
     var scale, opacity, tx, ty, contentOpacity;
-    if(x < 0.35){
-      var t = smoothstep(0,0.35,x);
+    if(x < 0.28){
+      var t = smoothstep(0,0.28,x);
       scale = lerp(room.s, 1, t);
       opacity = lerp(0.7, 1, t);
       tx = lerp(room.x, focusX, t);
       ty = lerp(room.y, 0, t);
-      contentOpacity = x/0.35;
-    } else if(x < 0.65){
+      contentOpacity = x/0.28;
+    } else if(x < 0.72){
       scale = 1; opacity = 1; tx = focusX; ty = 0; contentOpacity = 1;
     } else {
-      var t2 = (x-0.65)/0.35;
+      var t2 = (x-0.72)/0.28;
       scale = lerp(1, 1.3, t2);
       opacity = lerp(1, 0, t2);
       tx = focusX; ty = 0;
@@ -1813,36 +1958,53 @@
     var isCompact = !isMobile && mqCompact.matches;
     var FOCUS_X = isMobile ? FOCUS_X_MOBILE : (isCompact ? FOCUS_X_COMPACT : FOCUS_X_DESKTOP);
 
-    var activeIndex = Math.min(5, Math.floor(progress / segLen));
+    var activeIndex = Math.min(6, Math.floor(progress / segLen));
 
+    // Sketchbook (scene 3) and Canvas (scene 4) share one dark gallery room:
+    // it fades in at the start of Sketchbook, stays through the whole Canvas
+    // scene, and only then recedes so the warm room returns for Resume.
     var gallerySegStart = 3*segLen;
     var gallerySegEnd = gallerySegStart+segLen;
     var galleryLocal = progress >= gallerySegStart && progress <= gallerySegEnd
       ? (progress-gallerySegStart)/segLen : -1;
-    var galleryCover = 0;
+    var canvasSegStart = 4*segLen;
+    var canvasSegEnd = canvasSegStart+segLen;
+    var canvasLocal = progress >= canvasSegStart && progress <= canvasSegEnd
+      ? (progress-canvasSegStart)/segLen : -1;
+    var darkCover = 0;
     var galleryOpacity = 0;
-    var galleryBackdropOpacity = 0;
+    var canvasOpacity = 0;
+    var darkBackdropOpacity = 0;
     if(galleryLocal >= 0){
-      galleryCover = galleryLocal < .72 ? 1 : 1-smoothstep(.72,.98,galleryLocal);
+      darkCover = 1;
       galleryOpacity = smoothstep(.15,.34,galleryLocal) * (1-smoothstep(.68,.90,galleryLocal));
-      galleryBackdropOpacity = smoothstep(.04,.22,galleryLocal) * (1-smoothstep(.72,.98,galleryLocal));
+      darkBackdropOpacity = smoothstep(.04,.22,galleryLocal);
+      if(reduced){
+        galleryOpacity = smoothstep(.04,.12,galleryLocal) * (1-smoothstep(.76,.92,galleryLocal));
+        darkBackdropOpacity = smoothstep(.04,.12,galleryLocal);
+      }
     }
-    if(reduced && galleryLocal >= 0){
-      galleryCover = galleryLocal < .78 ? 1 : 1-smoothstep(.78,.96,galleryLocal);
-      galleryOpacity = smoothstep(.04,.12,galleryLocal) * (1-smoothstep(.76,.92,galleryLocal));
-      galleryBackdropOpacity = galleryOpacity;
+    if(canvasLocal >= 0){
+      var tailStart = reduced ? .78 : .72, tailEnd = reduced ? .96 : .98;
+      darkCover = canvasLocal < tailStart ? 1 : 1-smoothstep(tailStart,tailEnd,canvasLocal);
+      darkBackdropOpacity = 1-smoothstep(tailStart,tailEnd,canvasLocal);
+      canvasOpacity = reduced
+        ? smoothstep(.04,.12,canvasLocal) * (1-smoothstep(.76,.92,canvasLocal))
+        : smoothstep(.06,.28,canvasLocal) * (1-smoothstep(.74,.92,canvasLocal));
     }
-    // The room simply fades as the gallery covers it, and returns the same
+    var galleryCover = darkCover;
+    var galleryBackdropOpacity = darkBackdropOpacity;
+    // The room simply fades as the dark room covers it, and returns the same
     // way in reverse -- no separate zoom transition to reconcile.
     var roomVisibility = 1-galleryCover;
 
-    if (activeIndex === 5) {
+    if (activeIndex === 6) {
       pDancer.classList.add('secret-active');
     } else {
       pDancer.classList.remove('secret-active');
     }
 
-    var contactZoneStart = 5*segLen; // ~0.833
+    var contactZoneStart = 6*segLen; // ~0.857
     var ambientFade = 1 - smoothstep(contactZoneStart - 0.02, contactZoneStart + 0.04, progress);
     var whiteFactor = smoothstep(contactZoneStart - 0.02, contactZoneStart + 0.06, progress);
 
@@ -1851,7 +2013,7 @@
       var segStart = p.segIndex*segLen, segEnd = segStart+segLen;
       var scale, opacity, tx, ty, z, contentOpacity=0, blur=0;
 
-      var isFinalScene = p.segIndex === 5;
+      var isFinalScene = p.segIndex === 6;
       if(progress >= segStart && (progress <= segEnd || isFinalScene)){
         var x = (progress - segStart)/segLen;
         var e = isFinalScene ? finalEnvelope(x, room, FOCUS_X) : zoomEnvelope(x, room, FOCUS_X);
@@ -1884,7 +2046,7 @@
     portalWash.style.opacity = 0;
     galleryBackdrop.style.opacity = galleryBackdropOpacity;
     galleryLight.style.opacity = galleryBackdropOpacity * .92;
-    var inGalleryZone = galleryLocal >= 0;
+    var inGalleryZone = galleryLocal >= 0 || canvasLocal >= 0;
     if(inGalleryZone && !galleryWasInZone && !reduced){
       galleryLight.classList.remove('is-flickering');
       void galleryLight.offsetWidth;
@@ -1898,14 +2060,21 @@
     galleryWrap.classList.toggle('interactive', galleryOpacity > .72);
     galleryPanel.classList.toggle('interactive', galleryOpacity > .72);
 
-    // resume: content-only segment (index 4), no image
-    var rSegStart = 4*segLen, rSegEnd = rSegStart+segLen;
+    // 3D canvas scene (index 4): `is-live` tells the viewer when to render.
+    canvasWrap.style.opacity = canvasOpacity;
+    canvasPanel.style.opacity = canvasOpacity;
+    canvasWrap.classList.toggle('is-live', canvasOpacity > .01);
+    canvasWrap.classList.toggle('interactive', canvasOpacity > .72);
+    canvasPanel.classList.toggle('interactive', canvasOpacity > .72);
+
+    // resume: content-only segment (index 5), no image
+    var rSegStart = 5*segLen, rSegEnd = rSegStart+segLen;
     var rOpacity = 0;
     if(progress >= rSegStart && progress <= rSegEnd){
       var xr = (progress - rSegStart)/segLen;
-      if(xr < 0.35){ rOpacity = xr/0.35; }
-      else if(xr < 0.65){ rOpacity = 1; }
-      else { rOpacity = 1-(xr-0.65)/0.35; }
+      if(xr < 0.28){ rOpacity = xr/0.28; }
+      else if(xr < 0.72){ rOpacity = 1; }
+      else { rOpacity = 1-(xr-0.72)/0.28; }
     }
     resumeContent.style.opacity = rOpacity;
     resumeContent.classList.toggle('interactive', rOpacity > 0.5);
@@ -1938,40 +2107,6 @@
       window.requestAnimationFrame(function(){ update(); ticking=false; });
       ticking = true;
     }
-    scheduleSettle();
-  }
-
-  // ---- Scroll checkpoints ----------------------------------------------
-  // Rather than letting scroll stop at an arbitrary point mid-transition,
-  // once the user has actually stopped scrolling for a moment, ease to the
-  // nearest scene's settled point -- its hold-center, or the very end for
-  // the final Contact scene -- the same destinations the right-side nav
-  // already uses. This only fires after motion has stopped (debounced), so
-  // it never fights an active scroll or wheel/touch gesture in progress.
-  var settleTimer = null;
-  function nearestCheckpointProgress(p){
-    var count = 6;
-    var best = 0, bestDist = Infinity;
-    for(var i=0;i<count;i++){
-      var target = i===count-1 ? 1 : (i*segLen + segLen*0.5);
-      var dist = Math.abs(p-target);
-      if(dist < bestDist){ bestDist = dist; best = target; }
-    }
-    return best;
-  }
-  function maybeSettle(){
-    if(document.body.classList.contains('project-demo-open')) return;
-    var p = getProgress();
-    if(p <= 0.001 || p >= 0.999) return; // already at a natural start/end
-    var target = nearestCheckpointProgress(p);
-    if(Math.abs(p-target) < 0.015) return; // already settled close enough
-    var scrollable = getScrollable();
-    var storyTop = story.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: storyTop + target*scrollable, behavior: reduced ? 'auto' : 'smooth' });
-  }
-  function scheduleSettle(){
-    window.clearTimeout(settleTimer);
-    settleTimer = window.setTimeout(maybeSettle, 160);
   }
 
   window.addEventListener('scroll', onScroll, {passive:true});
@@ -2289,6 +2424,7 @@
 })();
 </script>
 
+<script src="canvas-viewer.js" defer></script>
 <script src="project-demos.js"></script>
 </body>
 </html>
