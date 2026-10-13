@@ -106,7 +106,7 @@
     background-size:cover; background-position:center;
     will-change:opacity, transform;
   }
-  canvas.wall-art{ width:108%; height:108%; left:-4%; top:-4%; inset:auto; display:block; transition:opacity .28s ease; }
+  canvas.wall-art{ left:0; top:0; right:auto; bottom:auto; inset:auto; display:block; transition:opacity .28s ease; }
   .wall.is-gem::before{
     background:radial-gradient(ellipse at 50% 45%, rgba(250,247,240,0), rgba(250,247,240,.16) 80%), rgba(247,244,238,.05);
   }
@@ -117,8 +117,8 @@
   .wall::before{
     content:''; position:absolute; inset:0; z-index:1;
     background:
-      radial-gradient(ellipse at 50% 45%, rgba(250,247,240,.22), rgba(250,247,240,.48) 78%),
-      rgba(247,244,238,.28);
+      radial-gradient(ellipse at 50% 45%, rgba(250,247,240,.03), rgba(250,247,240,.14) 78%),
+      rgba(247,244,238,.04);          /* the veil: lower = more vivid paintings */
   }
   .wall::after{ display:none; }
   .white-overlay{
@@ -138,7 +138,7 @@
     z-index:5;
     pointer-events:none;
   }
-  .room-title h1{ font-size:clamp(2.6rem,7vw,5rem); }
+  .room-title h1{ font-size:clamp(2.6rem,7vw,5rem); text-shadow:0 0 22px rgba(250,247,240,.9), 0 0 6px rgba(250,247,240,.8); }
   .enter-btn{
     pointer-events:auto;
     display:inline-flex; align-items:center; justify-content:center;
@@ -256,6 +256,8 @@
   .cta.email:hover::after{ transform:none; }
 
   /* "Next: ..." cue -- a small, optional nudge, never required. */
+  .next-cue:not([data-tone="dark"]){ text-shadow:0 0 10px rgba(250,247,240,.95), 0 0 3px rgba(250,247,240,.9); }
+  .scene-nav-dot{ box-shadow:0 0 0 2.5px rgba(250,247,240,.75); }
   .next-cue{
     position:fixed;
     left:6vw; bottom:20px;
@@ -2040,6 +2042,8 @@
   // Ways in: ?pattern=1111, double-click (double-tap) the number and type one,
   // or just type 1111 on a keyboard.
   // =====================================================================
+  var WALL_NORMAL = .88, WALL_SPECIAL = .95, WALL_GEM = .95;   // how strong the pattern is (1 = full)
+  var wallMax = WALL_NORMAL;
   var BOARD_FILE = 'images/klimt-board';            // .jpg, .jpeg or .png all work
   var SUNFLOWER_FILE = 'images/klimt-the-sunflower';
   var GOLD = 222, BLUE_GEM = 661, SUNFLOWER = 1111;
@@ -2113,9 +2117,10 @@
     wctx.drawImage(c, 0, 0, cw, ch);
   }
   function drawSunflower(cw, ch){                 // the portrait painting, feathered into the wall
-    var tall = ch > cw, asp = sunImg.naturalWidth / sunImg.naturalHeight, h = ch * .94, w = h * asp;
-    if(tall){ w = cw * 1.4; h = w / asp; }
-    var x = cw * (tall ? .5 : .66) - w / 2, y = tall ? ch * .14 : (ch - h) / 2;
+    var vw = view.vw, vh = view.vh;
+    var tall = vh > vw, asp = sunImg.naturalWidth / sunImg.naturalHeight, h = vh * .94, w = h * asp;
+    if(tall){ w = vw * 1.4; h = w / asp; }
+    var x = vw * (tall ? .5 : .66) - w / 2, y = tall ? vh * .14 : (vh - h) / 2;
     var t = document.createElement('canvas'); t.width = Math.ceil(w); t.height = Math.ceil(h);
     var g = t.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(sunImg, 0, 0, t.width, t.height);
     g.globalCompositeOperation = 'destination-in';
@@ -2139,34 +2144,60 @@
       wctx.restore();
     }
   }
+  // The wall is a fixed-size sheet of the pattern, pinned to the top-left and sized by the
+  // device (not the window). The pattern is a window onto the big board at a fixed scale, so
+  // resizing, or iOS growing and shrinking its address bar, only reveals more or less of it.
+  var view = null;
+  function makeView(n, tier){
+    var rnd = rng32(n * 2654435761 + 12345); rnd(); rnd();
+    var zoom = 1 + rnd() * .75, rot = (rnd() - .5) * 26 * Math.PI / 180, flip = rnd() < .5 ? -1 : 1;
+    var cxf = .2 + rnd() * .6, cyf = .2 + rnd() * .6;
+    if(tier.sun){ zoom = 1.05; rot = 0; flip = 1; cxf = .5; cyf = .5; }
+    view = { zoom: zoom, rot: rot, flip: flip, cxf: cxf, cyf: cyf, vw: innerWidth, vh: innerHeight, ox: null, oy: null };
+  }
+  function sheetSize(){        // sized by the device, so the iOS address bar growing or shrinking never changes it
+    return [Math.max(Math.round(innerWidth * 1.04), Math.min(screen.width || 0, 2600)), Math.max(Math.round(innerHeight * 1.06), Math.min(screen.height || 0, 2000))];
+  }
   function paintWall(){
     if(patternSeed < 0) return;
-    var cssW = wallArt.clientWidth || innerWidth * 1.08, cssH = wallArt.clientHeight || innerHeight * 1.08;
-    var cw = Math.max(2, Math.round(cssW)), ch = Math.max(2, Math.round(cssH));
-    wallArt.width = cw; wallArt.height = ch;
+    var sz = sheetSize(), cw = sz[0], ch = sz[1];
+    if(wallArt.width !== cw || wallArt.height !== ch){ wallArt.width = cw; wallArt.height = ch; }
+    wallArt.style.width = cw + 'px'; wallArt.style.height = ch + 'px';
+    wctx.clearRect(0, 0, cw, ch);
     var tier = patternTier(patternSeed);
     wall.classList.toggle('is-gem', !!tier.gem); document.body.classList.toggle('gem', !!tier.gem);
     if(tier.gem){ drawGem(cw, ch); return; }
     if(!mapCanvas) return;
-    var rnd = rng32(patternSeed * 2654435761 + 12345); rnd(); rnd();
-    var MW = mapCanvas.width, MH = mapCanvas.height;
-    var zoom = 1 + rnd() * .75, rot = (rnd() - .5) * 26 * Math.PI / 180, flip = rnd() < .5 ? -1 : 1;
-    if(tier.sun){ zoom = 1.05; rot = 0; flip = 1; }
-    var k = Math.max(cw / MW, ch / MH) * 1.32 * zoom;
-    var cs = Math.abs(Math.cos(rot)), sn = Math.abs(Math.sin(rot));
-    var hx = (cw * cs + ch * sn) / (2 * k), hy = (cw * sn + ch * cs) / (2 * k);
-    var fx = MW / 2, fy = MH / 2;
-    if(MW - 2 * hx > 0) fx = hx + rnd() * (MW - 2 * hx); else rnd();
-    if(MH - 2 * hy > 0) fy = hy + rnd() * (MH - 2 * hy); else rnd();
-    wctx.save(); wctx.imageSmoothingQuality = 'high';
-    wctx.translate(cw / 2, ch / 2); wctx.rotate(rot); wctx.scale(k * flip, k); wctx.translate(-fx, -fy);
+    if(!view) makeView(patternSeed, tier);
+    var MW = mapCanvas.width, MH = mapCanvas.height, rot = view.rot, cs = Math.cos(rot), sn = Math.sin(rot);
+    var k = Math.min(2.2, Math.max(.9 * view.zoom, 0));
+    // R(-rot) applied to the sheet's corners: how much of the board the sheet spans at scale k
+    function spans(kk){
+      var xs = [0, cw, 0, cw], ys = [0, 0, ch, ch], rx = [], ry = [];
+      for(var i = 0; i < 4; i++){ rx.push((cs * xs[i] + sn * ys[i]) / kk); ry.push((-sn * xs[i] + cs * ys[i]) / kk); }
+      return { minx: Math.min.apply(0, rx), maxx: Math.max.apply(0, rx), miny: Math.min.apply(0, ry), maxy: Math.max.apply(0, ry) };
+    }
+    var sp0 = spans(k), guard = 0;
+    while((sp0.maxx - sp0.minx > MW * .98 || sp0.maxy - sp0.miny > MH * .98) && guard++ < 60){ k *= 1.04; sp0 = spans(k); }
+    if(view.ox === null){                                              // first time: aim the viewport centre at the chosen spot
+      var px = view.vw / 2, py = view.vh / 2;
+      view.ox = view.cxf * MW - (cs * px + sn * py) / k;
+      view.oy = view.cyf * MH - (-sn * px + cs * py) / k;
+    }
+    var ox = Math.min(Math.max(view.ox, -sp0.minx), MW - sp0.maxx);   // keep the sheet inside the board
+    var oy = Math.min(Math.max(view.oy, -sp0.miny), MH - sp0.maxy);
+    wctx.save(); wctx.imageSmoothingEnabled = true; wctx.imageSmoothingQuality = 'high';
+    wctx.rotate(rot); wctx.scale(k, k); wctx.translate(-ox, -oy);
+    if(view.flip < 0){ wctx.translate(MW, 0); wctx.scale(-1, 1); }
     wctx.drawImage(mapCanvas, 0, 0); wctx.restore();
+    var rnd = rng32(patternSeed * 7919 + 99);
     if(tier.gold) drawGoldLeaf(cw, ch, rnd);
     if(tier.sun && sunImg) drawSunflower(cw, ch);
   }
   function setPattern(n){
-    patternSeed = n;
+    patternSeed = n; view = null;
     var tier = patternTier(n), btn = $('patternBtn');
+    wallMax = tier.gem ? WALL_GEM : (tier.gold || tier.sun) ? WALL_SPECIAL : WALL_NORMAL;
     $('patternLabel').textContent = '#' + n;
     btn.setAttribute('data-tier', tier.name);
     btn.setAttribute('aria-label', 'Pattern ' + n + (tier.name ? ', ' + tier.name : '') + '. Press to roll a new pattern.');
@@ -2261,7 +2292,7 @@
     else typed = '';
   });
   var rzT = 0;
-  window.addEventListener('resize', function(){ clearTimeout(rzT); rzT = setTimeout(paintWall, 200); });
+  window.addEventListener('resize', function(){ clearTimeout(rzT); rzT = setTimeout(function(){ if(innerWidth * 1.02 > wallArt.width || innerHeight * 1.04 > wallArt.height) paintWall(); }, 200); });
   var roomTitle = $('roomTitle');
   var galleryWrap = $('galleryWrap');
   var galleryPanel = $('cGallery');
@@ -2474,12 +2505,11 @@
     });
 
     // ---- background: paper -> wall, plus dark gallery and white finale ----
-    var WALL_MAX = 1;                                     // pattern strength (1 = full, lower = fainter)
     var wallOp = 1;                                        // always on; the dark room simply covers it
     var ri = sceneIndex('resume'), rl = inIntro ? -1 : (sp - ri * segLen) / segLen;
     var resumeDim = rl >= 0 && rl <= 1 ? smoothstep(0, .25, rl) * (1 - smoothstep(.75, 1, rl)) : 0;   // a touch fainter behind the resume
     wallOp = 1 - .22 * resumeDim;
-    wall.style.opacity = (wallOp * WALL_MAX).toFixed(3);
+    wall.style.opacity = (wallOp * wallMax).toFixed(3);
     var drift2 = (inIntro ? 0 : sp) * -2.4;
     var creditVis = 1 - darkBackdropOpacity;
     artCredit.style.opacity = (creditVis * .9).toFixed(3);
