@@ -1691,7 +1691,7 @@
       border-radius:28px; padding:1.5rem 1.4rem 1.5rem;
       box-shadow:0 18px 40px rgba(30,25,15,.2);
     }
-    .art-credit{ bottom:auto; top:54px; right:44px; font-size:.6rem; max-width:60vw; }
+    .art-credit{ bottom:auto; top:calc(10px + env(safe-area-inset-top,0px)); right:calc(12px + env(safe-area-inset-right,0px)); }
     .pattern-btn{ font-size:.72rem; padding:5px 11px 5px 9px; }
   }
 </style>
@@ -2474,13 +2474,14 @@
     });
 
     // ---- background: paper -> wall, plus dark gallery and white finale ----
-    var WALL_MAX = .62;                                   // how strong the pattern is (lower = fainter)
-    var wallStart = inIntro ? 1 : 1 - smoothstep(segLen * .5, segLen * .95, sp);
-    var wallEnd = inIntro ? 0 : smoothstep(finalStart - .05, finalStart + .03, sp);
-    var wallOp = Math.max(wallStart, wallEnd);
+    var WALL_MAX = 1;                                     // pattern strength (1 = full, lower = fainter)
+    var wallOp = 1;                                        // always on; the dark room simply covers it
+    var ri = sceneIndex('resume'), rl = inIntro ? -1 : (sp - ri * segLen) / segLen;
+    var resumeDim = rl >= 0 && rl <= 1 ? smoothstep(0, .25, rl) * (1 - smoothstep(.75, 1, rl)) : 0;   // a touch fainter behind the resume
+    wallOp = 1 - .22 * resumeDim;
     wall.style.opacity = (wallOp * WALL_MAX).toFixed(3);
     var drift2 = (inIntro ? 0 : sp) * -2.4;
-    var creditVis = wallOp * (1 - darkBackdropOpacity);
+    var creditVis = 1 - darkBackdropOpacity;
     artCredit.style.opacity = (creditVis * .9).toFixed(3);
     leafVis = creditVis;
     artCredit.style.pointerEvents = creditVis > .6 && patternShown ? 'auto' : 'none';
