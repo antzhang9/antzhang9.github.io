@@ -99,6 +99,28 @@
     background:linear-gradient(to bottom, rgba(32,29,24,.07), rgba(32,29,24,.12));
     border-top:1px solid rgba(32,29,24,.14);
   }
+  /* Klimt backdrops: two public-domain paintings, softened under a paper veil.
+     If an image file is missing the wall simply stays plain. */
+  .wall-art{
+    position:absolute; inset:-4%;
+    background-size:cover; background-position:center;
+    will-change:opacity, transform;
+  }
+  canvas.wall-art{ width:108%; height:108%; left:-4%; top:-4%; inset:auto; display:block; transition:opacity .28s ease; }
+  .wall.is-gem::before{
+    background:radial-gradient(ellipse at 50% 45%, rgba(250,247,240,0), rgba(250,247,240,.16) 80%), rgba(247,244,238,.05);
+  }
+  .wall-sheen{ position:absolute; inset:0; z-index:2; opacity:0; pointer-events:none;
+    background:linear-gradient(115deg, transparent 38%, rgba(255,255,255,.22) 50%, transparent 62%); background-size:260% 100%; }
+  .wall-leaves{ position:absolute; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; opacity:0; display:none; }
+  .wall.is-gold .wall-leaves{ display:block; }
+  .wall::before{
+    content:''; position:absolute; inset:0; z-index:1;
+    background:
+      radial-gradient(ellipse at 50% 45%, rgba(250,247,240,.22), rgba(250,247,240,.48) 78%),
+      rgba(247,244,238,.28);
+  }
+  .wall::after{ display:none; }
   .white-overlay{
     position:absolute; inset:0;
     background:#ffffff;
@@ -1618,6 +1640,77 @@
     .uml-view{ padding:16px; }
     .uml-viewport img{ width:1050px; }
   }
+
+  /* ---------- SOFT PASS: rounder, quieter, less boxy ---------- */
+  .content-panel{
+    border:0; border-radius:30px; padding:2rem 1.9rem;
+    box-shadow:0 26px 56px rgba(30,25,15,.16), 0 2px 10px rgba(30,25,15,.06);
+  }
+  .eyebrow{ text-transform:none; letter-spacing:.03em; font-size:.84rem; font-weight:600; }
+  .meta-line{ border-top:0; padding-top:0; margin-top:14px; text-transform:none; letter-spacing:.01em; font-size:.84rem; color:#6a6354; }
+  .content-panel .signoff{ border-top:0; padding-top:0; margin-top:18px; }
+  .cta, .project-demo-trigger{
+    border:0; border-radius:999px; min-height:48px; padding:0 24px;
+    text-transform:none; letter-spacing:.01em; font-size:.94rem; font-weight:600;
+    box-shadow:0 8px 18px rgba(30,25,15,.18);
+    transition:background .2s ease, transform .15s ease, box-shadow .2s ease;
+  }
+  .cta:hover, .project-demo-trigger:hover{ transform:translateY(-1px); box-shadow:0 10px 22px rgba(30,25,15,.22); }
+  .cta:active, .project-demo-trigger:active{ transform:scale(.97); }
+  .cta.quiet{ background:rgba(32,29,24,.07); color:var(--ink); box-shadow:none; }
+  .cta.quiet:hover{ background:var(--ink); color:#fffdf8; }
+  .cta.email{ font-size:.95rem; }
+  .enter-btn{
+    border:0; border-radius:999px; padding:0 32px; min-height:50px;
+    background:#fffdf8; box-shadow:0 10px 26px rgba(30,25,15,.16);
+    text-transform:none; letter-spacing:.02em; font-size:.98rem; font-weight:600;
+  }
+  .enter-btn:hover{ transform:translateY(-1px); }
+  .scene-nav a{ border-radius:999px; }
+  .scene-nav a::before{ text-transform:none; letter-spacing:.02em; font-size:.8rem; }
+  .next-cue{ text-transform:none; letter-spacing:.03em; font-size:.86rem; font-weight:600; }
+  .gallery-controls button, .canvas3d-controls button{ border:0; border-radius:999px; background:rgba(255,255,255,.10); padding:0 16px; text-transform:none; letter-spacing:.02em; }
+  .gallery-controls button:hover, .canvas3d-controls button:hover{ background:rgba(255,255,255,.2); }
+  .gallery-item{ border-radius:6px; }
+  .art-credit{
+    position:absolute; right:22px; bottom:14px; z-index:3; margin:0; opacity:0; pointer-events:none;
+    display:flex; flex-direction:column; align-items:flex-end; gap:3px;
+    font:500 .68rem 'IBM Plex Sans',sans-serif; letter-spacing:.02em; color:#5a5446; text-align:right;
+  }
+  .art-credit p{ margin:0; }
+  .pattern-btn{
+    pointer-events:inherit; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px;
+    border:0; border-radius:999px; padding:6px 13px 6px 11px;
+    background:rgba(255,253,248,.82); color:#27231d;
+    font:600 .78rem 'IBM Plex Sans',sans-serif; letter-spacing:.02em;
+    box-shadow:0 4px 12px rgba(30,25,15,.12);
+    transition:transform .15s ease, background .2s ease;
+  }
+  .pattern-btn:hover{ background:#fffdf8; transform:translateY(-1px); }
+  .pattern-btn:active{ transform:scale(.96); }
+  .pattern-btn:focus-visible{ outline:2px solid var(--brick); outline-offset:3px; }
+  .pattern-dot{ width:9px; height:9px; border-radius:50%; background:#8b8678; flex:none; }
+  .pattern-btn[data-tier="Gold"] .pattern-dot{ background:#d4a72c; box-shadow:0 0 0 3px rgba(212,167,44,.3), 0 0 10px rgba(212,167,44,.7); }
+  .pattern-btn[data-tier="The Sunflower"] .pattern-dot{ background:#e3a21a; box-shadow:0 0 0 3px rgba(227,162,26,.3); }
+  .pattern-btn[data-tier="Blue Gem"] .pattern-dot{ background:#2f6bff; box-shadow:0 0 0 3px rgba(47,107,255,.3), 0 0 10px rgba(47,107,255,.7); }
+  .pattern-btn{ touch-action:manipulation; }
+  .pattern-input{ width:3.4em; border:0; outline:0; background:transparent; font:inherit; color:inherit; padding:0; text-align:center; border-bottom:1.5px solid currentColor; }
+  .pattern-tier{ color:#6a6354; font-weight:500; }
+  .pattern-tier:empty{ display:none; }
+  body.gem .scene-nav a{ color:#eaf0ff; }
+  body.gem .next-cue:not([data-tone="dark"]){ color:#fffdf8; text-shadow:0 1px 8px rgba(8,20,80,.5); }
+  body.gem .art-credit{ color:#e6edff; }
+  @media (max-width:600px),
+         (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
+    .content-panel{
+      left:10px; right:10px; width:auto; bottom:calc(10px + env(safe-area-inset-bottom,0px));
+      border-radius:28px; padding:1.5rem 1.4rem 1.5rem;
+      box-shadow:0 18px 40px rgba(30,25,15,.2);
+    }
+    .art-credit{ bottom:auto; top:54px; right:44px; font-size:.6rem; max-width:60vw; }
+    .pattern-btn{ font-size:.72rem; padding:5px 11px 5px 9px; }
+  }
 </style>
 </head>
 <body>
@@ -1625,7 +1718,13 @@
 <div class="story" id="story">
 
   <div class="stage" id="stage">
-    <div class="wall" id="wall" aria-hidden="true"></div>
+    <div class="wall" id="wall" aria-hidden="true"><canvas class="wall-art" id="wallArt"></canvas><div class="wall-sheen"></div><canvas class="wall-leaves" id="wallLeaves"></canvas></div>
+    <div class="art-credit" id="artCredit">
+      <p id="artLine">Backgrounds: paintings by Gustav Klimt (public domain)</p>
+      <button class="pattern-btn" id="patternBtn" type="button" data-tier="Common" title="Click to roll a new pattern.">
+        <span class="pattern-dot"></span><span id="patternLabel">Pattern</span><span class="pattern-tier" id="patternTier"></span>
+      </button>
+    </div>
     <div class="white-overlay" id="whiteOverlay"></div>
 
     <div class="room-title" id="roomTitle">
@@ -1644,9 +1743,8 @@
     <div class="content-panel" id="cAbout">
       <span class="eyebrow">01 — about</span>
       <h2>Hi, I'm Anthony</h2>
-      <p>I build small analytical tools and keep a sketchbook.</p>
-      <p>I work in payments risk and fraud monitoring, with an interest in underwriting, pricing, and analytical tools that turn messy signals into decisions.</p>
-      <span class="meta-line">Credit &amp; Fraud Risk Analyst, Fiserv · B.A. Economics, Rutgers</span>
+      <p>Welcome. Scroll down and have a look around.</p>
+      <span class="meta-line">Fiserv · B.A. Economics, Rutgers</span>
     </div>
 
     <div class="content-panel" id="cProj1">
@@ -1750,7 +1848,7 @@
         el.href = 'mailto:' + u + '@' + d;
         el.textContent = u + '@' + d;
       </script>
-      <p class="signoff">Built between risk work, small tools, and a sketchbook.</p>
+      <p class="signoff">Built between work, small tools, and a sketchbook.</p>
     </div>
 
   </div><!-- /.stage -->
@@ -1949,7 +2047,221 @@
   var story = $('story');
   var terminalHold = $('terminalHold');
   var whiteOverlay = $('whiteOverlay');
-  var wall = $('wall');
+  var wall = $('wall'), wallArt = $('wallArt'), artCredit = $('artCredit');
+
+  // =====================================================================
+  // PATTERN WALL. The wall is one pre-blended board of Klimt landscapes
+  // (images/klimt-board.jpg). A pattern number from 0 to 999 decides which
+  // part of it you see (position, zoom, tilt, flip) and shows bottom right.
+  // Only three numbers are special:
+  //   222  gold leaf        661  blue gem        1111  The Sunflower (hidden)
+  // Ways in: ?pattern=1111, double-click (double-tap) the number and type one,
+  // or just type 1111 on a keyboard.
+  // =====================================================================
+  var BOARD_FILE = 'images/klimt-board.jpg';
+  var SUNFLOWER_FILE = 'images/klimt-the-sunflower.jpg';
+  var GOLD = 222, BLUE_GEM = 661, SUNFLOWER = 1111;
+  function patternTier(n){
+    if(n === BLUE_GEM) return { name:'Blue Gem', gem:true };
+    if(n === GOLD) return { name:'Gold', gold:true };
+    if(n === SUNFLOWER) return { name:'The Sunflower', sun:true };
+    return { name:'' };
+  }
+  function rng32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  var patternSeed = -1, patternShown = false, mapCanvas = null, sunImg = null;
+  var wctx = wallArt.getContext('2d');
+
+  function loadImg(src){
+    return new Promise(function(res){ var im = new Image(); im.onload = function(){ res(im); }; im.onerror = function(){ res(null); }; im.src = src; });
+  }
+  function loadArt(){
+    return Promise.all([loadImg(BOARD_FILE), loadImg(SUNFLOWER_FILE)]).then(function(r){
+      if(r[0]){ var c = document.createElement('canvas'); c.width = r[0].naturalWidth; c.height = r[0].naturalHeight; c.getContext('2d').drawImage(r[0], 0, 0); mapCanvas = c; }
+      sunImg = r[1];
+    });
+  }
+  // case-hardened blue: warped noise through a navy / royal / sky ramp, violet fringes, fine gold edge lines
+  function drawGem(cw, ch){
+    var gw = 320, gh = Math.max(120, Math.round(gw * ch / cw)), c = document.createElement('canvas'); c.width = gw; c.height = gh;
+    var g = c.getContext('2d'), im = g.createImageData(gw, gh), d = im.data;
+    function h(x, y){ var n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); }
+    function vn(x, y){ var xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+      return (h(xi, yi) * (1 - u) + h(xi + 1, yi) * u) * (1 - v) + (h(xi, yi + 1) * (1 - u) + h(xi + 1, yi + 1) * u) * v; }
+    function fbm(x, y){ var a = .5, s = 0; for(var o = 0; o < 4; o++){ s += a * vn(x, y); x = x * 2.03 + 11.3; y = y * 2.03 + 4.7; a *= .5; } return s; }
+    function mix(a, b, t){ return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+    function sm(a, b, x){ var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+    var navy = [8, 22, 84], royal = [30, 84, 222], sky = [120, 184, 255], violet = [96, 64, 200], gold = [236, 198, 96];
+    for(var py = 0; py < gh; py++) for(var px = 0; px < gw; px++){
+      var x = px / gw * 3.4, y = py / gh * 2.2;
+      var qx = fbm(x, y), qy = fbm(x + 5.2, y + 1.3);
+      var rx = fbm(x + 4 * qx + 1.7, y + 4 * qy + 9.2), ry = fbm(x + 4 * qx + 8.3, y + 4 * qy + 2.8);
+      var v = fbm(x + 4 * rx, y + 4 * ry);
+      var col = mix(navy, royal, sm(.28, .56, v));
+      col = mix(col, sky, sm(.52, .82, v) * .9);
+      col = mix(col, violet, (1 - Math.min(1, Math.abs(v - .47) / .05)) * .55);
+      var band = Math.abs(Math.sin(v * 22)); var edge = Math.pow(1 - band, 22) * sm(.35, .6, v);
+      col = mix(col, gold, Math.min(.65, edge * .8));
+      var k = (py * gw + px) * 4; d[k] = col[0]; d[k+1] = col[1]; d[k+2] = col[2]; d[k+3] = 255;
+    }
+    g.putImageData(im, 0, 0);
+    wctx.imageSmoothingEnabled = true; wctx.imageSmoothingQuality = 'high';
+    wctx.drawImage(c, 0, 0, cw, ch);
+    var s = wctx.createLinearGradient(0, 0, cw, ch);
+    s.addColorStop(0, 'rgba(255,255,255,.10)'); s.addColorStop(.5, 'rgba(255,255,255,0)'); s.addColorStop(1, 'rgba(0,0,40,.18)');
+    wctx.fillStyle = s; wctx.fillRect(0, 0, cw, ch);
+  }
+  function drawSunflower(cw, ch){                 // the portrait painting, feathered into the wall
+    var tall = ch > cw, asp = sunImg.naturalWidth / sunImg.naturalHeight, h = ch * .94, w = h * asp;
+    if(tall){ w = cw * 1.4; h = w / asp; }
+    var x = cw * (tall ? .5 : .66) - w / 2, y = tall ? ch * .14 : (ch - h) / 2;
+    var t = document.createElement('canvas'); t.width = Math.ceil(w); t.height = Math.ceil(h);
+    var g = t.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(sunImg, 0, 0, t.width, t.height);
+    g.globalCompositeOperation = 'destination-in';
+    var gx = g.createLinearGradient(0, 0, t.width, 0), f = .14;
+    gx.addColorStop(0, 'rgba(0,0,0,0)'); gx.addColorStop(f, 'rgba(0,0,0,1)'); gx.addColorStop(1 - f, 'rgba(0,0,0,1)'); gx.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gx; g.fillRect(0, 0, t.width, t.height);
+    var gy = g.createLinearGradient(0, 0, 0, t.height);
+    gy.addColorStop(0, 'rgba(0,0,0,0)'); gy.addColorStop(.08, 'rgba(0,0,0,1)'); gy.addColorStop(.92, 'rgba(0,0,0,1)'); gy.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gy; g.fillRect(0, 0, t.width, t.height);
+    wctx.drawImage(t, x, y);
+  }
+  function drawGoldLeaf(cw, ch, rnd){             // warm wash plus a scatter of small gold-leaf flecks
+    wctx.globalCompositeOperation = 'soft-light'; wctx.fillStyle = 'rgba(232,184,64,.7)'; wctx.fillRect(0, 0, cw, ch);
+    wctx.globalCompositeOperation = 'source-over';
+    var n = Math.round(cw * ch / 5200);
+    for(var i = 0; i < n; i++){
+      var px = rnd() * cw, py = rnd() * ch, sz = 3 + rnd() * 9, a = .22 + rnd() * .4;
+      wctx.save(); wctx.translate(px, py); wctx.rotate(rnd() * Math.PI);
+      wctx.fillStyle = 'rgba(' + (214 + (rnd() * 30 | 0)) + ',' + (165 + (rnd() * 30 | 0)) + ',' + (50 + (rnd() * 30 | 0)) + ',' + a.toFixed(2) + ')';
+      wctx.fillRect(-sz / 2, -sz / 2, sz, sz * (.5 + rnd() * .5));
+      wctx.restore();
+    }
+  }
+  function paintWall(){
+    if(patternSeed < 0) return;
+    var cssW = wallArt.clientWidth || innerWidth * 1.08, cssH = wallArt.clientHeight || innerHeight * 1.08;
+    var cw = Math.max(2, Math.round(cssW)), ch = Math.max(2, Math.round(cssH));
+    wallArt.width = cw; wallArt.height = ch;
+    var tier = patternTier(patternSeed);
+    wall.classList.toggle('is-gem', !!tier.gem); document.body.classList.toggle('gem', !!tier.gem);
+    if(tier.gem){ drawGem(cw, ch); return; }
+    if(!mapCanvas) return;
+    var rnd = rng32(patternSeed * 2654435761 + 12345); rnd(); rnd();
+    var MW = mapCanvas.width, MH = mapCanvas.height;
+    var zoom = 1 + rnd() * .75, rot = (rnd() - .5) * 26 * Math.PI / 180, flip = rnd() < .5 ? -1 : 1;
+    if(tier.sun){ zoom = 1.05; rot = 0; flip = 1; }
+    var k = Math.max(cw / MW, ch / MH) * 1.32 * zoom;
+    var cs = Math.abs(Math.cos(rot)), sn = Math.abs(Math.sin(rot));
+    var hx = (cw * cs + ch * sn) / (2 * k), hy = (cw * sn + ch * cs) / (2 * k);
+    var fx = MW / 2, fy = MH / 2;
+    if(MW - 2 * hx > 0) fx = hx + rnd() * (MW - 2 * hx); else rnd();
+    if(MH - 2 * hy > 0) fy = hy + rnd() * (MH - 2 * hy); else rnd();
+    wctx.save(); wctx.imageSmoothingQuality = 'high';
+    wctx.translate(cw / 2, ch / 2); wctx.rotate(rot); wctx.scale(k * flip, k); wctx.translate(-fx, -fy);
+    wctx.drawImage(mapCanvas, 0, 0); wctx.restore();
+    if(tier.gold) drawGoldLeaf(cw, ch, rnd);
+    if(tier.sun && sunImg) drawSunflower(cw, ch);
+  }
+  function setPattern(n){
+    patternSeed = n;
+    var tier = patternTier(n), btn = $('patternBtn');
+    $('patternLabel').textContent = 'Pattern #' + n;
+    $('patternTier').textContent = tier.gem ? '· Blue Gem 💎' : tier.gold ? '· Gold' : tier.sun ? '· The Sunflower 🌻' : '';
+    btn.setAttribute('data-tier', tier.name);
+    btn.setAttribute('aria-label', 'Pattern ' + n + (tier.name ? ', ' + tier.name : '') + '. Press to roll a new pattern.');
+    patternShown = !!(tier.gem || mapCanvas);
+    paintWall();
+    syncLeaves();
+  }
+  function randomPattern(){ var n; do { n = Math.floor(Math.random() * 1000); } while(n === patternSeed); return n; }
+  // ---- 222: gold leaves drift down; scrolling or moving the mouse rustles more loose ----
+  var leafVis = 0, leaves = [], leafRaf = 0, leafLast = 0, gust = 0, leafAcc = 0;
+  var wlc = $('wallLeaves'), lctx = wlc.getContext('2d');
+  var LEAF_COLS = [['#f0c95a','#b8821a'],['#e6b53c','#a8741a'],['#f5d97a','#c4902a'],['#d9a02e','#9a6a14']];
+  function leafSize(){ var w = wlc.clientWidth || innerWidth, h = wlc.clientHeight || innerHeight; if(wlc.width !== w * 1 || wlc.height !== h){ wlc.width = w; wlc.height = h; } return [w, h]; }
+  function spawnLeaf(x){
+    if(leaves.length > 46) return;
+    var wh = leafSize(), c = LEAF_COLS[Math.random() * LEAF_COLS.length | 0];
+    leaves.push({ x: x == null ? Math.random() * wh[0] : x, y: -30, s: 11 + Math.random() * 15, vy: 34 + Math.random() * 40, ph: Math.random() * 6.28,
+      sw: .6 + Math.random() * 1.1, am: 18 + Math.random() * 34, rot: Math.random() * 6.28, vr: (Math.random() - .5) * 1.6, fp: Math.random() * 6.28, fs: 1 + Math.random() * 1.6, c: c, t: 0, dx: 0 });
+  }
+  function drawLeaf(L){
+    var s = L.s, fl = Math.cos(L.fp);                     // flipping gives the tumbling look
+    lctx.save(); lctx.translate(L.x + L.dx, L.y); lctx.rotate(L.rot); lctx.scale(Math.max(.18, Math.abs(fl)), 1);
+    var g = lctx.createLinearGradient(0, -s, 0, s); g.addColorStop(0, L.c[0]); g.addColorStop(1, L.c[1]);
+    lctx.fillStyle = g; lctx.globalAlpha = .9;
+    lctx.beginPath(); lctx.moveTo(0, -s);
+    lctx.bezierCurveTo(s * .75, -s * .45, s * .7, s * .55, 0, s);
+    lctx.bezierCurveTo(-s * .7, s * .55, -s * .75, -s * .45, 0, -s); lctx.fill();
+    lctx.strokeStyle = 'rgba(120,76,10,.45)'; lctx.lineWidth = 1; lctx.beginPath(); lctx.moveTo(0, -s * .85); lctx.lineTo(0, s * 1.15); lctx.stroke();
+    lctx.restore();
+  }
+  function leafTick(now){
+    var dt = Math.min(.05, (now - leafLast) / 1000 || .016); leafLast = now;
+    var wh = leafSize(), W = wh[0], H = wh[1];
+    wlc.style.opacity = Math.min(1, leafVis * 1.1).toFixed(3);
+    gust *= Math.pow(.25, dt);                                           // wind dies away
+    leafAcc += dt; if(leafAcc > 1.1 && leafVis > .05){ leafAcc = 0; spawnLeaf(); }
+    lctx.clearRect(0, 0, W, H);
+    for(var i = leaves.length - 1; i >= 0; i--){
+      var L = leaves[i]; L.t += dt;
+      L.y += (L.vy + gust * 40) * dt; L.dx = Math.sin(L.t * L.sw + L.ph) * L.am + gust * 14 * L.t * .2;
+      L.rot += L.vr * dt + gust * .02; L.fp += L.fs * dt * (1 + gust * .3);
+      if(L.y > H + 40){ leaves.splice(i, 1); continue; }
+      drawLeaf(L);
+    }
+    leafRaf = patternSeed === GOLD ? requestAnimationFrame(leafTick) : 0;
+  }
+  function rustle(amount, x){
+    if(patternSeed !== GOLD || leafVis < .1) return;
+    gust = Math.min(3, gust + amount);
+    var n = Math.min(3, Math.round(amount * 2.2));
+    for(var i = 0; i < n; i++) spawnLeaf(x == null ? null : x + (Math.random() - .5) * 240);
+  }
+  function syncLeaves(){
+    var on = patternSeed === GOLD && !reduced;
+    wall.classList.toggle('is-gold', on);
+    if(on && !leafRaf){ leafLast = performance.now(); leafRaf = requestAnimationFrame(leafTick); }
+    if(!on){ leaves.length = 0; if(leafRaf){ cancelAnimationFrame(leafRaf); leafRaf = 0; } }
+  }
+  var lastY = scrollY, lastMx = 0, lastMy = 0;
+  window.addEventListener('scroll', function(){ var d = Math.abs(scrollY - lastY); lastY = scrollY; if(d > 3) rustle(Math.min(1.5, d / 90), innerWidth * Math.random()); }, { passive: true });
+  window.addEventListener('mousemove', function(e){ var d = Math.abs(e.clientX - lastMx) + Math.abs(e.clientY - lastMy); lastMx = e.clientX; lastMy = e.clientY; if(d > 40) rustle(Math.min(.9, d / 220), e.clientX); }, { passive: true });
+  function validPattern(n){ return n >= 0 && n <= 999 || n === SUNFLOWER; }
+  var asked = parseInt(new URLSearchParams(location.search).get('pattern'), 10);
+  loadArt().then(function(){ setPattern(validPattern(asked) ? asked : randomPattern()); });
+  function swapTo(n){
+    wallArt.style.opacity = 0;
+    setTimeout(function(){ setPattern(n); wallArt.style.opacity = 1; }, reduced ? 0 : 280);
+  }
+  var clickT = 0, patBtn = $('patternBtn');
+  patBtn.addEventListener('click', function(){            // a double-click is for typing a number, so wait a beat
+    clearTimeout(clickT); clickT = setTimeout(function(){ swapTo(randomPattern()); }, 230);
+  });
+  patBtn.addEventListener('dblclick', function(){
+    clearTimeout(clickT);
+    var lab = $('patternLabel'), inp = document.createElement('input');
+    inp.type = 'text'; inp.inputMode = 'numeric'; inp.maxLength = 4; inp.className = 'pattern-input'; inp.setAttribute('aria-label', 'Enter a pattern number');
+    inp.placeholder = '#'; lab.style.display = 'none'; lab.parentNode.insertBefore(inp, lab); inp.focus();
+    var closed = false;
+    function done(apply){
+      if(closed) return; closed = true;
+      var n = parseInt(inp.value, 10), v = inp.value;
+      inp.remove(); lab.style.display = '';
+      if(apply && /^\d{1,4}$/.test(v) && validPattern(n) && n !== patternSeed) swapTo(n);
+    }
+    inp.addEventListener('keydown', function(e){ e.stopPropagation(); if(e.key === 'Enter') done(true); else if(e.key === 'Escape') done(false); });
+    inp.addEventListener('blur', function(){ done(true); });
+  });
+  var typed = '';
+  document.addEventListener('keydown', function(e){        // typing 1111 anywhere works too
+    if(/^(INPUT|TEXTAREA)$/.test((e.target || {}).tagName) || e.ctrlKey || e.metaKey || e.altKey) return;
+    if(/^\d$/.test(e.key)){ typed = (typed + e.key).slice(-4); if(typed === '1111' && patternSeed !== SUNFLOWER){ typed = ''; swapTo(SUNFLOWER); } }
+    else typed = '';
+  });
+  var rzT = 0;
+  window.addEventListener('resize', function(){ clearTimeout(rzT); rzT = setTimeout(paintWall, 200); });
   var roomTitle = $('roomTitle');
   var galleryWrap = $('galleryWrap');
   var galleryPanel = $('cGallery');
@@ -2165,6 +2477,12 @@
 
     // ---- background: paper -> wall, plus dark gallery and white finale ----
     wall.style.opacity = smoothstep(0, .7, ip);
+    var drift2 = (inIntro ? 0 : sp) * -2.4;
+    var creditVis = smoothstep(0, .7, ip) * (1 - darkBackdropOpacity) * (1 - whiteFactor);
+    artCredit.style.opacity = (creditVis * .9).toFixed(3);
+    leafVis = creditVis;
+    artCredit.style.pointerEvents = creditVis > .6 && patternShown ? 'auto' : 'none';
+    wallArt.style.transform = 'translate3d(0,' + drift2.toFixed(2) + 'vh,0)';
     fishPortal.style.opacity = 0;
     portalWash.style.opacity = 0;
     galleryBackdrop.style.opacity = darkBackdropOpacity;
