@@ -1698,9 +1698,9 @@
   .pattern-input{ width:3.4em; border:0; outline:0; background:transparent; font:inherit; color:inherit; padding:0; text-align:center; border-bottom:1.5px solid currentColor; }
   .pattern-tier{ color:#6a6354; font-weight:500; }
   .pattern-tier:empty{ display:none; }
-  body.gem .scene-nav a{ color:#eaf0ff; }
-  body.gem .next-cue:not([data-tone="dark"]){ color:#fffdf8; text-shadow:0 1px 8px rgba(8,20,80,.5); }
-  body.gem .art-credit{ color:#e6edff; }
+  body.gem .scene-nav a{ color:#3a2f1a; }
+  body.gem .next-cue:not([data-tone="dark"]){ color:#2a2418; text-shadow:0 1px 8px rgba(255,240,200,.6); }
+  body.gem .art-credit{ color:#3a2f1a; }
   @media (max-width:600px),
          (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
     .content-panel{
@@ -2058,8 +2058,8 @@
   // Ways in: ?pattern=1111, double-click (double-tap) the number and type one,
   // or just type 1111 on a keyboard.
   // =====================================================================
-  var BOARD_FILE = 'images/klimt-board.jpg';
-  var SUNFLOWER_FILE = 'images/klimt-the-sunflower.jpg';
+  var BOARD_FILE = 'images/klimt-board';            // .jpg, .jpeg or .png all work
+  var SUNFLOWER_FILE = 'images/klimt-the-sunflower';
   var GOLD = 222, BLUE_GEM = 661, SUNFLOWER = 1111;
   function patternTier(n){
     if(n === BLUE_GEM) return { name:'Blue Gem', gem:true };
@@ -2072,8 +2072,14 @@
   var patternSeed = -1, patternShown = false, mapCanvas = null, sunImg = null;
   var wctx = wallArt.getContext('2d');
 
-  function loadImg(src){
-    return new Promise(function(res){ var im = new Image(); im.onload = function(){ res(im); }; im.onerror = function(){ res(null); }; im.src = src; });
+  function loadImg(base){                              // tries .jpg, then .jpeg, then .png
+    var exts = ['.jpg', '.jpeg', '.png', '.JPG', '.JPEG'];
+    function tryAt(i){
+      if(i >= exts.length) return Promise.resolve(null);
+      return new Promise(function(res){ var im = new Image(); im.onload = function(){ res(im); }; im.onerror = function(){ res(null); }; im.src = base + exts[i]; })
+        .then(function(im){ return im || tryAt(i + 1); });
+    }
+    return tryAt(0);
   }
   function loadArt(){
     return Promise.all([loadImg(BOARD_FILE), loadImg(SUNFLOWER_FILE)]).then(function(r){
@@ -2081,35 +2087,48 @@
       sunImg = r[1];
     });
   }
-  // case-hardened blue: warped noise through a navy / royal / sky ramp, violet fringes, fine gold edge lines
+  // case-hardened blue gem: grey-olive steel with gold-brown halos, dark purple rims and blotchy blue islands
   function drawGem(cw, ch){
-    var gw = 320, gh = Math.max(120, Math.round(gw * ch / cw)), c = document.createElement('canvas'); c.width = gw; c.height = gh;
+    var gh = 400, gw = Math.max(400, Math.round(gh * cw / ch)), c = document.createElement('canvas'); c.width = gw; c.height = gh;
     var g = c.getContext('2d'), im = g.createImageData(gw, gh), d = im.data;
     function h(x, y){ var n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); }
     function vn(x, y){ var xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
       return (h(xi, yi) * (1 - u) + h(xi + 1, yi) * u) * (1 - v) + (h(xi, yi + 1) * (1 - u) + h(xi + 1, yi + 1) * u) * v; }
-    function fbm(x, y){ var a = .5, s = 0; for(var o = 0; o < 4; o++){ s += a * vn(x, y); x = x * 2.03 + 11.3; y = y * 2.03 + 4.7; a *= .5; } return s; }
-    function mix(a, b, t){ return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+    function fbm(x, y, o){ var a = .5, s = 0; for(var i = 0; i < o; i++){ s += a * vn(x, y); x = x * 2.03 + 11.3; y = y * 2.03 + 4.7; a *= .5; } return s; }
+    function mix(a, b, t){ t = Math.max(0, Math.min(1, t)); return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
     function sm(a, b, x){ var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
-    var navy = [8, 22, 84], royal = [30, 84, 222], sky = [120, 184, 255], violet = [96, 64, 200], gold = [236, 198, 96];
+    var steel = [184, 156, 92], steel2 = [220, 196, 124], brown = [190, 128, 56], gold = [236, 196, 100], cream = [248, 232, 176],
+        purple = [92, 52, 150], navy = [40, 64, 176], royal = [60, 128, 240], sky = [110, 188, 255], pale = [170, 218, 255], wear = [150, 170, 196];
+    var S = 8.4;
     for(var py = 0; py < gh; py++) for(var px = 0; px < gw; px++){
-      var x = px / gw * 3.4, y = py / gh * 2.2;
-      var qx = fbm(x, y), qy = fbm(x + 5.2, y + 1.3);
-      var rx = fbm(x + 4 * qx + 1.7, y + 4 * qy + 9.2), ry = fbm(x + 4 * qx + 8.3, y + 4 * qy + 2.8);
-      var v = fbm(x + 4 * rx, y + 4 * ry);
-      var col = mix(navy, royal, sm(.28, .56, v));
-      col = mix(col, sky, sm(.52, .82, v) * .9);
-      col = mix(col, violet, (1 - Math.min(1, Math.abs(v - .47) / .05)) * .55);
-      var band = Math.abs(Math.sin(v * 22)); var edge = Math.pow(1 - band, 22) * sm(.35, .6, v);
-      col = mix(col, gold, Math.min(.65, edge * .8));
+      var x = px / gh * S, y = py / gh * S;
+      var wx = fbm(x * .9 + 3.1, y * .9 + 1.7, 3), wy = fbm(x * .9 + 8.4, y * .9 + 5.2, 3);
+      var f = fbm(x * .8 + wx * 1.5, y * .8 + wy * 1.5, 5);              // blotch field
+      var e = f - .565;                                                       // e > 0 : inside a blue island
+      var base = mix(steel, steel2, fbm(x * 3 + 9, y * 3 + 2, 3) * 1.6 - .3);
+      base = mix(base, brown, sm(.42, .56, fbm(x * 1.3 + 20, y * 1.3, 3)) * .3);
+      base = mix(base, purple, sm(.56, .7, fbm(x * 2.6 + 70, y * 2.6 + 15, 3)) * .5);                  // purple blotches in the gold
+      var col = base;
+      var halo = sm(-.05, -.01, e);                                         // gold-brown glow just outside
+      col = mix(col, brown, halo * .85);
+      col = mix(col, gold, sm(-.022, -.004, e) * .75);
+      var hl = sm(.52, .7, fbm(x * 2.2 + 40, y * 2.2 + 7, 3));                                             // pale gold highlights on some edges
+      col = mix(col, cream, hl * sm(-.025, -.008, e) * (1 - sm(0, .01, e)) * .9);
+      var inside = sm(-.004, .012, e);
+      var mott = fbm(x * 6 + 60, y * 6 + 30, 4);                              // mottling inside the blue
+      var blue = mix(navy, royal, sm(.0, .05, e) + (mott - .5) * 1.1);
+      blue = mix(blue, sky, sm(.04, .13, e) * .75 + (mott - .5) * .45);
+      blue = mix(blue, pale, sm(.12, .2, e) * .4);
+      var rim = 1 - sm(.0, .025, e);                                           // dark purple rim
+      blue = mix(blue, purple, rim * .85 * (.5 + mott * .6));
+      col = mix(col, blue, inside);
+      var sp = fbm(x * 14 + 5, y * 14 + 90, 2);                               // tiny blue flecks in the steel
+      if(e < -.02 && sp > .66) col = mix(col, wear, Math.min(.8, (sp - .66) * 5));   // pale grey-blue wear
       var k = (py * gw + px) * 4; d[k] = col[0]; d[k+1] = col[1]; d[k+2] = col[2]; d[k+3] = 255;
     }
     g.putImageData(im, 0, 0);
     wctx.imageSmoothingEnabled = true; wctx.imageSmoothingQuality = 'high';
     wctx.drawImage(c, 0, 0, cw, ch);
-    var s = wctx.createLinearGradient(0, 0, cw, ch);
-    s.addColorStop(0, 'rgba(255,255,255,.10)'); s.addColorStop(.5, 'rgba(255,255,255,0)'); s.addColorStop(1, 'rgba(0,0,40,.18)');
-    wctx.fillStyle = s; wctx.fillRect(0, 0, cw, ch);
   }
   function drawSunflower(cw, ch){                 // the portrait painting, feathered into the wall
     var tall = ch > cw, asp = sunImg.naturalWidth / sunImg.naturalHeight, h = ch * .94, w = h * asp;
