@@ -28,15 +28,14 @@
     --paper:#faf7f0;
     --rule:rgba(32,29,24,0.12);
 
-    /* ---- Single source of truth for the scroll-story timing ----
-       7 scenes. --scene-vh is chosen so each scene still takes exactly the
-       same scroll distance as before the 3D Canvas scene was added:
-       (7 * 105.9524vh - 100vh) / 7 = 91.667vh per scene. */
-    --scenes: 7;
-    --scene-vh: 105.9524vh;
+    /* ---- Scroll-story timing (scene list lives in the script: SCENES) ----
+       The story is: an opening "threshold" zone (--intro-vh), then one slot
+       of --per-scene for every scene. JS sets --scenes from SCENES. */
+    --scenes: 8;
+    --per-scene: 91.667vh;
+    --intro-vh: 80vh;
     --end-hold: 0px;
-    --scene-story-height: calc(var(--scenes) * var(--scene-vh));
-    --story-height: calc(var(--scene-story-height) + var(--end-hold));
+    --story-height: calc(100vh + var(--intro-vh) + var(--scenes) * var(--per-scene) + var(--end-hold));
   }
   *{box-sizing:border-box;}
   html,body{margin:0; padding:0; touch-action:pan-y;}
@@ -59,15 +58,8 @@
   .scene-anchor{
     position:absolute;
     left:0; width:1px;
-    height:var(--scene-vh);
+    height:var(--per-scene);
   }
-  #scene-about{ top:calc(0 * var(--scene-vh)); }
-  #scene-proj1{ top:calc(1 * var(--scene-vh)); }
-  #scene-proj2{ top:calc(2 * var(--scene-vh)); }
-  #scene-sketchbook{ top:calc(3 * var(--scene-vh)); }
-  #scene-canvas{ top:calc(4 * var(--scene-vh)); }
-  #scene-resume{ top:calc(5 * var(--scene-vh)); }
-  #scene-contact{ top:calc(6 * var(--scene-vh)); }
   .terminal-hold{
     position:absolute;
     left:0;
@@ -89,6 +81,24 @@
       radial-gradient(ellipse at 50% 78%, rgba(0,0,0,0.05), transparent 60%),
       linear-gradient(to bottom, #f7f4ee 0%, #efeae0 55%, #e6e0d2 100%);
   }
+  /* The gallery wall the opening dissolves into: a calmer, slightly cooler
+     tone, a soft pool of light and a quiet baseboard line. */
+  .wall{
+    position:absolute; inset:0;
+    z-index:1;
+    opacity:0;
+    pointer-events:none;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(255,255,255,.55), transparent 62%),
+      linear-gradient(to bottom, #ece8df 0%, #e4dfd3 100%);
+  }
+  .wall::after{
+    content:'';
+    position:absolute; left:0; right:0; bottom:0;
+    height:11%;
+    background:linear-gradient(to bottom, rgba(32,29,24,.07), rgba(32,29,24,.12));
+    border-top:1px solid rgba(32,29,24,.14);
+  }
   .white-overlay{
     position:absolute; inset:0;
     background:#ffffff;
@@ -107,8 +117,27 @@
     pointer-events:none;
   }
   .room-title h1{ font-size:clamp(2.6rem,7vw,5rem); }
+  .enter-btn{
+    pointer-events:auto;
+    display:inline-flex; align-items:center; justify-content:center;
+    min-height:46px;
+    margin-top:26px;
+    padding:0 26px;
+    border:1px solid var(--ink);
+    border-radius:2px;
+    background:rgba(250,247,240,.82);
+    color:var(--ink);
+    font:500 .8rem 'IBM Plex Sans',sans-serif;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .enter-btn:hover{ background:var(--ink); color:var(--paper); }
+  .enter-btn:focus-visible{ outline:2px solid var(--brick); outline-offset:3px; }
+  .room-title.is-gone .enter-btn{ pointer-events:none; }
   .scroll-cue{
-    margin-top:30px;
+    margin-top:14px;
     font-size:1.3rem;
     color:var(--brick);
     animation:bob 2.2s ease-in-out infinite;
@@ -134,21 +163,21 @@
     z-index:3;
   }
   #pDancer{ pointer-events:none; }
-  #pDancer.secret-active{ pointer-events:auto; cursor:pointer; }
 
   /* ---------- CONTENT PANELS -- quiet editorial paper, not glass ---------- */
   .content-panel{
     position:absolute;
     top:50%; left:6vw;
     transform:translateY(-50%);
-    width:340px;
+    width:360px;
     max-width:80vw;
     text-align:left;
-    background:var(--paper);
-    border-top:2px solid var(--brick);
+    background:#fffdf8;
+    border:1px solid rgba(32,29,24,.16);
+    border-top:3px solid var(--brick);
     border-radius:2px;
     padding:1.9rem 1.7rem;
-    box-shadow:0 10px 28px rgba(30,25,15,0.10);
+    box-shadow:0 16px 38px rgba(30,25,15,0.18);
     opacity:0;
     pointer-events:none;
     z-index:60;
@@ -163,7 +192,8 @@
     color:var(--brick);
   }
   .content-panel h2{font-size:clamp(1.4rem,3vw,2rem); margin-bottom:10px;}
-  .content-panel p{font-size:0.95rem; line-height:1.6; opacity:0.85; margin:0 0 10px;}
+  .content-panel p{font-size:1rem; line-height:1.55; color:#27231d; margin:0 0 10px;}
+  .content-panel .signoff{ font-family:'Fraunces',serif; font-style:italic; font-size:.95rem; color:#4a4438; margin:16px 0 0; padding-top:12px; border-top:1px solid var(--rule); }
   /* Understated metadata line replacing the old pill-shaped tags. */
   .meta-line{
     display:block;
@@ -173,16 +203,58 @@
     font-size:0.74rem;
     letter-spacing:0.05em;
     text-transform:uppercase;
-    color:#6b6455;
+    color:#4f493c;
   }
-  .contact-link, .resume-link{
-    display:inline-block;
-    margin-top:4px;
-    font-size:1.05rem;
-    font-family:'Fraunces', serif;
-    border-bottom:1px solid currentColor;
-    padding-bottom:2px;
+  /* One clear, solid button style for every call to action. */
+  .cta, .project-demo-trigger{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    min-height:46px;
+    margin:14px 10px 0 0;
+    padding:0 20px;
+    border:1px solid var(--ink);
+    border-radius:2px;
+    background:var(--ink);
+    color:#fffdf8;
+    font:500 .8rem 'IBM Plex Sans',sans-serif;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background .2s ease, border-color .2s ease;
   }
+  .cta::after, .project-demo-trigger::after{ content:'\2197'; font-size:1rem; transition:transform .2s ease; }
+  .cta:hover, .project-demo-trigger:hover{ background:var(--brick); border-color:var(--brick); }
+  .cta:hover::after, .project-demo-trigger:hover::after{ transform:translate(2px,-2px); }
+  .cta:focus-visible{ outline:2px solid var(--brick); outline-offset:3px; }
+  .cta.quiet{ background:transparent; color:var(--ink); }
+  .cta.quiet:hover{ color:#fffdf8; }
+  .cta.quiet::after{ content:'\2193'; }
+  .cta.email{ text-transform:none; letter-spacing:.02em; font-size:.95rem; word-break:break-all; }
+  .cta.email::after{ content:''; }
+  .cta.email:hover::after{ transform:none; }
+
+  /* "Next: ..." cue -- a small, optional nudge, never required. */
+  .next-cue{
+    position:fixed;
+    left:6vw; bottom:20px;
+    z-index:65;
+    min-height:44px;
+    padding:0 4px;
+    border:0; background:transparent;
+    color:#4f493c;
+    font:500 .74rem 'IBM Plex Sans',sans-serif;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    cursor:pointer;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .35s ease, color .35s ease;
+  }
+  .next-cue.is-on{ opacity:1; pointer-events:auto; }
+  .next-cue::after{ content:' \2193'; color:var(--brick); }
+  .next-cue[data-tone="dark"]{ color:#e9e2d2; }
+  .next-cue:hover{ color:var(--brick); }
+  .next-cue:focus-visible{ outline:2px solid var(--brick); outline-offset:2px; }
 
   /* ---------- ACCESSIBLE SCENE NAVIGATION ---------- */
   .scene-nav{
@@ -205,6 +277,17 @@
     outline:2px solid var(--brick);
     outline-offset:2px;
   }
+  .scene-nav a::before{
+    content:attr(data-label);
+    font:500 .68rem 'IBM Plex Sans',sans-serif;
+    letter-spacing:.1em; text-transform:uppercase;
+    white-space:nowrap;
+    opacity:0; transform:translateX(4px);
+    transition:opacity .2s ease, transform .2s ease;
+    pointer-events:none;
+  }
+  .scene-nav a:hover::before,
+  .scene-nav a:focus-visible::before{ opacity:1; transform:none; }
   .scene-nav-dot{
     width:9px; height:9px; border-radius:50%; flex:none;
     border:1px solid currentColor; background:transparent;
@@ -257,8 +340,15 @@
       padding:0;
     }
     .scene-nav-dot{ width:8px; height:8px; }
+    .scene-nav a::before{ display:none; }
     .scene-nav a[aria-current="true"] .scene-nav-dot{ opacity:1; transform:scale(1.3); color:var(--brick); }
     .stage{ padding-bottom:0; }
+    .enter-btn{ min-height:48px; }
+    .cta, .project-demo-trigger{ display:flex; width:100%; margin:12px 0 0; }
+    .cta + .cta{ margin-top:8px; }
+    /* On phones the text panel owns the bottom of the screen, so the cue
+       moves to the top-left, clear of the dot rail on the right. */
+    .next-cue{ left:6vw; bottom:auto; top:max(8px, env(safe-area-inset-top,0px)); min-height:44px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -327,6 +417,9 @@
     pointer-events:none;
   }
   .gallery-wrap.interactive{ pointer-events:auto; }
+  /* Invisible rooms never catch clicks meant for what is actually on screen. */
+  .gallery-wrap:not(.interactive) *,
+  .canvas3d-wrap:not(.interactive) *{ pointer-events:none !important; }
   .gallery-wrap .content-panel{ pointer-events:none; }
   .gallery-wrap .content-panel.interactive{ pointer-events:auto; }
   .gallery-copy{
@@ -677,29 +770,6 @@
   }
 
   /* ---------- CURATED PROJECT DEMOS ---------- */
-  .project-demo-trigger{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    min-height:42px;
-    margin-top:16px;
-    padding:0 0 3px;
-    border:0;
-    border-bottom:1px solid currentColor;
-    background:transparent;
-    color:var(--ink);
-    font:500 .82rem 'IBM Plex Sans',sans-serif;
-    letter-spacing:.07em;
-    text-transform:uppercase;
-    cursor:pointer;
-  }
-  .project-demo-trigger::after{
-    content:'\2197';
-    color:var(--brick);
-    font-size:1rem;
-    transition:transform .2s ease;
-  }
-  .project-demo-trigger:hover::after{ transform:translate(2px,-2px); }
   .project-demo-trigger:focus-visible,
   .demo-button:focus-visible,
   .demo-select:focus-visible,
@@ -1149,7 +1219,7 @@
 
   @media (max-width:600px),
          (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
-    .project-demo-trigger{ min-height:36px; margin-top:8px; }
+    .project-demo-trigger{ min-height:46px; margin-top:8px; }
     .project-demo-modal{ padding:0; align-items:stretch; }
     .project-demo-shell{ width:100%; height:100svh; }
     .demo-header{ padding:14px 16px 12px; }
@@ -1548,47 +1618,6 @@
     .uml-view{ padding:16px; }
     .uml-viewport img{ width:1050px; }
   }
-
-  /* ---------- BOBA EASTER EGG (unchanged) ---------- */
-  .boba-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4vh 4vw;
-    background: rgba(32, 29, 24, 0.35);
-    backdrop-filter: blur(10px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-  .boba-modal.open { opacity: 1; pointer-events: auto; }
-  .boba-window {
-    position: relative;
-    width: min(1000px, 92vw);
-    height: 90vh;
-    background: white;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.25);
-    transform: scale(0.96);
-    transition: transform 0.3s ease;
-  }
-  .boba-modal.open .boba-window { transform: scale(1); }
-  .boba-window iframe { width: 100%; height: 100%; border: 0; }
-  .boba-close {
-    position: absolute;
-    top: 14px; right: 18px;
-    z-index: 10;
-    width: 34px; height: 34px;
-    border: 0; border-radius: 50%;
-    background: rgba(255,255,255,0.9);
-    font-size: 24px; line-height: 30px;
-    cursor: pointer;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
-  }
 </style>
 </head>
 <body>
@@ -1596,11 +1625,13 @@
 <div class="story" id="story">
 
   <div class="stage" id="stage">
+    <div class="wall" id="wall" aria-hidden="true"></div>
     <div class="white-overlay" id="whiteOverlay"></div>
 
     <div class="room-title" id="roomTitle">
       <h1>Anthony Zhang</h1>
-      <div class="scroll-cue">↓</div>
+      <button class="enter-btn" id="enterBtn" type="button">Step inside</button>
+      <div class="scroll-cue" aria-hidden="true">↓</div>
     </div>
 
     <img class="painting" id="pFlag" src="images/painting-flag.png" width="712" height="950" alt="Painted figure carrying a large red bundle over one shoulder">
@@ -1613,8 +1644,9 @@
     <div class="content-panel" id="cAbout">
       <span class="eyebrow">01 — about</span>
       <h2>Hi, I'm Anthony</h2>
-      <p>Credit &amp; Fraud Risk Analyst at Fiserv. B.A. Economics, Rutgers University.</p>
-      <p>Stay a while.</p>
+      <p>I build small analytical tools and keep a sketchbook.</p>
+      <p>I work in payments risk and fraud monitoring, with an interest in underwriting, pricing, and analytical tools that turn messy signals into decisions.</p>
+      <span class="meta-line">Credit &amp; Fraud Risk Analyst, Fiserv · B.A. Economics, Rutgers</span>
     </div>
 
     <div class="content-panel" id="cProj1">
@@ -1622,7 +1654,7 @@
       <h2>Flight Arbitrage Optimizer</h2>
       <p>A graph-based optimizer that ranks outbound and return fares independently, blocks conflicting directional edges, then inserts the cheapest third-city path.</p>
       <span class="meta-line">Python · graph search · price arbitrage</span>
-      <button class="project-demo-trigger" type="button" data-demo="flight" aria-haspopup="dialog">Explore curated demo</button>
+      <button class="project-demo-trigger" type="button" data-demo="flight" aria-haspopup="dialog">View Flight Optimizer</button>
     </div>
 
     <div class="content-panel" id="cProj2">
@@ -1630,7 +1662,15 @@
       <h2>WordHunt Neural Solver</h2>
       <p>Trained a neural network on ~35,000 dictionary words to prune a brute-force WordHunt solver. 94.6% accuracy, 17% less search space, 91% recall retained.</p>
       <span class="meta-line">Python · scikit-learn</span>
-      <button class="project-demo-trigger" type="button" data-demo="wordhunt" aria-haspopup="dialog">Explore curated demo</button>
+      <button class="project-demo-trigger" type="button" data-demo="wordhunt" aria-haspopup="dialog">Try WordHunt Solver</button>
+    </div>
+
+    <div class="content-panel" id="cMap">
+      <span class="eyebrow">04 — project</span>
+      <h2>Currency Map</h2>
+      <p>A world map of what one unit of each currency is worth. Switch it to see what a Big Mac costs in each country.</p>
+      <span class="meta-line">JavaScript · live exchange rates</span>
+      <a class="cta" href="currency-map.html">Open Currency Map</a>
     </div>
 
     <div class="portal-wash" id="portalWash" aria-hidden="true"></div>
@@ -1642,7 +1682,7 @@
 
     <div class="gallery-wrap" id="galleryWrap">
       <div class="content-panel" id="cGallery">
-        <span class="eyebrow">04 — sketchbook</span>
+        <span class="eyebrow">05 — sketchbook</span>
         <div class="gallery-copy" id="galleryCopy">
           <h2 id="galleryTitle">Reaching up</h2>
           <p id="galleryDescription">A quick study of a figure stretching toward a small bloom.</p>
@@ -1650,7 +1690,7 @@
         </div>
       </div>
       <div class="gallery-stage" id="galleryStage" tabindex="0" role="region"
-           aria-label="Sketchbook gallery. Use the previous and next controls, arrow keys, mouse wheel, or a horizontal swipe to browse.">
+           aria-label="Sketchbook gallery. Use the previous and next controls, arrow keys, or a horizontal swipe to browse. Scrolling down moves on to the next section.">
         <div class="gallery-rail" aria-hidden="true"></div>
         <div class="gallery-stack" id="galleryStack"></div>
         <div class="gallery-controls">
@@ -1664,7 +1704,7 @@
 
     <div class="canvas3d-wrap" id="canvas3dWrap">
       <div class="content-panel" id="cCanvas3d">
-        <span class="eyebrow">05 — canvas</span>
+        <span class="eyebrow">06 — canvas</span>
         <!-- Edit the title, line of text and medium below for the painting. -->
         <h2 id="canvas3dTitle">Untitled</h2>
         <p>Dedicated to Finnian, a truly free friend.</p>
@@ -1691,50 +1731,37 @@
     <img id="doodle_ant_asset" src="images/doodle-ant.jpg" width="585" height="900" style="display:none" alt="">
 
     <div class="content-panel" id="cResume">
-      <span class="eyebrow">06 — resume</span>
+      <span class="eyebrow">07 — resume</span>
       <h2>Resume</h2>
-      <p>The full version, PDF-shaped — everything that didn't make it onto these walls.</p>
-      <p>Python · SQL · Power BI · Splunk · Excel</p>
-      <a class="resume-link" href="resume.pdf" download>Download PDF ↓</a>
+      <p>My resume, for the parts that need a cleaner format.</p>
+      <span class="meta-line">Python · SQL · Power BI · Splunk · Excel</span>
+      <a class="cta" href="resume.pdf" target="_blank" rel="noopener">Read Resume</a>
+      <a class="cta quiet" href="resume.pdf" download>Download PDF</a>
     </div>
 
     <div class="content-panel" id="cContact">
-      <span class="eyebrow">07 — contact</span>
-      <h2>Let's talk</h2>
-      <p>Reach out any time.</p>
-      <a class="contact-link" id="emailLink" href="#">Email me</a>
+      <span class="eyebrow">08 — contact</span>
+      <h2>Contact</h2>
+      <p>Email is the quickest way to reach me.</p>
+      <a class="cta email" id="emailLink" href="#">Email me</a>
       <script>
         var u = 'zhanganthony04', d = 'gmail.com';
         var el = document.getElementById('emailLink');
         el.href = 'mailto:' + u + '@' + d;
         el.textContent = u + '@' + d;
       </script>
+      <p class="signoff">Built between risk work, small tools, and a sketchbook.</p>
     </div>
 
   </div><!-- /.stage -->
 
-  <!-- Six stable, real, linkable scene anchors -- the single source of
-       truth the nav and the progress math both point at. -->
-  <section id="scene-about" class="scene-anchor" aria-hidden="true"></section>
-  <section id="scene-proj1" class="scene-anchor" aria-hidden="true"></section>
-  <section id="scene-proj2" class="scene-anchor" aria-hidden="true"></section>
-  <section id="scene-sketchbook" class="scene-anchor" aria-hidden="true"></section>
-  <section id="scene-canvas" class="scene-anchor" aria-hidden="true"></section>
-  <section id="scene-resume" class="scene-anchor" aria-hidden="true"></section>
-  <section id="scene-contact" class="scene-anchor" aria-hidden="true"></section>
+  <!-- Scene anchors are generated from SCENES in the script. -->
   <div class="terminal-hold" id="terminalHold" aria-hidden="true"></div>
 
 </div><!-- /.story -->
 
-<nav class="scene-nav" id="sceneNav" aria-label="Page sections">
-  <a href="#scene-about" data-i="0" aria-label="About"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-proj1" data-i="1" aria-label="Flight Optimizer"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-proj2" data-i="2" aria-label="WordHunt"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-sketchbook" data-i="3" aria-label="Sketchbook"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-canvas" data-i="4" aria-label="Canvas"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-resume" data-i="5" aria-label="Resume"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-  <a href="#scene-contact" data-i="6" aria-label="Contact"><span class="scene-nav-dot" aria-hidden="true"></span></a>
-</nav>
+<nav class="scene-nav" id="sceneNav" aria-label="Page sections"></nav>
+<button class="next-cue" id="nextCue" type="button" aria-label="Scroll to the next section"></button>
 
 <div class="project-demo-modal" id="projectDemoModal" aria-hidden="true">
   <div class="project-demo-shell" role="dialog" aria-modal="true" aria-labelledby="projectDemoTitle">
@@ -1857,13 +1884,6 @@
   </div>
 </div>
 
-<div class="boba-modal" id="bobaModal">
-  <div class="boba-window">
-    <button class="boba-close" id="bobaClose" aria-label="Close">×</button>
-    <iframe src="boba_index.html" title="The Boba Index"></iframe>
-  </div>
-</div>
-
 <script>
 (function(){
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1871,241 +1891,286 @@
   var mqTouchPortrait = window.matchMedia('(max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait)');
   var mqCompact = window.matchMedia('(min-width:601px) and (max-width:900px)');
 
-  // ---- Single source of truth for scene count/timing, read straight off
-  // the CSS custom properties instead of a duplicated JS magic number. ----
-  var segLen = 1 / 7;   // seven scenes; keep in step with --scenes in the CSS
-  var FOCUS_X_DESKTOP = 9; // vw offset so zoomed figure clears the left text panel
-  var FOCUS_X_COMPACT = 18; // narrow desktop keeps the side panel and shifts the active work right
-  var FOCUS_X_MOBILE = 0;   // phone panel sits below, not beside -- no offset needed
-
-  // Desktop room coordinates -- UNCHANGED, pixel/vw-for-vw identical to before.
-  var ambientFigures = [
-    { el: document.getElementById('pFlag'), content: document.getElementById('cAbout'),
-      segIndex:0, room:{x:-36,y:0,s:1.02}, roomCompact:{x:-31,y:2,s:.86}, roomMobile:{x:-30,y:-9,s:.78} },
-    { el: document.getElementById('pWeights'), content: document.getElementById('cProj1'),
-      segIndex:1, room:{x:20,y:-22,s:0.68}, roomCompact:{x:20,y:-23,s:.58}, roomMobile:{x:20,y:-22,s:.63} },
-    { el: document.getElementById('pFish'), content: document.getElementById('cProj2'),
-      segIndex:2, room:{x:-6,y:28,s:0.84}, roomCompact:{x:-4,y:28,s:.70}, roomMobile:{x:-24,y:28,s:.70} },
-    { el: document.getElementById('pDancer'), content: document.getElementById('cContact'),
-      segIndex:6, room:{x:27,y:12,s:1.2}, roomCompact:{x:28,y:10,s:.92}, roomMobile:{x:22,y:28,s:.83} }
+  // =====================================================================
+  // THE SCROLL PATH. This list is the whole story, in order. Scrolling
+  // walks it top to bottom; the dots, the "Next:" cue and every click only
+  // jump along it. To reorder or remove a scene, edit this list (and its
+  // card in the HTML).
+  //   type 'fig'     = a painted figure zooms in beside a card
+  //   type 'gallery' = the sketchbook, 'canvas' = the 3D painting
+  //   type 'panel'   = card only, 'final' = the last scene (figure + card)
+  // =====================================================================
+  var SCENES = [
+    { id:'about',      label:'About',            type:'fig',     fig:'pFlag',    panel:'cAbout'  },
+    { id:'proj1',      label:'Flight Optimizer', type:'fig',     fig:'pWeights', panel:'cProj1'  },
+    { id:'proj2',      label:'WordHunt',         type:'fig',     fig:'pFish',    panel:'cProj2'  },
+    { id:'map',        label:'Currency Map',     type:'fig',     fig:'pHat',     panel:'cMap'    },
+    { id:'sketchbook', label:'Sketchbook',       type:'gallery' },
+    { id:'canvas',     label:'Canvas',           type:'canvas'  },
+    { id:'resume',     label:'Resume',           type:'panel',   panel:'cResume' },
+    { id:'contact',    label:'Contact',          type:'final',   fig:'pDancer',  panel:'cContact'}
   ];
+  var N = SCENES.length;
+  var segLen = 1 / N;
+  var LAST = N - 1;
+  function sceneIndex(id){ for(var i=0;i<N;i++){ if(SCENES[i].id===id) return i; } return -1; }
 
-  var pDancer = document.getElementById('pDancer');
+  var INTRO_VH = 0.8;      // scroll length of the opening threshold (keep in step with --intro-vh)
+  var FOCUS_X_DESKTOP = 9; // vw offset so the zoomed figure clears the left text card
+  var FOCUS_X_COMPACT = 18;
+  var FOCUS_X_MOBILE = 0;
+  var PREVIEW_OPACITY = .35; // how visible the NEXT figure is as it approaches
 
-  pDancer.addEventListener('click', function() {
-    if (pDancer.classList.contains('secret-active')) {
-      document.getElementById('bobaModal').classList.add('open');
-    }
-  });
+  function $(id){ return document.getElementById(id); }
+  function smoothstep(a,b,x){
+    var t = Math.max(0, Math.min(1, (x-a)/(b-a)));
+    return t*t*(3-2*t);
+  }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function clamp01(x){ return Math.max(0, Math.min(1, x)); }
 
-  var bobaModal = document.getElementById('bobaModal');
-  var bobaClose = document.getElementById('bobaClose');
-  bobaClose.addEventListener('click', function() { bobaModal.classList.remove('open'); });
-  bobaModal.addEventListener('click', function(e) {
-    if (e.target === bobaModal) bobaModal.classList.remove('open');
-  });
-
-  var resumeContent = document.getElementById('cResume');
-  var galleryWrap = document.getElementById('galleryWrap');
-  var galleryPanel = document.getElementById('cGallery');
-  var canvasWrap = document.getElementById('canvas3dWrap');
-  var canvasPanel = document.getElementById('cCanvas3d');
-  var galleryBackdrop = document.getElementById('galleryBackdrop');
-  var galleryLight = document.getElementById('galleryLight');
-  var portalWash = document.getElementById('portalWash');
-  var fishPortal = document.getElementById('fishPortal');
-
-  // Decorative (non-scene) figures -- also get mobile-specific placement
-  // so they can't collide with the now full-width mobile text panel.
-  var decorativeFigures = [
-    { el: document.getElementById('pHat'), room:{x:-22,y:-20,s:0.68}, roomCompact:{x:-24,y:-25,s:.50}, roomMobile:{x:-21,y:-26,s:.58} },
-    { el: document.getElementById('pDadChild'), room:{x:38,y:-8,s:0.58}, roomCompact:{x:35,y:-13,s:.43}, roomMobile:{x:31,y:-6,s:.50} }
-  ];
-
+  // Figures: where each sits in the room, and which way it drifts when the
+  // opening parts (dir -1 = up, +1 = down).
+  var FIGS = {
+    pFlag:    { el:$('pFlag'),    dir:-1, open:.70, room:{x:-36,y:0,s:1.02},   roomCompact:{x:-31,y:2,s:.86},    roomMobile:{x:-30,y:-9,s:.78} },
+    pWeights: { el:$('pWeights'), dir:-1, open:.62, room:{x:20,y:-22,s:0.68},  roomCompact:{x:20,y:-23,s:.58},   roomMobile:{x:20,y:-22,s:.63} },
+    pFish:    { el:$('pFish'),    dir: 1, open:.62, room:{x:-6,y:28,s:0.84},   roomCompact:{x:-4,y:28,s:.70},    roomMobile:{x:-24,y:28,s:.70} },
+    pDancer:  { el:$('pDancer'),  dir: 1, open:.62, room:{x:27,y:12,s:1.2},    roomCompact:{x:28,y:10,s:.92},    roomMobile:{x:22,y:28,s:.83} },
+    pHat:     { el:$('pHat'),     dir:-1, open:.60, room:{x:-22,y:-20,s:0.68}, roomCompact:{x:-24,y:-25,s:.50},  roomMobile:{x:-21,y:-26,s:.58} },
+    pDadChild:{ el:$('pDadChild'),dir: 1, open:.60, room:{x:38,y:-8,s:0.58},   roomCompact:{x:35,y:-13,s:.43},   roomMobile:{x:31,y:-6,s:.50} }
+  };
   var SHADOW = 'drop-shadow(0 20px 18px rgba(30,25,15,0.26))';
   function blurFor(scale){
     var t = smoothstep(0.18, 0.34, scale);
     return lerp(3.2, 0, t);
   }
 
-  var story = document.getElementById('story');
-  var terminalHold = document.getElementById('terminalHold');
-  var stage = document.getElementById('stage');
-  var whiteOverlay = document.getElementById('whiteOverlay');
-  var roomTitle = document.getElementById('roomTitle');
-  var navLinks = document.querySelectorAll('.scene-nav a');
-  var pFish = document.getElementById('pFish');
 
-  // Adjustable focal point inside painting-fish.png. The bowl occupies the
-  // lower-right of the transparent source image, rather than its center.
-  var FISHBOWL_FOCUS_X = 0.76;
-  var FISHBOWL_FOCUS_Y = 0.88;
+  var story = $('story');
+  var terminalHold = $('terminalHold');
+  var whiteOverlay = $('whiteOverlay');
+  var wall = $('wall');
+  var roomTitle = $('roomTitle');
+  var galleryWrap = $('galleryWrap');
+  var galleryPanel = $('cGallery');
+  var canvasWrap = $('canvas3dWrap');
+  var canvasPanel = $('cCanvas3d');
+  var galleryBackdrop = $('galleryBackdrop');
+  var galleryLight = $('galleryLight');
+  var portalWash = $('portalWash');
+  var fishPortal = $('fishPortal');
+  var nextCue = $('nextCue');
+  var enterBtn = $('enterBtn');
   var galleryWasInZone = false;
   var galleryFlickerTimer = null;
 
-  function smoothstep(a,b,x){
-    var t = Math.max(0, Math.min(1, (x-a)/(b-a)));
-    return t*t*(3-2*t);
-  }
-  function lerp(a,b,t){ return a + (b-a)*t; }
+  document.documentElement.style.setProperty('--scenes', N);
 
-  // ---- Progress is measured against the STORY container, not the whole
-  // document -- robust to any content that might ever sit above/below it,
-  // and correct after resize since it's re-measured every frame. ----
+  // ---- Scroll geometry. Scroll position splits into the opening threshold
+  // (ip, 0..1) and then the scenes (sp, 0..1 across all of them). ----
   function getScrollable(){
     return Math.max(1, story.offsetHeight - window.innerHeight - terminalHold.offsetHeight);
   }
-  function getProgress(){
-    var rect = story.getBoundingClientRect();
+  function getIntroPx(scrollable){
+    return Math.min(window.innerHeight * INTRO_VH, scrollable * .4);
+  }
+  function storyTop(){ return story.getBoundingClientRect().top + window.scrollY; }
+  function scrollToSceneIndex(i, smooth){
     var scrollable = getScrollable();
-    var progress = scrollable > 0 ? (-rect.top) / scrollable : 0;
-    return Math.max(0, Math.min(1, progress));
+    var intro = getIntroPx(scrollable);
+    var sp = (i >= LAST) ? 1 : (i + .5) * segLen;
+    var top = storyTop() + intro + sp * (scrollable - intro);
+    window.scrollTo({ top: top, behavior: (smooth && !reduced) ? 'smooth' : 'auto' });
   }
 
-  // Real anchors + JS-enhanced smooth scroll to each scene's hold midpoint
-  // (progressive enhancement: the <a href="#scene-x"> still works with JS off).
-  navLinks.forEach(function(link){
-    link.addEventListener('click', function(e){
-      e.preventDefault();
-      var i = parseInt(link.getAttribute('data-i'), 10);
-      var scrollable = getScrollable();
-      var storyTop = story.getBoundingClientRect().top + window.scrollY;
-      var destination = i === 6 ? scrollable : (i*segLen + segLen*0.5) * scrollable;
-      window.scrollTo({ top: storyTop + destination, behavior:'smooth' });
-    });
+  // ---- Real anchors + dot navigation, generated from SCENES ----
+  var navEl = $('sceneNav');
+  SCENES.forEach(function(sc, i){
+    var anchor = document.createElement('section');
+    anchor.id = 'scene-' + sc.id;
+    anchor.className = 'scene-anchor';
+    anchor.setAttribute('aria-hidden', 'true');
+    anchor.style.top = 'calc(var(--intro-vh) + ' + i + ' * var(--per-scene))';
+    story.insertBefore(anchor, terminalHold);
+    var a = document.createElement('a');
+    a.href = '#scene-' + sc.id;
+    a.setAttribute('data-i', i);
+    a.setAttribute('data-label', sc.label);
+    a.setAttribute('aria-label', sc.label);
+    a.title = sc.label;
+    a.innerHTML = '<span class="scene-nav-dot" aria-hidden="true"></span>';
+    a.addEventListener('click', function(e){ e.preventDefault(); scrollToSceneIndex(i, true); });
+    navEl.appendChild(a);
   });
+  var navLinks = navEl.querySelectorAll('a');
 
-  function zoomEnvelope(x, room, focusX){
-    var scale, opacity, tx, ty, contentOpacity;
-    if(x < 0.28){
-      var t = smoothstep(0,0.28,x);
+  // The opening: both a click and plain scrolling lead in.
+  enterBtn.addEventListener('click', function(){ scrollToSceneIndex(0, true); });
+  var cueIndex = -2;
+  nextCue.addEventListener('click', function(){ if(cueIndex >= 0 && cueIndex < LAST) scrollToSceneIndex(cueIndex + 1, true); });
+
+  // ---- Envelopes: how a figure and its card arrive, hold, and leave ----
+  function figureEnvelope(x, room, focusX, o0){
+    var scale, opacity, tx, ty;
+    if(x < 0.24){
+      var t = smoothstep(0,0.24,x);
       scale = lerp(room.s, 1, t);
-      opacity = lerp(0.7, 1, t);
+      opacity = lerp(o0, 1, t);
       tx = lerp(room.x, focusX, t);
       ty = lerp(room.y, 0, t);
-      contentOpacity = x/0.28;
-    } else if(x < 0.72){
-      scale = 1; opacity = 1; tx = focusX; ty = 0; contentOpacity = 1;
+    } else if(x < 0.78){
+      scale = 1; opacity = 1; tx = focusX; ty = 0;
     } else {
-      var t2 = (x-0.72)/0.28;
+      var t2 = (x-0.78)/0.22;
       scale = lerp(1, 1.3, t2);
       opacity = lerp(1, 0, t2);
       tx = focusX; ty = 0;
-      contentOpacity = 1 - t2;
     }
-    return {scale:scale, opacity:opacity, tx:tx, ty:ty, contentOpacity:contentOpacity};
+    return {scale:scale, opacity:opacity, tx:tx, ty:ty};
   }
-
-  // Contact is the terminal composition: it approaches its final position
-  // across the entire sixth scene and becomes fully settled only at the true
-  // bottom of the document.
+  // Cards fade quickly at the edges so they are fully solid for most of the scene.
+  function cardOpacity(x, first){
+    var a = first ? 1 : smoothstep(.03,.2,x);
+    return a * (1 - smoothstep(.84,.98,x));
+  }
+  // The last scene settles across its whole length and stays.
   function finalEnvelope(x, room, focusX){
     var t = smoothstep(0,1,x);
     return {
       scale:lerp(room.s,1,t),
-      opacity:lerp(.7,1,t),
+      opacity:lerp(PREVIEW_OPACITY,1,t),
       tx:lerp(room.x,focusX,t),
       ty:lerp(room.y,0,t),
-      contentOpacity:smoothstep(.08,.88,x)
+      card:smoothstep(.08,.88,x)
     };
   }
 
   function update(){
-    var progress = getProgress();
+    var reducedNow = reduced;
+    var scrolled = Math.max(0, -story.getBoundingClientRect().top);
+    var scrollable = getScrollable();
+    var intro = getIntroPx(scrollable);
+    var ip = clamp01(scrolled / intro);
+    var sp = clamp01((scrolled - intro) / Math.max(1, scrollable - intro));
+    var inIntro = ip < 1;
+
     var isMobile = mqPhone.matches || mqTouchPortrait.matches;
     var isCompact = !isMobile && mqCompact.matches;
     var FOCUS_X = isMobile ? FOCUS_X_MOBILE : (isCompact ? FOCUS_X_COMPACT : FOCUS_X_DESKTOP);
+    function roomOf(f){ return isMobile ? f.roomMobile : (isCompact ? f.roomCompact : f.room); }
 
-    var activeIndex = Math.min(6, Math.floor(progress / segLen));
+    var activeIndex = inIntro ? -1 : Math.min(LAST, Math.floor(sp / segLen));
 
-    // Sketchbook (scene 3) and Canvas (scene 4) share one dark gallery room:
-    // it fades in at the start of Sketchbook, stays through the whole Canvas
-    // scene, and only then recedes so the warm room returns for Resume.
-    var gallerySegStart = 3*segLen;
-    var gallerySegEnd = gallerySegStart+segLen;
-    var galleryLocal = progress >= gallerySegStart && progress <= gallerySegEnd
-      ? (progress-gallerySegStart)/segLen : -1;
-    var canvasSegStart = 4*segLen;
-    var canvasSegEnd = canvasSegStart+segLen;
-    var canvasLocal = progress >= canvasSegStart && progress <= canvasSegEnd
-      ? (progress-canvasSegStart)/segLen : -1;
-    var darkCover = 0;
-    var galleryOpacity = 0;
-    var canvasOpacity = 0;
-    var darkBackdropOpacity = 0;
+    // ---- dark gallery room (sketchbook + canvas share it) ----
+    var gi = sceneIndex('sketchbook'), ci = sceneIndex('canvas');
+    var gStart = gi*segLen, gEnd = gStart+segLen;
+    var galleryLocal = (!inIntro && sp >= gStart && sp <= gEnd) ? (sp-gStart)/segLen : -1;
+    var cStart = ci*segLen, cEnd = cStart+segLen;
+    var canvasLocal = (!inIntro && sp >= cStart && sp <= cEnd) ? (sp-cStart)/segLen : -1;
+    var darkCover = 0, galleryOpacity = 0, canvasOpacity = 0, darkBackdropOpacity = 0;
     if(galleryLocal >= 0){
       darkCover = 1;
-      galleryOpacity = smoothstep(.15,.34,galleryLocal) * (1-smoothstep(.68,.90,galleryLocal));
+      galleryOpacity = smoothstep(.04,.24,galleryLocal) * (1-smoothstep(.68,.90,galleryLocal));
       darkBackdropOpacity = smoothstep(.04,.22,galleryLocal);
-      if(reduced){
+      if(reducedNow){
         galleryOpacity = smoothstep(.04,.12,galleryLocal) * (1-smoothstep(.76,.92,galleryLocal));
         darkBackdropOpacity = smoothstep(.04,.12,galleryLocal);
       }
     }
     if(canvasLocal >= 0){
-      var tailStart = reduced ? .78 : .72, tailEnd = reduced ? .96 : .98;
+      var tailStart = reducedNow ? .78 : .72, tailEnd = reducedNow ? .96 : .98;
       darkCover = canvasLocal < tailStart ? 1 : 1-smoothstep(tailStart,tailEnd,canvasLocal);
       darkBackdropOpacity = 1-smoothstep(tailStart,tailEnd,canvasLocal);
-      canvasOpacity = reduced
+      canvasOpacity = reducedNow
         ? smoothstep(.04,.12,canvasLocal) * (1-smoothstep(.76,.92,canvasLocal))
         : smoothstep(.06,.28,canvasLocal) * (1-smoothstep(.74,.92,canvasLocal));
     }
-    var galleryCover = darkCover;
-    var galleryBackdropOpacity = darkBackdropOpacity;
-    // The room simply fades as the dark room covers it, and returns the same
-    // way in reverse -- no separate zoom transition to reconcile.
-    var roomVisibility = 1-galleryCover;
+    // The dark room begins to dim in during the last stretch of the scene before
+    // it, so there is never a bare wall between the last figure and the gallery.
+    if(!inIntro && activeIndex === gi - 1){
+      var pxg = (sp - activeIndex*segLen)/segLen;
+      darkBackdropOpacity = .5 * smoothstep(.75, 1, pxg);
+    } else if(galleryLocal >= 0){
+      darkBackdropOpacity = .5 + .5 * smoothstep(0, .22, galleryLocal);
+    }
+    var roomVisibility = 1 - darkCover;
 
-    if (activeIndex === 6) {
-      pDancer.classList.add('secret-active');
-    } else {
-      pDancer.classList.remove('secret-active');
+    var finalStart = LAST*segLen;
+    var whiteFactor = inIntro ? 0 : smoothstep(finalStart - .02, finalStart + .06, sp);
+
+    // ---- the opening parts like a curtain: some figures drift up, some
+    // down, the name recedes, the paper turns into a gallery wall ----
+    var drift = smoothstep(0, 1, ip);
+    var openFade = 1 - smoothstep(.15, .8, ip);
+
+    // which scene's figure belongs to which figure id
+    var owner = {};
+    SCENES.forEach(function(sc, i){ if(sc.fig) owner[sc.fig] = i; });
+
+    Object.keys(FIGS).forEach(function(id){
+      var f = FIGS[id], room = roomOf(f);
+      var scale = room.s, tx = room.x, ty = room.y, opacity = 0, blur = blurFor(room.s), z = 2;
+      var i = (owner[id] === undefined) ? -1 : owner[id];
+
+      if(inIntro){
+        // opening state: exactly the current arrangement, then drifting off
+        opacity = f.open * openFade;
+        ty = room.y + f.dir * drift * 80;
+      } else if(i >= 0){
+        var segStart = i*segLen, segEnd = segStart+segLen;
+        var isFinal = SCENES[i].type === 'final';
+        if(sp >= segStart && (sp <= segEnd || isFinal)){
+          var x = (sp - segStart)/segLen;
+          var e = isFinal ? finalEnvelope(x, room, FOCUS_X)
+                          : figureEnvelope(x, room, FOCUS_X, i === 0 ? 0 : PREVIEW_OPACITY);
+          scale=e.scale; opacity=e.opacity; tx=e.tx; ty=e.ty; z=40; blur=0;
+        } else if(i === activeIndex + 1){
+          // the next figure shows up quietly before its scene begins
+          var px = (sp - activeIndex*segLen)/segLen;
+          var from = (SCENES[activeIndex].type === 'panel') ? .1 : .7;   // a card-only scene gets its neighbour early
+          opacity = PREVIEW_OPACITY * smoothstep(from, from + .3, px);
+        }
+      }
+
+      if(reducedNow){
+        var isActive = !inIntro && i >= 0 && z === 40;
+        el_set(f.el, 'translate(-50%,-50%) scale(' + (isActive?1:room.s) + ')', opacity * roomVisibility, SHADOW);
+      } else {
+        el_set(f.el, 'translate(-50%,-50%) translate(' + tx.toFixed(2) + 'vw,' + ty.toFixed(2) + 'vh) scale(' + scale.toFixed(3) + ')',
+               opacity * roomVisibility, (blur>0.05 ? 'blur('+blur.toFixed(2)+'px) ' : '') + SHADOW);
+      }
+      f.el.style.zIndex = z;
+    });
+    function el_set(el, transform, opacity, filter){
+      el.style.transform = transform;
+      el.style.opacity = opacity;
+      el.style.filter = filter;
     }
 
-    var contactZoneStart = 6*segLen; // ~0.857
-    var ambientFade = 1 - smoothstep(contactZoneStart - 0.02, contactZoneStart + 0.04, progress);
-    var whiteFactor = smoothstep(contactZoneStart - 0.02, contactZoneStart + 0.06, progress);
-
-    ambientFigures.forEach(function(p){
-      var room = isMobile ? p.roomMobile : (isCompact ? p.roomCompact : p.room);
-      var segStart = p.segIndex*segLen, segEnd = segStart+segLen;
-      var scale, opacity, tx, ty, z, contentOpacity=0, blur=0;
-
-      var isFinalScene = p.segIndex === 6;
-      if(progress >= segStart && (progress <= segEnd || isFinalScene)){
-        var x = (progress - segStart)/segLen;
-        var e = isFinalScene ? finalEnvelope(x, room, FOCUS_X) : zoomEnvelope(x, room, FOCUS_X);
-        scale=e.scale; opacity=e.opacity; tx=e.tx; ty=e.ty; z=40;
-        contentOpacity = e.contentOpacity;
-        blur = 0;
-      } else {
-        scale = room.s; tx = room.x; ty = room.y; z = 2;
-        opacity = 0.62 * ambientFade;
-        blur = blurFor(room.s);
+    // ---- cards for figure scenes and the resume ----
+    SCENES.forEach(function(sc, i){
+      if(!sc.panel) return;
+      var panel = $(sc.panel);
+      var segStart = i*segLen, x = (sp - segStart)/segLen, o = 0;
+      if(sc.type === 'final'){
+        o = (!inIntro && sp >= segStart) ? finalEnvelope(x, roomOf(FIGS[sc.fig]), FOCUS_X).card : 0;
+      } else if(i === 0 && inIntro){
+        o = smoothstep(.4, .85, ip);                 // About settles in as the opening finishes
+      } else if(!inIntro && x >= 0 && x <= 1){
+        o = cardOpacity(x, i === 0);
       }
-
-      if(reduced){
-        var isActive = progress>=segStart && (progress<=segEnd || isFinalScene);
-        p.el.style.transform = 'translate(-50%,-50%) scale(' + (isActive?1:room.s) + ')';
-        p.el.style.opacity = (isActive ? 1 : 0.62*ambientFade) * roomVisibility;
-        p.content.style.opacity = isActive ? 1 : 0;
-        p.el.style.filter = SHADOW;
-      } else {
-        p.el.style.transform = 'translate(-50%,-50%) translate(' + tx.toFixed(2) + 'vw,' + ty.toFixed(2) + 'vh) scale(' + scale.toFixed(3) + ')';
-        p.el.style.opacity = opacity * roomVisibility;
-        p.content.style.opacity = contentOpacity;
-        p.el.style.filter = (blur>0.05 ? 'blur('+blur.toFixed(2)+'px) ' : '') + SHADOW;
-      }
-      p.el.style.zIndex = z;
-      p.content.classList.toggle('interactive', contentOpacity > 0.5);
+      panel.style.opacity = o;
+      panel.classList.toggle('interactive', o > .5);
     });
 
+    // ---- background: paper -> wall, plus dark gallery and white finale ----
+    wall.style.opacity = smoothstep(0, .7, ip);
     fishPortal.style.opacity = 0;
     portalWash.style.opacity = 0;
-    galleryBackdrop.style.opacity = galleryBackdropOpacity;
-    galleryLight.style.opacity = galleryBackdropOpacity * .92;
+    galleryBackdrop.style.opacity = darkBackdropOpacity;
+    galleryLight.style.opacity = darkBackdropOpacity * .92;
     var inGalleryZone = galleryLocal >= 0 || canvasLocal >= 0;
-    if(inGalleryZone && !galleryWasInZone && !reduced){
+    if(inGalleryZone && !galleryWasInZone && !reducedNow){
       galleryLight.classList.remove('is-flickering');
       void galleryLight.offsetWidth;
       galleryLight.classList.add('is-flickering');
@@ -2118,45 +2183,38 @@
     galleryWrap.classList.toggle('interactive', galleryOpacity > .72);
     galleryPanel.classList.toggle('interactive', galleryOpacity > .72);
 
-    // 3D canvas scene (index 4): `is-live` tells the viewer when to render.
+    // 3D canvas scene: `is-live` tells the viewer when to render.
     canvasWrap.style.opacity = canvasOpacity;
     canvasPanel.style.opacity = canvasOpacity;
     canvasWrap.classList.toggle('is-live', canvasOpacity > .01);
     canvasWrap.classList.toggle('interactive', canvasOpacity > .72);
     canvasPanel.classList.toggle('interactive', canvasOpacity > .72);
 
-    // resume: content-only segment (index 5), no image
-    var rSegStart = 5*segLen, rSegEnd = rSegStart+segLen;
-    var rOpacity = 0;
-    if(progress >= rSegStart && progress <= rSegEnd){
-      var xr = (progress - rSegStart)/segLen;
-      if(xr < 0.28){ rOpacity = xr/0.28; }
-      else if(xr < 0.72){ rOpacity = 1; }
-      else { rOpacity = 1-(xr-0.72)/0.28; }
-    }
-    resumeContent.style.opacity = rOpacity;
-    resumeContent.classList.toggle('interactive', rOpacity > 0.5);
-
     whiteOverlay.style.opacity = whiteFactor;
 
-    decorativeFigures.forEach(function(p){
-      var room = isMobile ? p.roomMobile : (isCompact ? p.roomCompact : p.room);
-      var opacity = 0.6 * ambientFade * roomVisibility;
-      var blur = blurFor(room.s);
-      p.el.style.transform = 'translate(-50%,-50%) translate(' + room.x + 'vw,' + room.y + 'vh) scale(' + room.s + ')';
-      p.el.style.opacity = opacity;
-      p.el.style.filter = (blur>0.05 ? 'blur('+blur.toFixed(2)+'px) ' : '') + SHADOW;
-      p.el.style.zIndex = 2;
-    });
-
-    var titleOpacity = 1 - smoothstep(0, 0.06, progress);
+    // ---- the name recedes; the Enter button leaves with it ----
+    var titleOpacity = 1 - smoothstep(0, .45, ip);
     roomTitle.style.opacity = titleOpacity;
+    roomTitle.style.transform = reducedNow ? 'translate(-50%,-50%)'
+      : 'translate(-50%,-50%) translateY(' + (-ip*6).toFixed(2) + 'vh) scale(' + lerp(1, .9, ip).toFixed(3) + ')';
+    roomTitle.classList.toggle('is-gone', ip > .3);
+    enterBtn.tabIndex = ip > .3 ? -1 : 0;
 
+    // ---- orientation: dots and the quiet "Next:" cue ----
     navLinks.forEach(function(a){
       var i = parseInt(a.getAttribute('data-i'), 10);
-      var isActive = i===activeIndex && progress>0.015;
-      if(isActive){ a.setAttribute('aria-current','true'); } else { a.removeAttribute('aria-current'); }
+      if(i === activeIndex){ a.setAttribute('aria-current','true'); } else { a.removeAttribute('aria-current'); }
     });
+    if(activeIndex !== cueIndex){
+      cueIndex = activeIndex;
+      if(activeIndex >= 0 && activeIndex < LAST){
+        nextCue.textContent = 'Next: ' + SCENES[activeIndex+1].label;
+        nextCue.classList.add('is-on');
+      } else {
+        nextCue.classList.remove('is-on');
+      }
+    }
+    nextCue.setAttribute('data-tone', darkBackdropOpacity > .5 ? 'dark' : 'light');
   }
 
   var ticking = false;
@@ -2421,7 +2479,11 @@
   // gesture, then spring to the nearest page when momentum runs out.
   galleryStage.addEventListener('wheel', function(e){
     if(!galleryWrap.classList.contains('interactive')) return;
-    var delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    // Only a sideways gesture (trackpad swipe or Shift + wheel) browses the reel.
+    // A plain vertical scroll always goes on to move the page.
+    var sideways = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    if(!sideways && !e.shiftKey) return;
+    var delta = sideways ? e.deltaX : e.deltaY;
     if(!delta) return;
     e.preventDefault();
     if(reducedMotion){

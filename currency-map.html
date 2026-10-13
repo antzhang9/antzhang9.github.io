@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>World currencies</title>
+<title>Currency Map · Anthony Zhang</title>
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#fff9de">
-<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="A world map of what one unit of each currency is worth, and what a Big Mac costs in each country.">
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -39,7 +39,12 @@
   }
   .title{ min-width:0; }
   .title .sub{ margin:4px 0 0; font-size:.8rem; line-height:1.4; color:var(--muted); max-width:62ch; min-height:2.8em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .eyebrow{ display:flex; align-items:center; gap:7px; font-size:.78rem; font-weight:700; color:var(--accent); margin-bottom:3px; }
+  .crumbs{ display:flex; align-items:center; gap:14px; margin-bottom:3px; }
+  .back{ font-size:.78rem; font-weight:700; color:var(--muted); text-decoration:none; padding:2px 11px 2px 9px; margin-left:-9px; border-radius:999px; transition:background .2s ease, color .2s ease; }
+  .title .sub a{ color:var(--accent-d); font-weight:700; text-decoration:none; white-space:nowrap; }
+  .title .sub a:hover{ text-decoration:underline; }
+  .back:hover{ background:#fff; color:var(--ink); }
+  .eyebrow{ display:flex; align-items:center; gap:7px; font-size:.78rem; font-weight:700; color:var(--accent); }
   .eyebrow::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--accent); }
   .title h1{ font-size:clamp(1.15rem,2.2vw,1.6rem); line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   /* the conversion controls float over the map (desktop), so the header never changes shape between modes */
@@ -104,6 +109,7 @@
   .wheel:active .knob{ filter:brightness(.97); }
   .modes{ display:flex; flex-direction:column; gap:1px; font-size:.8rem; font-weight:700; line-height:1.3; }
   .modes span{ display:flex; align-items:center; gap:7px; color:#a29b78; transition:color .25s ease, transform .25s ease; }
+  .modes span[hidden]{ display:none; }
   .modes span::before{ content:""; width:6px; height:6px; border-radius:50%; background:transparent; transition:background .25s ease; }
   .modes span.on{ color:var(--ink); transform:translateX(2px); }
   .modes span.on::before{ background:var(--accent); }
@@ -248,10 +254,10 @@
 <header class="bar">
   <button type="button" class="wheel" id="wheel">
     <span class="knob" id="knob" aria-hidden="true"><span class="rim"></span><span class="cap" id="cap"></span></span>
-    <span class="modes" aria-hidden="true"><span data-m="value">Currency</span><span data-m="bigmac">Big Mac</span><span data-m="boba">Boba</span></span>
+    <span class="modes" aria-hidden="true"><span data-m="value">Currency</span><span data-m="bigmac">Big Mac</span><span data-m="boba" id="modeBoba" hidden>Boba</span></span>
   </button>
   <div class="title">
-    <span class="eyebrow">World currencies</span>
+    <div class="crumbs"><a class="back" href="./">&larr; antzhang.com</a><span class="eyebrow">World currencies</span></div>
     <h1 id="headline">Loading rates…</h1>
     <p class="sub" id="sub"></p>
   </div>
@@ -747,8 +753,9 @@ var DATA = {"W":1000,"H":487,"sphere":"M203.8,0L500,0L796.2,0L848.4,25.2L869.6,3
     syncWheel();
     $('legendLo').textContent = boba ? 'Fewer ' + BOBA : big ? 'Cheaper Big Mac' : 'Worth less per unit';
     $('legendNo').textContent = plain ? 'No live rate' : 'No Big Mac data';
-    $('sub').textContent = boba ? 'An estimate: boba prices scaled by Big Mac prices, to the nearest ¼ drink. Not real boba prices.'
-      : big ? 'Prices come from The Economist’s Big Mac index, shown here at today’s exchange rates.'
+    var subEl = $('sub');
+    if(boba){ subEl.innerHTML = 'An estimate from Big Mac prices, to the nearest ¼ drink. <a href="boba_index.html">See real Gong Cha prices &rarr;</a>'; }
+    else subEl.textContent = big ? 'Prices come from The Economist’s Big Mac index, shown here at today’s exchange rates.'
       : 'Hover or tap a country for its currency, how it compares and a few facts.';
     $('controls').hidden = boba;
     $('headline').title = '';
@@ -776,7 +783,7 @@ var DATA = {"W":1000,"H":487,"sphere":"M203.8,0L500,0L796.2,0L848.4,25.2L869.6,3
   $('random').addEventListener('click', function(){ setTarget(randomTarget()); });
   function setMode(m){ state.mode = m; if(R){ computeShade(); paint(); } }
   // one wheel, three stops: each click turns it to the next mode (so two clicks reach the last one, a third comes back round)
-  var MODES = ['value', 'bigmac', 'boba'], MODE_NAMES = { value:'Currency', bigmac:'Big Mac', boba:'Boba' }, wheelRot = 0;
+  var MODES = ['value', 'bigmac'], MODE_NAMES = { value:'Currency', bigmac:'Big Mac', boba:'Boba' }, wheelRot = 0;
   var COIN = '<svg viewBox="0 0 32 32" aria-hidden="true"><defs><radialGradient id="gold" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#fff0a8"/><stop offset=".55" stop-color="#f5c542"/><stop offset="1" stop-color="#d99a1c"/></radialGradient></defs><circle cx="16" cy="16" r="14.5" fill="url(#gold)" stroke="#c98a14" stroke-width="1.2"/><circle cx="16" cy="16" r="10.6" fill="none" stroke="#b97d10" stroke-opacity=".55" stroke-width="1.1"/><g fill="none" stroke="#9a6608" stroke-width="1.7" stroke-linecap="round"><circle cx="16" cy="16" r="3.3"/><path d="M13.7 13.7 11.4 11.4M18.3 13.7l2.3-2.3M13.7 18.3l-2.3 2.3M18.3 18.3l2.3 2.3"/></g></svg>';
   var FACE = { value:COIN, bigmac:'\uD83C\uDF54', boba: BOBA_OK ? '\uD83E\uDDCB' : '\uD83E\uDD64' };   // coin, 🍔, 🧋 (🥤 if 🧋 can't be drawn)
   var faceMode = null, pendingFace = null;
@@ -799,15 +806,39 @@ var DATA = {"W":1000,"H":487,"sphere":"M203.8,0L500,0L796.2,0L848.4,25.2L869.6,3
     $('knob').firstChild.style.transform = 'rotate(' + wheelRot + 'deg)';
     if(faceMode === null) setFace(state.mode);
     Array.prototype.forEach.call(document.querySelectorAll('#wheel .modes span'), function(el){ el.classList.toggle('on', el.getAttribute('data-m') === state.mode); });
-    var nxt = MODES[(MODES.indexOf(state.mode) + 1) % MODES.length];
+    var nxt = nextMode();
     $('wheel').setAttribute('aria-label', 'Mode: ' + MODE_NAMES[state.mode] + '. Click for ' + MODE_NAMES[nxt] + '.');
   }
+  // Easter egg: the boba view isn't on the wheel until it's found.
+  // Find it by clicking the wheel three times quickly, or by typing "boba" into the search box.
+  function nextMode(){ return MODES[(Math.max(0, MODES.indexOf(state.mode)) + 1) % MODES.length]; }
+  function unlockBoba(){
+    if(MODES.indexOf('boba') >= 0) return;
+    MODES.push('boba'); $('modeBoba').hidden = false;
+  }
+  function goMode(nx){ wheelRot += 360 / MODES.length; flipTo(nx); setMode(nx); }
+  function toast(msg){
+    var st = $('status'); if(!st.hidden) return;
+    st.textContent = msg; st.hidden = false; setTimeout(function(){ st.hidden = true; }, 3200);
+  }
+  var clicks = [];
   $('wheel').addEventListener('click', function(){
     if(!R) return;
-    wheelRot += 120;
-    var nx = MODES[(MODES.indexOf(state.mode) + 1) % MODES.length];
-    flipTo(nx);
-    setMode(nx);
+    var now = Date.now(); clicks = clicks.filter(function(t){ return now - t < 900; }); clicks.push(now);
+    if(clicks.length >= 3 && state.mode !== 'boba'){
+      clicks = []; var fresh = MODES.indexOf('boba') < 0; unlockBoba(); goMode('boba');
+      if(fresh) toast('You found the boba index.');
+      return;
+    }
+    goMode(nextMode());
+  });
+  $('find').addEventListener('input', function(){
+    var v = this.value.trim().toLowerCase();
+    if(R && (v === 'boba' || v === '\uD83E\uDDCB') && state.mode !== 'boba'){
+      this.value = ''; this.blur();
+      var fresh = MODES.indexOf('boba') < 0; unlockBoba(); goMode('boba');
+      if(fresh) toast('You found the boba index.');
+    }
   });
   $('dir').addEventListener('click', function(){ state.dir = state.dir === 'to' ? 'from' : 'to'; paint(); });
   $('amount').addEventListener('input', function(){
@@ -846,8 +877,9 @@ var DATA = {"W":1000,"H":487,"sphere":"M203.8,0L500,0L796.2,0L848.4,25.2L869.6,3
     state.target = (want && R[want] && names[want]) ? want : randomTarget();
     $('target').value = state.target;
     var wm = new URLSearchParams(location.search).get('m') || '';
+    if(wm === 'boba') unlockBoba();
     if(wm === 'bigmac' || wm === 'boba') state.mode = wm;
-    wheelRot = MODES.indexOf(state.mode) * 120;
+    wheelRot = Math.max(0, MODES.indexOf(state.mode)) * (360 / MODES.length);
     computeShade();
     paint();
     var st = $('status');
