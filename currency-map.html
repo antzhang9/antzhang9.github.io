@@ -31,18 +31,26 @@
   /* ---------- top bar ---------- */
   .bar{
     flex:none; position:relative; z-index:3;
-    display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px 22px;
-    padding:16px 3vw 16px;
+    display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:10px 24px;
+    padding:14px 3vw 14px;
     background:var(--paper);
     border-radius:0 0 28px 28px;
     box-shadow:0 8px 24px rgba(120,100,30,.10);
   }
-  .title{ flex:1 1 280px; min-width:0; }
-  .title .sub{ margin:4px 0 0; font-size:.8rem; line-height:1.4; color:var(--muted); max-width:62ch; }
+  .title{ min-width:0; }
+  .title .sub{ margin:4px 0 0; font-size:.8rem; line-height:1.4; color:var(--muted); max-width:62ch; min-height:2.8em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .eyebrow{ display:flex; align-items:center; gap:7px; font-size:.78rem; font-weight:700; color:var(--accent); margin-bottom:3px; }
   .eyebrow::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--accent); }
-  .title h1{ font-size:clamp(1.15rem,2.2vw,1.6rem); line-height:1.2; }
-  .controls{ display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px 14px; }
+  .title h1{ font-size:clamp(1.15rem,2.2vw,1.6rem); line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* the conversion controls float over the map (desktop), so the header never changes shape between modes */
+  .controls{
+    position:fixed; z-index:6; right:calc(3vw + 58px); bottom:34px;
+    display:flex; align-items:flex-end; gap:10px 12px;
+    padding:12px 16px 14px; border-radius:30px;
+    background:rgba(255,254,246,.88); backdrop-filter:blur(6px);
+    box-shadow:0 8px 26px rgba(120,100,30,.18);
+  }
+  .controls[hidden]{ display:none; }
   .field{ display:flex; flex-direction:column; gap:4px; }
   .field label{ font-size:.74rem; font-weight:700; color:var(--muted); padding-left:14px; }
   input, select, button{ font:inherit; color:var(--ink); }
@@ -72,30 +80,34 @@
   .btn.quiet:hover{ background:#eef4fc; }
   :focus-visible{ outline:3px solid rgba(74,130,207,.5); outline-offset:3px; border-radius:999px; }
 
-  /* ---------- mode wheel ---------- */
+  /* ---------- mode wheel (coin -> Big Mac -> boba) ---------- */
   .wheel{
-    display:flex; align-items:center; gap:12px;
-    border:0; background:transparent; padding:0 4px 0 0; cursor:pointer; text-align:left;
+    display:flex; align-items:center; gap:14px;
+    border:0; background:transparent; padding:0 6px 0 0; cursor:pointer; text-align:left;
     -webkit-tap-highlight-color:transparent;
   }
-  .knob{
-    position:relative; flex:none; width:48px; height:48px; border-radius:50%;
+  .knob{ position:relative; flex:none; width:60px; height:60px; perspective:340px; }
+  .knob .rim{
+    position:absolute; inset:0; border-radius:50%;
     background:repeating-conic-gradient(#fff 0 7deg, #dce8f8 7deg 14deg);
-    box-shadow:0 6px 14px rgba(47,95,168,.28), inset 0 0 0 2px rgba(255,255,255,.9);
-    transition:transform .5s cubic-bezier(.3,1.5,.5,1);
+    box-shadow:0 7px 16px rgba(47,95,168,.26), inset 0 0 0 2px rgba(255,255,255,.9);
+    transition:transform .6s cubic-bezier(.3,1.4,.5,1);
   }
-  .knob::before{
-    content:""; position:absolute; inset:7px; border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #fff, #e9f1fc 70%);
-    box-shadow:0 2px 5px rgba(47,95,168,.25);
+  .knob .cap{
+    position:absolute; inset:7px; border-radius:50%;
+    display:grid; place-items:center; font-size:26px; line-height:1;
+    background:radial-gradient(circle at 35% 30%, #fff, #eaf2fc 72%);
+    box-shadow:0 2px 6px rgba(47,95,168,.25);
+    font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;
   }
-  .knob .tick{ position:absolute; left:50%; top:10px; width:8px; height:8px; margin-left:-4px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px rgba(74,130,207,.18); }
+  .cap svg{ width:30px; height:30px; display:block; }
   .wheel:active .knob{ filter:brightness(.97); }
-  .modes{ display:flex; flex-direction:column; gap:1px; font-size:.78rem; font-weight:700; line-height:1.25; }
+  .modes{ display:flex; flex-direction:column; gap:1px; font-size:.8rem; font-weight:700; line-height:1.3; }
   .modes span{ display:flex; align-items:center; gap:7px; color:#a29b78; transition:color .25s ease, transform .25s ease; }
   .modes span::before{ content:""; width:6px; height:6px; border-radius:50%; background:transparent; transition:background .25s ease; }
   .modes span.on{ color:var(--ink); transform:translateX(2px); }
   .modes span.on::before{ background:var(--accent); }
+  .u-emoji{ font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif; }
 
   /* ---------- map ---------- */
   .stage{ position:relative; flex:1 1 auto; min-height:0; background:var(--paper); }
@@ -202,46 +214,53 @@
     .legend, .credit{ display:none; }
     .zoom{ bottom:auto; top:10px; }
   }
+  @media (max-width:999px){
+    .bar{ grid-template-columns:auto minmax(0,1fr) auto; }
+    .controls{
+      position:static; grid-column:1 / -1; justify-content:flex-start; flex-wrap:wrap;
+      padding:0; border-radius:0; background:transparent; box-shadow:none; backdrop-filter:none;
+    }
+  }
   @media (max-width:700px){
-    .bar{ padding:12px 14px 14px; gap:8px; border-radius:0 0 24px 24px; }
+    .bar{ grid-template-columns:1fr; padding:12px 14px 14px; gap:8px; border-radius:0 0 24px 24px; }
     .eyebrow{ display:none; }
-    .title h1{ font-size:1.02rem; }
+    .knob{ width:50px; height:50px; } .knob .cap{ inset:6px; font-size:22px; } .cap svg{ width:26px; height:26px; }
+    .modes{ flex-direction:row; gap:14px; font-size:.84rem; }
+    .title h1{ font-size:1.02rem; white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; min-height:2.5em; }
     .title .sub{ font-size:.74rem; }
-    .controls{ display:grid; grid-template-columns:82px 1fr 96px; gap:8px; width:100%; }
-    .controls > .field:first-child{ grid-column:1 / -1; }
-    .controls > .field:first-child label{ display:none; }
-    .knob{ width:42px; height:42px; } .knob::before{ inset:6px; } .knob .tick{ top:8px; }
-    .modes{ flex-direction:row; gap:14px; font-size:.82rem; }
+    .field.find{ order:3; }
+    .controls{ order:4; display:grid; grid-template-columns:82px 1fr 96px; gap:8px; width:100%; }
     .controls .field.grow{ min-width:0; grid-column:span 2; }
     select{ max-width:none; width:100%; }
     input[type=number]{ width:100%; }
     .controls .btn{ width:100%; }
     #dir{ grid-column:span 2; }
-    .field.find{ grid-column:1 / -1; }
     input[type=search]{ width:100%; }
     .card{ max-height:46vh; }
   }
   @media (prefers-reduced-motion:reduce){
-    #hover path, .card, .country, .knob{ transition:none; }
+    #hover path, .card, .country, .knob .rim{ transition:none; }
   }
 </style>
 </head>
 <body>
 
 <header class="bar">
+  <button type="button" class="wheel" id="wheel">
+    <span class="knob" id="knob" aria-hidden="true"><span class="rim"></span><span class="cap" id="cap"></span></span>
+    <span class="modes" aria-hidden="true"><span data-m="value">Currency</span><span data-m="bigmac">Big Mac</span><span data-m="boba">Boba</span></span>
+  </button>
   <div class="title">
     <span class="eyebrow">World currencies</span>
     <h1 id="headline">Loading rates…</h1>
-    <p class="sub" id="sub" hidden></p>
+    <p class="sub" id="sub"></p>
   </div>
-  <div class="controls">
-    <div class="field">
-      <label id="modeLbl">Mode</label>
-      <button type="button" class="wheel" id="wheel" aria-labelledby="modeLbl">
-        <span class="knob" id="knob" aria-hidden="true"><span class="tick"></span></span>
-        <span class="modes" aria-hidden="true"><span data-m="value">Currency</span><span data-m="bigmac">Big Mac</span><span data-m="boba">Boba</span></span>
-      </button>
-    </div>
+  <div class="field find">
+    <label for="find">Find a country</label>
+    <input id="find" type="search" list="countryList" placeholder="Type a name" autocomplete="off">
+    <datalist id="countryList"></datalist>
+  </div>
+  <div class="controls" id="controls">
     <div class="field" id="amountField">
       <label for="amount">Amount</label>
       <input id="amount" type="number" inputmode="decimal" value="1" min="0" step="any">
@@ -252,11 +271,6 @@
     </div>
     <button class="btn quiet" id="dir" type="button" aria-pressed="false" title="Switch which way the conversion runs"></button>
     <button class="btn" id="random" type="button">Random</button>
-    <div class="field find">
-      <label for="find">Find a country</label>
-      <input id="find" type="search" list="countryList" placeholder="Type a name" autocomplete="off">
-      <datalist id="countryList"></datalist>
-    </div>
   </div>
 </header>
 
@@ -363,6 +377,18 @@ var DATA = {"W":1000,"H":487,"sphere":"M203.8,0L500,0L796.2,0L848.4,25.2L869.6,3
   function conv(from, to){ return (R && R[from] && R[to]) ? R[to] / R[from] : null; }
   // Big Mac: local price expressed in a chosen currency
   function bmIn(c, cur){ return (R && c.bm && R[c.bm[2]] && R[cur]) ? c.bm[0] * R[cur] / R[c.bm[2]] : null; }
+  // Does this device draw a colour glyph for the emoji? (older systems show an empty box instead)
+  function emojiOK(ch){
+    try{
+      var cv = document.createElement('canvas'); cv.width = 28; cv.height = 28;
+      var g = cv.getContext('2d'); g.textBaseline = 'top'; g.font = '22px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+      g.fillText(ch, 2, 2);
+      var d = g.getImageData(0, 0, 28, 28).data;
+      for(var k = 0; k < d.length; k += 4){ if(d[k+3] > 40 && (Math.abs(d[k] - d[k+1]) > 28 || Math.abs(d[k+1] - d[k+2]) > 28)) return true; }
+    }catch(_){}
+    return false;
+  }
+  var BOBA_OK = emojiOK('\uD83E\uDDCB'), BOBA = BOBA_OK ? '\uD83E\uDDCB' : 'boba';   // 🧋
   // Boba: how many boba the money for one US boba buys here, scaled by Big Mac prices
   var US = null; C.forEach(function(c){ if(c.a === 'US') US = c; });
   function bobaRaw(c){
@@ -585,11 +611,11 @@ var DATA = {"W":1000,"H":487,"sphere":"M203.8,0L500,0L796.2,0L848.4,25.2L869.6,3
     if(state.mode === 'boba'){
       var bq = bobaRaw(c);
       if(c.a === 'US'){
-        big.innerHTML = '<span class="eq">The reference:</span> 1 boba'; rev.textContent = 'Every other country is measured against this one drink.';
+        big.innerHTML = '<span class="eq">The reference:</span> 1 <span class="u-emoji">' + BOBA + '</span>'; rev.textContent = 'Every other country is measured against this one drink.';
       } else if(bq === null){
         big.innerHTML = '<span class="eq">No estimate</span>'; rev.textContent = 'There is no Big Mac price for ' + c.n + ', so there is nothing to scale from.';
       } else {
-        big.innerHTML = '<span class="eq">Same money buys</span> ' + bobaFmt(bq) + ' boba';
+        big.innerHTML = '<span class="eq">Same money buys</span> ' + bobaFmt(bq) + ' <span class="u-emoji">' + BOBA + '</span>';
         rev.textContent = 'Exactly ' + (Math.round(bq * 100) / 100) + ' by Big Mac prices (' + money2('USD', bmIn(c, 'USD')) + ' here, ' + money2('USD', bmIn(US, 'USD')) + ' in the US). Shown to the nearest ¼.';
       }
     } else if(!cur){
@@ -687,10 +713,11 @@ var DATA = {"W":1000,"H":487,"sphere":"M203.8,0L500,0L796.2,0L848.4,25.2L869.6,3
       t.style.display = '';
       t.setAttribute('transform', 'translate(' + c.x + ' ' + c.y + ')');
       var A = t.firstChild, B = t.lastChild;
-      A.textContent = txt; B.textContent = state.mode === 'boba' ? 'boba' : (state.mode === 'bigmac' ? state.target : c.prim);
+      A.textContent = txt; B.textContent = state.mode === 'boba' ? BOBA : (state.mode === 'bigmac' ? state.target : c.prim);
       A.setAttribute('x', 0); A.setAttribute('y', (-fs * .12 * u).toFixed(3));
-      B.setAttribute('x', 0); B.setAttribute('y', (fs * 1.05 * u).toFixed(3));
-      A.setAttribute('font-size', (fs * u).toFixed(3)); B.setAttribute('font-size', (fs * .78 * u).toFixed(3));
+      var em = state.mode === 'boba' && BOBA_OK;
+      B.setAttribute('x', 0); B.setAttribute('y', (fs * (em ? 1.3 : 1.05) * u).toFixed(3));
+      A.setAttribute('font-size', (fs * u).toFixed(3)); B.setAttribute('font-size', (fs * (em ? 1.2 : .78) * u).toFixed(3));
       var isT = state.mode === 'boba' ? c.a === 'US' : usesCode(c, state.target);
       t.setAttribute('fill', isT ? '#fff' : (labelDark[i] ? '#fff' : '#1c2a4d'));
     });
@@ -718,16 +745,20 @@ var DATA = {"W":1000,"H":487,"sphere":"M203.8,0L500,0L796.2,0L848.4,25.2L869.6,3
     $('targetField').style.display = boba ? 'none' : '';
     $('random').style.display = boba ? 'none' : '';
     syncWheel();
-    $('legendLo').textContent = boba ? 'Fewer boba' : big ? 'Cheaper Big Mac' : 'Worth less per unit';
+    $('legendLo').textContent = boba ? 'Fewer ' + BOBA : big ? 'Cheaper Big Mac' : 'Worth less per unit';
     $('legendNo').textContent = plain ? 'No live rate' : 'No Big Mac data';
-    var sub = $('sub'); sub.hidden = !boba;
-    sub.textContent = boba ? 'An estimate: boba prices scaled by Big Mac prices, to the nearest ¼ drink. Not real boba prices.' : '';
-    $('headline').textContent = boba ? 'What the price of one US boba buys, country by country' : big ? 'What a Big Mac costs in each country, in ' + nm : state.dir === 'to'
+    $('sub').textContent = boba ? 'An estimate: boba prices scaled by Big Mac prices, to the nearest ¼ drink. Not real boba prices.'
+      : big ? 'Prices come from The Economist’s Big Mac index, shown here at today’s exchange rates.'
+      : 'Hover or tap a country for its currency, how it compares and a few facts.';
+    $('controls').hidden = boba;
+    $('headline').title = '';
+    $('headline').textContent = boba ? 'What one US ' + BOBA + ' buys, country by country' : big ? 'What a Big Mac costs in each country, in ' + nm : state.dir === 'to'
       ? fmt(a) + (a === 1 ? ' unit' : ' units') + ' of each local currency, in ' + nm
       : fmt(a) + ' ' + nm + (a === 1 ? '' : 's') + ', in each local currency';
     $('dir').textContent = state.dir === 'to' ? 'Local → ' + T : T + ' → Local';
     $('dir').setAttribute('aria-pressed', state.dir === 'from');
-    $('legendKey').textContent = boba ? 'United States: 1 boba' : 'Uses ' + T;
+    $('legendKey').textContent = boba ? 'United States: 1 ' + BOBA : 'Uses ' + T;
+    $('headline').title = $('headline').textContent;
     if(hoverIdx >= 0) fillCard(C[hoverIdx]);
     try{ var u = new URL(location.href); u.searchParams.set('c', T); u.searchParams.set('m', state.mode); history.replaceState(null, '', u); }catch(_){}
   }
@@ -746,8 +777,27 @@ var DATA = {"W":1000,"H":487,"sphere":"M203.8,0L500,0L796.2,0L848.4,25.2L869.6,3
   function setMode(m){ state.mode = m; if(R){ computeShade(); paint(); } }
   // one wheel, three stops: each click turns it to the next mode (so two clicks reach the last one, a third comes back round)
   var MODES = ['value', 'bigmac', 'boba'], MODE_NAMES = { value:'Currency', bigmac:'Big Mac', boba:'Boba' }, wheelRot = 0;
+  var COIN = '<svg viewBox="0 0 32 32" aria-hidden="true"><defs><radialGradient id="gold" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#fff0a8"/><stop offset=".55" stop-color="#f5c542"/><stop offset="1" stop-color="#d99a1c"/></radialGradient></defs><circle cx="16" cy="16" r="14.5" fill="url(#gold)" stroke="#c98a14" stroke-width="1.2"/><circle cx="16" cy="16" r="10.6" fill="none" stroke="#b97d10" stroke-opacity=".55" stroke-width="1.1"/><g fill="none" stroke="#9a6608" stroke-width="1.7" stroke-linecap="round"><circle cx="16" cy="16" r="3.3"/><path d="M13.7 13.7 11.4 11.4M18.3 13.7l2.3-2.3M13.7 18.3l-2.3 2.3M18.3 18.3l2.3 2.3"/></g></svg>';
+  var FACE = { value:COIN, bigmac:'\uD83C\uDF54', boba: BOBA_OK ? '\uD83E\uDDCB' : '\uD83E\uDD64' };   // coin, 🍔, 🧋 (🥤 if 🧋 can't be drawn)
+  var faceMode = null, pendingFace = null;
+  function setFace(m){ faceMode = m; pendingFace = null; $('cap').innerHTML = FACE[m]; }
+  // coin-flip: edge-on, swap the face, then keep spinning and settle
+  function flipTo(m){
+    var cap = $('cap');
+    if(reduced || !cap.animate){ setFace(m); return; }
+    if(pendingFace) setFace(pendingFace);
+    cap.getAnimations().forEach(function(a){ a.cancel(); });
+    pendingFace = m;
+    var a = cap.animate([{ transform:'rotateY(0deg)' }, { transform:'rotateY(90deg)' }], { duration:170, easing:'ease-in', fill:'forwards' });
+    a.onfinish = function(){
+      setFace(m);
+      cap.animate([{ transform:'rotateY(90deg) scale(1)' }, { transform:'rotateY(250deg) scale(1.12)', offset:.55 }, { transform:'rotateY(360deg) scale(1)' }], { duration:620, easing:'cubic-bezier(.2,.8,.3,1)' });
+      a.cancel();
+    };
+  }
   function syncWheel(){
-    $('knob').style.transform = 'rotate(' + wheelRot + 'deg)';
+    $('knob').firstChild.style.transform = 'rotate(' + wheelRot + 'deg)';
+    if(faceMode === null) setFace(state.mode);
     Array.prototype.forEach.call(document.querySelectorAll('#wheel .modes span'), function(el){ el.classList.toggle('on', el.getAttribute('data-m') === state.mode); });
     var nxt = MODES[(MODES.indexOf(state.mode) + 1) % MODES.length];
     $('wheel').setAttribute('aria-label', 'Mode: ' + MODE_NAMES[state.mode] + '. Click for ' + MODE_NAMES[nxt] + '.');
@@ -755,7 +805,9 @@ var DATA = {"W":1000,"H":487,"sphere":"M203.8,0L500,0L796.2,0L848.4,25.2L869.6,3
   $('wheel').addEventListener('click', function(){
     if(!R) return;
     wheelRot += 120;
-    setMode(MODES[(MODES.indexOf(state.mode) + 1) % MODES.length]);
+    var nx = MODES[(MODES.indexOf(state.mode) + 1) % MODES.length];
+    flipTo(nx);
+    setMode(nx);
   });
   $('dir').addEventListener('click', function(){ state.dir = state.dir === 'to' ? 'from' : 'to'; paint(); });
   $('amount').addEventListener('input', function(){
