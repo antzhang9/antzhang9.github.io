@@ -107,19 +107,11 @@
     will-change:opacity, transform;
   }
   canvas.wall-art{ left:0; top:0; right:auto; bottom:auto; inset:auto; display:block; transition:opacity .28s ease; }
-  .wall.is-gem::before{
-    background:radial-gradient(ellipse at 50% 45%, rgba(250,247,240,0), rgba(250,247,240,.16) 80%), rgba(247,244,238,.05);
-  }
   .wall-sheen{ position:absolute; inset:0; z-index:2; opacity:0; pointer-events:none;
     background:linear-gradient(115deg, transparent 38%, rgba(255,255,255,.22) 50%, transparent 62%); background-size:260% 100%; }
   .wall-leaves{ position:absolute; inset:0; width:100%; height:100%; z-index:3; pointer-events:none; opacity:0; display:none; }
   .wall.is-gold .wall-leaves{ display:block; }
-  .wall::before{
-    content:''; position:absolute; inset:0; z-index:1;
-    background:
-      radial-gradient(ellipse at 50% 45%, rgba(250,247,240,.03), rgba(250,247,240,.14) 78%),
-      rgba(247,244,238,.04);          /* the veil: lower = more vivid paintings */
-  }
+  .wall::before{ display:none; }          /* no veil: the paintings show as they are */
   .wall::after{ display:none; }
   .white-overlay{
     position:absolute; inset:0;
@@ -600,9 +592,10 @@
     .gallery-controls{
       bottom:-56px;
       gap:22px;
-      padding:6px 12px;
-      background:rgba(18,18,16,.82);
-      border:1px solid rgba(255,255,255,.10);
+      padding:0;
+      background:none;
+      border:0;
+      box-shadow:none;
     }
   }
   @media (prefers-reduced-motion:reduce){
@@ -640,39 +633,13 @@
     background:rgba(12,11,9,0);
     transition:background-color .3s ease;
   }
-  /* Inspection window: once the painting is zoomed (or Explore mode is on) the view
-     gets a visible hairline frame and a dark plate, so whatever extends past it is
-     cropped by an obvious, intentional edge. */
-  .canvas3d-stage::after{
-    content:"";
-    position:absolute; inset:0;
-    z-index:2;
-    border:1px solid rgba(241,232,214,.34);
-    border-radius:3px;
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.4), inset 0 0 64px rgba(0,0,0,.5);
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .3s ease;
+  /* Blank room: the painting floats on the page with nothing around it. When let go,
+     two cables lower from above and reel it back to its resting pose. */
+  .canvas3d-cables{
+    position:absolute; inset:0; width:100%; height:100%;
+    z-index:2; pointer-events:none;
   }
-  .canvas3d-stage.is-zoomed::after,
-  .canvas3d-stage.is-exploring::after{ opacity:1; }
-  .canvas3d-stage.is-exploring::after{ border-color:rgba(240,184,170,.7); }
-  .canvas3d-stage.is-zoomed .canvas3d-view,
-  .canvas3d-stage.is-exploring .canvas3d-view{ background:rgba(12,11,9,.62); }
-  .canvas3d-zoomlabel{
-    position:absolute; top:10px; left:12px; z-index:3;
-    margin:0;
-    padding:3px 8px;
-    border-radius:2px;
-    background:rgba(12,11,9,.72);
-    color:#e6dccb;
-    font:500 .72rem 'IBM Plex Sans',sans-serif;
-    letter-spacing:.1em;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .3s ease;
-  }
-  .canvas3d-stage.is-zoomed .canvas3d-zoomlabel{ opacity:.9; }
+  .canvas3d-wrap .content-panel{ z-index:3; }
   .canvas3d-canvas{
     display:block;
     width:100%;
@@ -686,7 +653,6 @@
     -webkit-tap-highlight-color:transparent;
   }
   .canvas3d-stage.is-exploring .canvas3d-canvas{ touch-action:none; }
-  .canvas3d-stage.is-panmode .canvas3d-canvas{ cursor:move; }
   .canvas3d-canvas.is-grabbing{ cursor:grabbing; }
   .canvas3d-canvas:focus-visible{ outline:2px solid var(--brick); outline-offset:-3px; border-radius:2px; }
   /* Flat stand-in shown until WebGL is ready (or if it is unavailable). */
@@ -740,10 +706,7 @@
     text-transform:uppercase;
     cursor:pointer;
   }
-  .canvas3d-controls button.glyph{ font-size:1.15rem; letter-spacing:0; }
   .canvas3d-controls button:focus-visible{ outline:2px solid var(--brick); outline-offset:3px; }
-  .canvas3d-controls .canvas3d-pan{ display:none; }
-  .canvas3d-stage.is-zoomed .canvas3d-pan{ display:inline-block; }
   .canvas3d-controls .canvas3d-explore{ display:none; }
   .canvas3d-controls button[aria-pressed="true"]{ color:#f0b8aa; }
   @media (hover:none) and (pointer:coarse){
@@ -1683,9 +1646,10 @@
   .pattern-btn[data-tier="Blue Gem"] .pattern-dot{ background:#2f6bff; box-shadow:0 0 0 3px rgba(47,107,255,.3), 0 0 10px rgba(47,107,255,.7); }
   .pattern-btn{ touch-action:manipulation; }
   .pattern-input{ width:3.4em; border:0; outline:0; background:transparent; font:inherit; color:inherit; padding:0; text-align:center; border-bottom:1.5px solid currentColor; }
-  body.gem .scene-nav a{ color:#3a2f1a; }
-  body.gem .next-cue:not([data-tone="dark"]){ color:#2a2418; text-shadow:0 1px 8px rgba(255,240,200,.6); }
-  body.gem .art-credit{ color:#3a2f1a; }
+  body.gem .scene-nav a{ color:#eaf0ff; }
+  body.gem .scene-nav-dot{ box-shadow:0 0 0 2.5px rgba(10,24,90,.45); }
+  body.gem .next-cue:not([data-tone="dark"]){ color:#fffdf8; text-shadow:0 1px 8px rgba(8,20,80,.7), 0 0 3px rgba(8,20,80,.6); }
+  body.gem .art-credit{ color:#e6edff; }
   @media (max-width:600px),
          (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
     .content-panel{
@@ -1793,19 +1757,15 @@
         <span class="meta-line">Painting on canvas</span>
       </div>
       <div class="canvas3d-stage" id="canvas3dStage" role="group"
-           aria-label="Interactive 3D painting. Drag to turn it, scroll or pinch to zoom toward a spot."
+           aria-label="Interactive 3D painting. Drag to turn it. Let go and it hangs back into place."
            data-src="images/canvas-painting.jpg"
            data-alt="Acrylic painting of tumbling, dancing figures in blue, red, yellow and green on a white canvas, shown as a three-dimensional object">
         <div class="canvas3d-view" id="canvas3dView"></div>
         <img class="canvas3d-fallback" src="images/canvas-painting.jpg" width="1941" height="2610" alt="Acrylic painting of tumbling, dancing figures in blue, red, yellow and green on a white canvas">
-        <p class="canvas3d-hint" aria-hidden="true"><span class="hint-pointer">Drag to turn · Scroll to zoom</span><span class="hint-touch">Tap Explore to turn and zoom</span><span class="hint-explore">Drag to turn · Pinch to zoom · Two fingers to move</span></p>
-        <p class="canvas3d-zoomlabel" id="canvas3dZoomLabel" aria-hidden="true">1.0&times;</p>
+        <p class="canvas3d-hint" aria-hidden="true"><span class="hint-pointer">Drag to turn it · Let go and it hangs back</span><span class="hint-touch">Tap Explore to turn it freely</span><span class="hint-explore">Drag to turn and tilt · Tap Done to scroll again</span></p>
         <div class="canvas3d-controls" role="group" aria-label="3D view controls">
-          <button type="button" class="glyph" id="canvas3dZoomOut" aria-label="Zoom out">&minus;</button>
-          <button type="button" class="glyph" id="canvas3dZoomIn" aria-label="Zoom in">+</button>
           <button type="button" id="canvas3dReset" aria-label="Reset view">Reset</button>
-          <button type="button" class="canvas3d-pan" id="canvas3dPan" aria-pressed="false" aria-label="Move mode: dragging moves the zoomed view instead of turning the canvas">Move</button>
-          <button type="button" class="canvas3d-explore" id="canvas3dExplore" aria-pressed="false" aria-label="Explore in 3D: one finger turns, pinch zooms, two fingers move. Press Done to scroll the page again.">Explore</button>
+          <button type="button" class="canvas3d-explore" id="canvas3dExplore" aria-pressed="false" aria-label="Explore in 3D: one finger turns and tilts the painting. Press Done to scroll the page again.">Explore</button>
         </div>
       </div>
     </div>
@@ -2042,7 +2002,7 @@
   // Ways in: ?pattern=1111, double-click (double-tap) the number and type one,
   // or just type 1111 on a keyboard.
   // =====================================================================
-  var WALL_NORMAL = .88, WALL_SPECIAL = .95, WALL_GEM = .95;   // how strong the pattern is (1 = full)
+  var WALL_NORMAL = 1, WALL_SPECIAL = 1, WALL_GEM = 1;   // how strong the pattern is (1 = full)
   var wallMax = WALL_NORMAL;
   var BOARD_FILE = 'images/klimt-board';            // .jpg, .jpeg or .png all work
   var SUNFLOWER_FILE = 'images/klimt-the-sunflower';
@@ -2067,15 +2027,32 @@
     }
     return tryAt(0);
   }
+  // Make any board repeat without a visible seam: blend it with a copy shifted by half in each direction.
+  function makeSeamless(src){
+    function pass(c, horizontal){
+      var W = c.width, H = c.height, out = document.createElement('canvas'); out.width = W; out.height = H;
+      var g = out.getContext('2d');
+      if(horizontal){ g.drawImage(c, W / 2, 0); g.drawImage(c, -W / 2, 0); } else { g.drawImage(c, 0, H / 2); g.drawImage(c, 0, -H / 2); }   // shifted copy, wrapped around
+      var t = document.createElement('canvas'); t.width = W; t.height = H;
+      var tg = t.getContext('2d'); tg.drawImage(c, 0, 0);
+      tg.globalCompositeOperation = 'destination-in';
+      var gr = horizontal ? tg.createLinearGradient(0, 0, W, 0) : tg.createLinearGradient(0, 0, 0, H);
+      for(var i = 0; i <= 16; i++){ var u = i / 16, a = Math.pow(Math.sin(Math.PI * u), 2); gr.addColorStop(u, 'rgba(0,0,0,' + a.toFixed(3) + ')'); }
+      tg.fillStyle = gr; tg.fillRect(0, 0, W, H);
+      g.drawImage(t, 0, 0);
+      return out;
+    }
+    return pass(pass(src, true), false);
+  }
   function loadArt(){
     return Promise.all([loadImg(BOARD_FILE), loadImg(SUNFLOWER_FILE)]).then(function(r){
-      if(r[0]){ var c = document.createElement('canvas'); c.width = r[0].naturalWidth; c.height = r[0].naturalHeight; c.getContext('2d').drawImage(r[0], 0, 0); mapCanvas = c; }
+      if(r[0]){ var c = document.createElement('canvas'); c.width = r[0].naturalWidth; c.height = r[0].naturalHeight; c.getContext('2d').drawImage(r[0], 0, 0); mapCanvas = makeSeamless(c); }
       sunImg = r[1];
     });
   }
   // case-hardened blue gem: grey-olive steel with gold-brown halos, dark purple rims and blotchy blue islands
-  function drawGem(cw, ch){
-    var gh = 400, gw = Math.max(400, Math.round(gh * cw / ch)), c = document.createElement('canvas'); c.width = gw; c.height = gh;
+  function makeGemBoard(){
+    var gh = 400, gw = 640, c = document.createElement('canvas'); c.width = gw; c.height = gh;
     var g = c.getContext('2d'), im = g.createImageData(gw, gh), d = im.data;
     function h(x, y){ var n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); }
     function vn(x, y){ var xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
@@ -2085,75 +2062,78 @@
     function sm(a, b, x){ var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
     var steel = [184, 156, 92], steel2 = [220, 196, 124], brown = [190, 128, 56], gold = [236, 196, 100], cream = [248, 232, 176],
         purple = [92, 52, 150], navy = [40, 64, 176], royal = [60, 128, 240], sky = [110, 188, 255], pale = [170, 218, 255], wear = [150, 170, 196];
-    var S = 8.4;
+    var S = 6.2;
     for(var py = 0; py < gh; py++) for(var px = 0; px < gw; px++){
       var x = px / gh * S, y = py / gh * S;
       var wx = fbm(x * .9 + 3.1, y * .9 + 1.7, 3), wy = fbm(x * .9 + 8.4, y * .9 + 5.2, 3);
-      var f = fbm(x * .8 + wx * 1.5, y * .8 + wy * 1.5, 5);              // blotch field
-      var e = f - .565;                                                       // e > 0 : inside a blue island
-      var base = mix(steel, steel2, fbm(x * 3 + 9, y * 3 + 2, 3) * 1.6 - .3);
-      base = mix(base, brown, sm(.42, .56, fbm(x * 1.3 + 20, y * 1.3, 3)) * .3);
-      base = mix(base, purple, sm(.56, .7, fbm(x * 2.6 + 70, y * 2.6 + 15, 3)) * .5);                  // purple blotches in the gold
-      var col = base;
-      var halo = sm(-.05, -.01, e);                                         // gold-brown glow just outside
-      col = mix(col, brown, halo * .85);
-      col = mix(col, gold, sm(-.022, -.004, e) * .75);
-      var hl = sm(.52, .7, fbm(x * 2.2 + 40, y * 2.2 + 7, 3));                                             // pale gold highlights on some edges
-      col = mix(col, cream, hl * sm(-.025, -.008, e) * (1 - sm(0, .01, e)) * .9);
-      var inside = sm(-.004, .012, e);
+      var f = fbm(x * .8 + wx * 1.5, y * .8 + wy * 1.5, 5);              // same blotch field as the skin, but we only keep the blue
+      var e = (f - .30) * .5;                                                // 0 at the dark rims, rising into the bright centres
       var mott = fbm(x * 6 + 60, y * 6 + 30, 4);                              // mottling inside the blue
-      var blue = mix(navy, royal, sm(.0, .05, e) + (mott - .5) * 1.1);
-      blue = mix(blue, sky, sm(.04, .13, e) * .75 + (mott - .5) * .45);
-      blue = mix(blue, pale, sm(.12, .2, e) * .4);
-      var rim = 1 - sm(.0, .025, e);                                           // dark purple rim
-      blue = mix(blue, purple, rim * .85 * (.5 + mott * .6));
-      col = mix(col, blue, inside);
-      var sp = fbm(x * 14 + 5, y * 14 + 90, 2);                               // tiny blue flecks in the steel
-      if(e < -.02 && sp > .66) col = mix(col, wear, Math.min(.8, (sp - .66) * 5));   // pale grey-blue wear
+      var col = mix(navy, royal, sm(.0, .07, e) + (mott - .5) * 1.1);
+      col = mix(col, sky, sm(.05, .15, e) * .8 + (mott - .5) * .45);
+      col = mix(col, pale, sm(.13, .22, e) * .45);
+      var vein = 1 - sm(0, .03, Math.abs(f - .44));                           // dark purple veins where the islands meet
+      col = mix(col, purple, vein * .8 * (.5 + mott * .6));
+      var glint = sm(.74, .9, fbm(x * 9 + 11, y * 9 + 70, 3));                // a few pale glints
+      col = mix(col, pale, glint * .35);
       var k = (py * gw + px) * 4; d[k] = col[0]; d[k+1] = col[1]; d[k+2] = col[2]; d[k+3] = 255;
     }
     g.putImageData(im, 0, 0);
-    wctx.imageSmoothingEnabled = true; wctx.imageSmoothingQuality = 'high';
-    wctx.drawImage(c, 0, 0, cw, ch);
+    var out = document.createElement('canvas'); out.width = 1600; out.height = 1000;
+    var og = out.getContext('2d'); og.imageSmoothingQuality = 'high'; og.drawImage(c, 0, 0, 1600, 1000);
+    return makeSeamless(out);
   }
-  function drawSunflower(cw, ch){                 // the portrait painting, feathered into the wall
-    var vw = view.vw, vh = view.vh;
-    var tall = vh > vw, asp = sunImg.naturalWidth / sunImg.naturalHeight, h = vh * .94, w = h * asp;
-    if(tall){ w = vw * 1.4; h = w / asp; }
-    var x = vw * (tall ? .5 : .66) - w / 2, y = tall ? vh * .14 : (vh - h) / 2;
-    var t = document.createElement('canvas'); t.width = Math.ceil(w); t.height = Math.ceil(h);
-    var g = t.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(sunImg, 0, 0, t.width, t.height);
-    g.globalCompositeOperation = 'destination-in';
-    var gx = g.createLinearGradient(0, 0, t.width, 0), f = .14;
-    gx.addColorStop(0, 'rgba(0,0,0,0)'); gx.addColorStop(f, 'rgba(0,0,0,1)'); gx.addColorStop(1 - f, 'rgba(0,0,0,1)'); gx.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = gx; g.fillRect(0, 0, t.width, t.height);
-    var gy = g.createLinearGradient(0, 0, 0, t.height);
-    gy.addColorStop(0, 'rgba(0,0,0,0)'); gy.addColorStop(.08, 'rgba(0,0,0,1)'); gy.addColorStop(.92, 'rgba(0,0,0,1)'); gy.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = gy; g.fillRect(0, 0, t.width, t.height);
-    wctx.drawImage(t, x, y);
-  }
-  function drawGoldLeaf(cw, ch, rnd){             // warm wash plus a scatter of small gold-leaf flecks
-    wctx.globalCompositeOperation = 'soft-light'; wctx.fillStyle = 'rgba(232,184,64,.7)'; wctx.fillRect(0, 0, cw, ch);
-    wctx.globalCompositeOperation = 'source-over';
-    var n = Math.round(cw * ch / 5200);
+  // ---- the repeating "board" for each kind of pattern (mirrored at the edges, so it can travel forever) ----
+  function cloneBoard(){ var c = document.createElement('canvas'); c.width = mapCanvas.width; c.height = mapCanvas.height; c.getContext('2d').drawImage(mapCanvas, 0, 0); return c; }
+  var gemBoard = null, goldBoard = null;
+  function makeGoldBoard(){                       // warm wash plus a scatter of small gold-leaf flecks
+    var c = cloneBoard(), g = c.getContext('2d'), rnd = rng32(222 * 7919 + 99), W = c.width, H = c.height;
+    g.globalCompositeOperation = 'soft-light'; g.fillStyle = 'rgba(232,184,64,.7)'; g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = 'source-over';
+    var n = Math.round(W * H / 5200);
     for(var i = 0; i < n; i++){
-      var px = rnd() * cw, py = rnd() * ch, sz = 3 + rnd() * 9, a = .22 + rnd() * .4;
-      wctx.save(); wctx.translate(px, py); wctx.rotate(rnd() * Math.PI);
-      wctx.fillStyle = 'rgba(' + (214 + (rnd() * 30 | 0)) + ',' + (165 + (rnd() * 30 | 0)) + ',' + (50 + (rnd() * 30 | 0)) + ',' + a.toFixed(2) + ')';
-      wctx.fillRect(-sz / 2, -sz / 2, sz, sz * (.5 + rnd() * .5));
-      wctx.restore();
+      var px = rnd() * W, py = rnd() * H, sz = 3 + rnd() * 9, a = .22 + rnd() * .4;
+      g.save(); g.translate(px, py); g.rotate(rnd() * Math.PI);
+      g.fillStyle = 'rgba(' + (214 + (rnd() * 30 | 0)) + ',' + (165 + (rnd() * 30 | 0)) + ',' + (50 + (rnd() * 30 | 0)) + ',' + a.toFixed(2) + ')';
+      g.fillRect(-sz / 2, -sz / 2, sz, sz * (.5 + rnd() * .5));
+      g.restore();
     }
+    return c;
   }
-  // The wall is a fixed-size sheet of the pattern, pinned to the top-left and sized by the
-  // device (not the window). The pattern is a window onto the big board at a fixed scale, so
-  // resizing, or iOS growing and shrinking its address bar, only reveals more or less of it.
-  var view = null;
+  function makeSunBoard(v){                       // the portrait painting, feathered into the board where the opening window sits
+    var c = cloneBoard(), g = c.getContext('2d'), asp = sunImg.naturalWidth / sunImg.naturalHeight;
+    var winW = v.vw / v.k, winH = v.vh / v.k, tall = v.vh > v.vw, w, h, cx, cy;
+    if(tall){ w = winW * 1.4; h = w / asp; cx = v.cx; cy = v.cy + (.14 * winH + h / 2 - winH / 2); }
+    else { h = winH * .94; w = h * asp; cx = v.cx + .16 * winW; cy = v.cy; }
+    var t = document.createElement('canvas'); t.width = Math.ceil(w); t.height = Math.ceil(h);
+    var tg = t.getContext('2d'); tg.imageSmoothingQuality = 'high'; tg.drawImage(sunImg, 0, 0, t.width, t.height);
+    tg.globalCompositeOperation = 'destination-in';
+    var gx = tg.createLinearGradient(0, 0, t.width, 0), f = .14;
+    gx.addColorStop(0, 'rgba(0,0,0,0)'); gx.addColorStop(f, 'rgba(0,0,0,1)'); gx.addColorStop(1 - f, 'rgba(0,0,0,1)'); gx.addColorStop(1, 'rgba(0,0,0,0)');
+    tg.fillStyle = gx; tg.fillRect(0, 0, t.width, t.height);
+    var gy = tg.createLinearGradient(0, 0, 0, t.height);
+    gy.addColorStop(0, 'rgba(0,0,0,0)'); gy.addColorStop(.08, 'rgba(0,0,0,1)'); gy.addColorStop(.92, 'rgba(0,0,0,1)'); gy.addColorStop(1, 'rgba(0,0,0,0)');
+    tg.fillStyle = gy; tg.fillRect(0, 0, t.width, t.height);
+    g.drawImage(t, cx - w / 2, cy - h / 2);
+    return c;
+  }
+
+  // The wall is a fixed-size sheet pinned to the top-left and sized by the device (not the window),
+  // so resizing, or iOS growing and shrinking its address bar, only reveals more or less of the
+  // pattern. It is a window onto the board at a fixed scale, and scrolling slides the window
+  // across the board (the board repeats seamlessly, so it never runs out).
+  var view = null, panP = 0, lastPan = -99999, paintQueued = false;
   function makeView(n, tier){
     var rnd = rng32(n * 2654435761 + 12345); rnd(); rnd();
-    var zoom = 1 + rnd() * .75, rot = (rnd() - .5) * 26 * Math.PI / 180, flip = rnd() < .5 ? -1 : 1;
-    var cxf = .2 + rnd() * .6, cyf = .2 + rnd() * .6;
-    if(tier.sun){ zoom = 1.05; rot = 0; flip = 1; cxf = .5; cyf = .5; }
-    view = { zoom: zoom, rot: rot, flip: flip, cxf: cxf, cyf: cyf, vw: innerWidth, vh: innerHeight, ox: null, oy: null };
+    rnd(); var zoom = 1, rot = (rnd() - .5) * 26 * Math.PI / 180;      // one fixed scale, so petals are the same size in every pattern
+    var board = tier.gem ? (gemBoard || (gemBoard = makeGemBoard())) : tier.gold ? (goldBoard || (goldBoard = makeGoldBoard())) : mapCanvas;
+    var MW = board.width, MH = board.height;
+    var cx = rnd() * 2 * MW, cy = rnd() * 2 * MH;                     // anywhere on the 2x2 mirrored board
+    if(tier.sun){ zoom = 1; rot = 0; cx = MW / 2; cy = MH / 2; }
+    var k = .9 * zoom, cs = Math.cos(rot), sn = Math.sin(rot), px = innerWidth / 2, py = innerHeight / 2;
+    view = { board: board, k: k, rot: rot, cx: cx, cy: cy, vw: innerWidth, vh: innerHeight, travel: 3.4 * innerHeight,
+             ox: cx - (cs * px + sn * py) / k, oy: cy - (-sn * px + cs * py) / k };
+    if(tier.sun && sunImg) view.board = makeSunBoard(view);
   }
   function sheetSize(){        // sized by the device, so the iOS address bar growing or shrinking never changes it
     return [Math.max(Math.round(innerWidth * 1.04), Math.min(screen.width || 0, 2600)), Math.max(Math.round(innerHeight * 1.06), Math.min(screen.height || 0, 2000))];
@@ -2163,36 +2143,30 @@
     var sz = sheetSize(), cw = sz[0], ch = sz[1];
     if(wallArt.width !== cw || wallArt.height !== ch){ wallArt.width = cw; wallArt.height = ch; }
     wallArt.style.width = cw + 'px'; wallArt.style.height = ch + 'px';
-    wctx.clearRect(0, 0, cw, ch);
     var tier = patternTier(patternSeed);
     wall.classList.toggle('is-gem', !!tier.gem); document.body.classList.toggle('gem', !!tier.gem);
-    if(tier.gem){ drawGem(cw, ch); return; }
-    if(!mapCanvas) return;
+    wctx.setTransform(1, 0, 0, 1, 0, 0); wctx.clearRect(0, 0, cw, ch);
+    if(!tier.gem && !mapCanvas) return;
     if(!view) makeView(patternSeed, tier);
-    var MW = mapCanvas.width, MH = mapCanvas.height, rot = view.rot, cs = Math.cos(rot), sn = Math.sin(rot);
-    var k = Math.min(2.2, Math.max(.9 * view.zoom, 0));
-    // R(-rot) applied to the sheet's corners: how much of the board the sheet spans at scale k
-    function spans(kk){
-      var xs = [0, cw, 0, cw], ys = [0, 0, ch, ch], rx = [], ry = [];
-      for(var i = 0; i < 4; i++){ rx.push((cs * xs[i] + sn * ys[i]) / kk); ry.push((-sn * xs[i] + cs * ys[i]) / kk); }
-      return { minx: Math.min.apply(0, rx), maxx: Math.max.apply(0, rx), miny: Math.min.apply(0, ry), maxy: Math.max.apply(0, ry) };
-    }
-    var sp0 = spans(k), guard = 0;
-    while((sp0.maxx - sp0.minx > MW * .98 || sp0.maxy - sp0.miny > MH * .98) && guard++ < 60){ k *= 1.04; sp0 = spans(k); }
-    if(view.ox === null){                                              // first time: aim the viewport centre at the chosen spot
-      var px = view.vw / 2, py = view.vh / 2;
-      view.ox = view.cxf * MW - (cs * px + sn * py) / k;
-      view.oy = view.cyf * MH - (-sn * px + cs * py) / k;
-    }
-    var ox = Math.min(Math.max(view.ox, -sp0.minx), MW - sp0.maxx);   // keep the sheet inside the board
-    var oy = Math.min(Math.max(view.oy, -sp0.miny), MH - sp0.maxy);
+    var b = view.board, MW = b.width, MH = b.height, k = view.k, rot = view.rot, cs = Math.cos(rot), sn = Math.sin(rot);
+    var d = panP * view.travel, ox = view.ox + sn * d / k, oy = view.oy + cs * d / k;
+    var bx = [], by = [], xs = [0, cw, 0, cw], ys = [0, 0, ch, ch];
+    for(var i = 0; i < 4; i++){ bx.push(ox + (cs * xs[i] + sn * ys[i]) / k); by.push(oy + (-sn * xs[i] + cs * ys[i]) / k); }
+    var x0 = Math.floor(Math.min.apply(0, bx) / MW), x1 = Math.floor(Math.max.apply(0, bx) / MW);
+    var y0 = Math.floor(Math.min.apply(0, by) / MH), y1 = Math.floor(Math.max.apply(0, by) / MH);
     wctx.save(); wctx.imageSmoothingEnabled = true; wctx.imageSmoothingQuality = 'high';
     wctx.rotate(rot); wctx.scale(k, k); wctx.translate(-ox, -oy);
-    if(view.flip < 0){ wctx.translate(MW, 0); wctx.scale(-1, 1); }
-    wctx.drawImage(mapCanvas, 0, 0); wctx.restore();
-    var rnd = rng32(patternSeed * 7919 + 99);
-    if(tier.gold) drawGoldLeaf(cw, ch, rnd);
-    if(tier.sun && sunImg) drawSunflower(cw, ch);
+    for(var ix = x0; ix <= x1; ix++) for(var iy = y0; iy <= y1; iy++){
+      wctx.save(); wctx.translate(ix * MW, iy * MH);
+      wctx.drawImage(b, 0, 0, MW, MH, -.75, -.75, MW + 1.5, MH + 1.5);
+      wctx.restore();
+    }
+    wctx.restore();
+  }
+  function setPan(P){                              // scrolling slides the window across the pattern
+    panP = P;
+    var d = view ? Math.round(P * view.travel) : 0;
+    if(d !== lastPan){ lastPan = d; if(!paintQueued){ paintQueued = true; requestAnimationFrame(function(){ paintQueued = false; paintWall(); }); } }
   }
   function setPattern(n){
     patternSeed = n; view = null;
@@ -2351,21 +2325,22 @@
   nextCue.addEventListener('click', function(){ if(cueIndex >= 0 && cueIndex < LAST) scrollToSceneIndex(cueIndex + 1, true); });
 
   // ---- Envelopes: how a figure and its card arrive, hold, and leave ----
+  var focusS = 1, focusY = 0;   // how big (and how high) a figure sits once it has moved to the centre
   function figureEnvelope(x, room, focusX, o0){
     var scale, opacity, tx, ty;
     if(x < 0.24){
       var t = smoothstep(0,0.24,x);
-      scale = lerp(room.s, 1, t);
+      scale = lerp(room.s, focusS, t);
       opacity = lerp(o0, 1, t);
       tx = lerp(room.x, focusX, t);
-      ty = lerp(room.y, 0, t);
+      ty = lerp(room.y, focusY, t);
     } else if(x < 0.78){
-      scale = 1; opacity = 1; tx = focusX; ty = 0;
+      scale = focusS; opacity = 1; tx = focusX; ty = focusY;
     } else {
       var t2 = (x-0.78)/0.22;
-      scale = lerp(1, 1.3, t2);
+      scale = lerp(focusS, focusS * 1.3, t2);
       opacity = lerp(1, 0, t2);
-      tx = focusX; ty = 0;
+      tx = focusX; ty = focusY;
     }
     return {scale:scale, opacity:opacity, tx:tx, ty:ty};
   }
@@ -2378,10 +2353,10 @@
   function finalEnvelope(x, room, focusX){
     var t = smoothstep(0,1,x);
     return {
-      scale:lerp(room.s,1,t),
+      scale:lerp(room.s,focusS,t),
       opacity:lerp(PREVIEW_OPACITY,1,t),
       tx:lerp(room.x,focusX,t),
-      ty:lerp(room.y,0,t),
+      ty:lerp(room.y,focusY,t),
       card:smoothstep(.08,.88,x)
     };
   }
@@ -2398,6 +2373,8 @@
     var isMobile = mqPhone.matches || mqTouchPortrait.matches;
     var isCompact = !isMobile && mqCompact.matches;
     var FOCUS_X = isMobile ? FOCUS_X_MOBILE : (isCompact ? FOCUS_X_COMPACT : FOCUS_X_DESKTOP);
+    focusS = isMobile ? 1.55 : (isCompact ? 1.2 : 1.15);      // figures grow a good deal more when they reach the middle
+    focusY = isMobile ? -6 : 0;
     function roomOf(f){ return isMobile ? f.roomMobile : (isCompact ? f.roomCompact : f.room); }
 
     var activeIndex = inIntro ? -1 : Math.min(LAST, Math.floor(sp / segLen));
@@ -2475,7 +2452,7 @@
 
       if(reducedNow){
         var isActive = !inIntro && i >= 0 && z === 40;
-        el_set(f.el, 'translate(-50%,-50%) scale(' + (isActive?1:room.s) + ')', opacity * roomVisibility, SHADOW);
+        el_set(f.el, 'translate(-50%,-50%) scale(' + (isActive?focusS:room.s) + ')', opacity * roomVisibility, SHADOW);
       } else {
         el_set(f.el, 'translate(-50%,-50%) translate(' + tx.toFixed(2) + 'vw,' + ty.toFixed(2) + 'vh) scale(' + scale.toFixed(3) + ')',
                opacity * roomVisibility, (blur>0.05 ? 'blur('+blur.toFixed(2)+'px) ' : '') + SHADOW);
@@ -2510,12 +2487,12 @@
     var resumeDim = rl >= 0 && rl <= 1 ? smoothstep(0, .25, rl) * (1 - smoothstep(.75, 1, rl)) : 0;   // a touch fainter behind the resume
     wallOp = 1 - .22 * resumeDim;
     wall.style.opacity = (wallOp * wallMax).toFixed(3);
-    var drift2 = (inIntro ? 0 : sp) * -2.4;
+    var panTarget = inIntro ? ip * .1 : .1 + .9 * sp;
     var creditVis = 1 - darkBackdropOpacity;
     artCredit.style.opacity = (creditVis * .9).toFixed(3);
     leafVis = creditVis;
     artCredit.style.pointerEvents = creditVis > .6 && patternShown ? 'auto' : 'none';
-    wallArt.style.transform = 'translate3d(0,' + drift2.toFixed(2) + 'vh,0)';
+    if(creditVis > .02) setPan(panTarget);
     fishPortal.style.opacity = 0;
     portalWash.style.opacity = 0;
     galleryBackdrop.style.opacity = darkBackdropOpacity;
@@ -2647,6 +2624,7 @@
   var lastInput = 0;
   var pendingAnnouncement = false;
   var touchStart = null;
+  var wheelAcc = 0, wheelStepAt = 0;
 
   galleryWorks.forEach(function(work,index){
     var button = document.createElement('button');
@@ -2819,12 +2797,32 @@
   // Wheel/trackpad input adds velocity to a continuous reel. The artwork can
   // stop between slots while moving, coast across several works after a fast
   // gesture, then spring to the nearest page when momentum runs out.
-  galleryStage.addEventListener('wheel', function(e){
+  galleryWrap.addEventListener('wheel', function(e){
     if(!galleryWrap.classList.contains('interactive')) return;
-    // Only a sideways gesture (trackpad swipe or Shift + wheel) browses the reel.
-    // A plain vertical scroll always goes on to move the page.
     var sideways = Math.abs(e.deltaX) > Math.abs(e.deltaY);
-    if(!sideways && !e.shiftKey) return;
+    var now = performance.now();
+    if(!sideways && !e.shiftKey){
+      // Plain mouse wheel / vertical scroll: one notch = one drawing.
+      // At the first or last drawing the scroll moves on to the page, so it never traps.
+      var dy = e.deltaMode === 1 ? e.deltaY*32 : e.deltaY;
+      if(!dy) return;
+      var dir = dy > 0 ? 1 : -1;
+      var atEnd = (dir > 0 && activeIndex >= galleryWorks.length-1 && forcedTarget === null) ||
+                  (dir < 0 && activeIndex <= 0 && forcedTarget === null);
+      if(atEnd && now-wheelStepAt > 650){ wheelAcc = 0; return; }
+      e.preventDefault();
+      if(atEnd) return;
+      if(wheelAcc && (wheelAcc > 0) !== (dy > 0)) wheelAcc = 0;
+      wheelAcc += dy;
+      if(Math.abs(wheelAcc) >= 40 && now-wheelStepAt > 380){
+        wheelAcc = 0;
+        wheelStepAt = now;
+        var base = forcedTarget !== null ? Math.round(forcedTarget) : activeIndex;
+        var nextIdx = Math.max(0, Math.min(galleryWorks.length-1, modulo(base,galleryWorks.length)+dir));
+        select(nextIdx, true);
+      }
+      return;
+    }
     var delta = sideways ? e.deltaX : e.deltaY;
     if(!delta) return;
     e.preventDefault();
@@ -2833,7 +2831,7 @@
       return;
     }
     forcedTarget = null;
-    lastInput = performance.now();
+    lastInput = now;
     pendingAnnouncement = true;
     velocity += Math.max(-180,Math.min(180,delta))*.00085;
     velocity = Math.max(-.55,Math.min(.55,velocity));
