@@ -1974,12 +1974,12 @@
   // Figures: where each sits in the room, and which way it drifts when the
   // opening parts (dir -1 = up, +1 = down).
   var FIGS = {
-    pFlag:    { el:$('pFlag'),    dir:-1, open:.70, room:{x:-36,y:0,s:1.02},   roomCompact:{x:-31,y:2,s:.86},    roomMobile:{x:-30,y:-9,s:.78} },
-    pWeights: { el:$('pWeights'), dir:-1, open:.62, room:{x:20,y:-22,s:0.68},  roomCompact:{x:20,y:-23,s:.58},   roomMobile:{x:20,y:-22,s:.63} },
-    pFish:    { el:$('pFish'),    dir: 1, open:.62, room:{x:-6,y:28,s:0.84},   roomCompact:{x:-4,y:28,s:.70},    roomMobile:{x:-24,y:28,s:.70} },
-    pDancer:  { el:$('pDancer'),  dir: 1, open:.62, room:{x:27,y:12,s:1.2},    roomCompact:{x:28,y:10,s:.92},    roomMobile:{x:22,y:28,s:.83} },
-    pHat:     { el:$('pHat'),     dir:-1, open:.60, room:{x:-22,y:-20,s:0.68}, roomCompact:{x:-24,y:-25,s:.50},  roomMobile:{x:-21,y:-26,s:.58} },
-    pDadChild:{ el:$('pDadChild'),dir: 1, open:.60, room:{x:38,y:-8,s:0.58},   roomCompact:{x:35,y:-13,s:.43},   roomMobile:{x:31,y:-6,s:.50} }
+    pFlag:    { el:$('pFlag'),    dir:-1, open:1, room:{x:-36,y:0,s:1.02},   roomCompact:{x:-31,y:2,s:.86},    roomMobile:{x:-30,y:-9,s:.78} },
+    pWeights: { el:$('pWeights'), dir:-1, open:1, room:{x:20,y:-22,s:0.68},  roomCompact:{x:20,y:-23,s:.58},   roomMobile:{x:20,y:-22,s:.63} },
+    pFish:    { el:$('pFish'),    dir: 1, open:1, room:{x:-6,y:28,s:0.84},   roomCompact:{x:-4,y:28,s:.70},    roomMobile:{x:-24,y:28,s:.70} },
+    pDancer:  { el:$('pDancer'),  dir: 1, open:1, room:{x:27,y:12,s:1.2},    roomCompact:{x:28,y:10,s:.92},    roomMobile:{x:22,y:28,s:.83} },
+    pHat:     { el:$('pHat'),     dir:-1, open:1, room:{x:-22,y:-20,s:0.68}, roomCompact:{x:-24,y:-25,s:.50},  roomMobile:{x:-21,y:-26,s:.58} },
+    pDadChild:{ el:$('pDadChild'),dir: 1, open:1, room:{x:38,y:-8,s:0.58},   roomCompact:{x:35,y:-13,s:.43},   roomMobile:{x:31,y:-6,s:.50} }
   };
   var SHADOW = 'drop-shadow(0 20px 18px rgba(30,25,15,0.26))';
   function blurFor(scale){
@@ -2125,12 +2125,12 @@
   var view = null, panP = 0, lastPan = -99999, paintQueued = false;
   function makeView(n, tier){
     var rnd = rng32(n * 2654435761 + 12345); rnd(); rnd();
-    rnd(); var zoom = 1, rot = (rnd() - .5) * 26 * Math.PI / 180;      // one fixed scale, so petals are the same size in every pattern
+    rnd(); var zoom = 1, rot = rnd() * 2 * Math.PI;      // any orientation; one fixed scale per device, so petals are the same size in every pattern
     var board = tier.gem ? (gemBoard || (gemBoard = makeGemBoard())) : tier.gold ? (goldBoard || (goldBoard = makeGoldBoard())) : mapCanvas;
     var MW = board.width, MH = board.height;
     var cx = rnd() * 2 * MW, cy = rnd() * 2 * MH;                     // anywhere on the 2x2 mirrored board
     if(tier.sun){ zoom = 1; rot = 0; cx = MW / 2; cy = MH / 2; }
-    var k = .9 * zoom, cs = Math.cos(rot), sn = Math.sin(rot), px = innerWidth / 2, py = innerHeight / 2;
+    var k = Math.max(1.3, Math.min(2.1, sheetSize()[0] / 1100)) * zoom, cs = Math.cos(rot), sn = Math.sin(rot), px = innerWidth / 2, py = innerHeight / 2;
     view = { board: board, k: k, rot: rot, cx: cx, cy: cy, vw: innerWidth, vh: innerHeight, travel: 3.4 * innerHeight,
              ox: cx - (cs * px + sn * py) / k, oy: cy - (-sn * px + cs * py) / k };
     if(tier.sun && sunImg) view.board = makeSunBoard(view);
@@ -2884,7 +2884,7 @@
 })();
 </script>
 
-<script src="canvas-viewer.js" defer></script>
+<script src="canvas-viewer.js?v=20261014" defer></script>
 <script src="project-demos.js"></script>
 </body>
 </html>
