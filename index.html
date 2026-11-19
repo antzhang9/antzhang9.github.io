@@ -165,6 +165,47 @@
     transition:background .2s ease, color .2s ease, border-color .2s ease;
   }
   .enter-btn:hover{ background:var(--ink); color:var(--paper); }
+  /* ---------- LANDING BACKDROP (test): ?landing=night | mesh | veil. Without it, the landing page is unchanged. ---------- */
+  .landing-bg{ position:absolute; inset:0; z-index:2; pointer-events:none; opacity:0; overflow:hidden; }
+  body[data-landing="night"] .landing-bg{
+    background:
+      radial-gradient(ellipse at 50% 46%, rgba(96,90,76,.50), transparent 52%),
+      linear-gradient(180deg, #24231f 0%, #14130f 100%);
+  }
+  body[data-landing="veil"] .landing-bg{
+    background:
+      radial-gradient(ellipse at 50% 46%, rgba(20,18,13,.34) 0%, rgba(20,18,13,.74) 78%),
+      rgba(20,18,13,.18);
+  }
+  body[data-landing="mesh"] .landing-bg{ background:#13110e; }
+  body[data-landing="mesh"] .landing-bg::before,
+  body[data-landing="mesh"] .landing-bg::after{
+    content:""; position:absolute; width:90vmax; height:90vmax; border-radius:50%;
+    filter:blur(40px); will-change:transform;
+  }
+  body[data-landing="mesh"] .landing-bg::before{
+    left:-25vmax; top:-30vmax;
+    background:radial-gradient(circle, rgba(58,84,52,.75), rgba(58,84,52,0) 62%);
+    animation:landingDriftA 38s ease-in-out infinite alternate;
+  }
+  body[data-landing="mesh"] .landing-bg::after{
+    right:-30vmax; bottom:-38vmax;
+    background:radial-gradient(circle, rgba(120,48,40,.62), rgba(120,48,40,0) 62%);
+    animation:landingDriftB 46s ease-in-out infinite alternate;
+  }
+  body[data-landing="mesh"] .landing-glow{ position:absolute; inset:0;
+    background:radial-gradient(ellipse at 66% 30%, rgba(180,140,60,.22), transparent 44%), radial-gradient(ellipse at 24% 78%, rgba(46,60,120,.32), transparent 50%); }
+  @keyframes landingDriftA{ from{ transform:translate(0,0) scale(1); } to{ transform:translate(14vmax,10vmax) scale(1.12); } }
+  @keyframes landingDriftB{ from{ transform:translate(0,0) scale(1); } to{ transform:translate(-12vmax,-8vmax) scale(1.1); } }
+  @media (prefers-reduced-motion: reduce){ body[data-landing="mesh"] .landing-bg::before, body[data-landing="mesh"] .landing-bg::after{ animation:none; } }
+  /* the name and button turn light while the dark landing is showing */
+  body.landing-on .room-title h1{ color:#f6f1e6; text-shadow:0 2px 28px rgba(0,0,0,.55); }
+  body.landing-on .enter-btn{ background:rgba(246,241,230,.10); color:#f6f1e6; border-color:rgba(246,241,230,.7); }
+  body.landing-on .enter-btn:hover{ background:#f6f1e6; color:#1d1a15; }
+  body.landing-on .scroll-cue{ color:#e8c9a8; }
+  body.landing-on .scene-nav a{ color:#eaf0ff; }
+  body.landing-on .scene-nav-dot{ box-shadow:0 0 0 2.5px rgba(10,10,10,.45); }
+
   .enter-btn:focus-visible{ outline:2px solid var(--brick); outline-offset:3px; }
   .room-title.is-gone .enter-btn{ pointer-events:none; }
   .scroll-cue{
@@ -1176,6 +1217,8 @@
     font-size:.78rem;
     line-height:1.4;
   }
+  .demo-notice-top{ margin:0 0 16px; }
+  .demo-field-error[hidden], .demo-inline-fix[hidden]{ display:none; }   /* the display rules below were overriding the hidden attribute, so the message never really went away */
   .demo-field-error::before{
     content:"!";
     display:inline-flex;
@@ -1680,6 +1723,136 @@
     .art-credit{ bottom:auto; top:calc(10px + env(safe-area-inset-top,0px)); right:calc(12px + env(safe-area-inset-right,0px)); }
     .pattern-btn{ font-size:.72rem; padding:5px 11px 5px 9px; }
   }
+  /* ---------- UI GUIDE PASS (dossier): same language as the main site: paper, ink, brick, soft round shapes, plain sentence-case labels ---------- */
+  .project-demo-shell{ border:0; border-radius:28px; box-shadow:0 32px 80px rgba(0,0,0,.42); }
+  .folder-tab-physical{
+    border:0; border-radius:16px 16px 0 0; left:30px; top:-30px; height:32px; min-width:0; padding:8px 24px 0;
+    font:600 .8rem 'IBM Plex Sans','IBM Plex Sans Fallback',sans-serif; letter-spacing:.02em; color:#5d4a2a; background:#d6bf8a;
+  }
+  .folder-cover{ border:0; border-radius:28px; }
+  .folder-cover::before{ border-radius:20px; }
+  .demo-header{ border-radius:28px 28px 0 0; border-bottom:0; padding:22px 28px 16px; box-shadow:0 1px 0 rgba(32,29,24,.08); }
+  .folder-paper{ border-radius:0 0 28px 28px; }
+  .demo-kicker{ text-transform:none; letter-spacing:.03em; font-size:.84rem; font-weight:600; margin-bottom:4px; }
+  .demo-close{ border:0; background:rgba(32,29,24,.07); color:var(--ink); transition:background .2s ease, color .2s ease; }
+  .demo-close:hover{ background:var(--ink); color:#fffdf8; }
+  .dossier-tabs{ gap:6px; }
+  .dossier-tab{
+    border:0; border-radius:18px 18px 0 0; min-height:42px; padding:0 20px; background:#d6bf8a; color:#5d4a2a;
+    text-transform:none; letter-spacing:.01em; font:600 .88rem 'IBM Plex Sans','IBM Plex Sans Fallback',sans-serif; box-shadow:none;
+  }
+  .dossier-tab.uml-tab{ transform:none; }
+  .dossier-tab.active{ background:#f7f0df; color:var(--brick); }
+
+  .demo-view{ padding:clamp(20px,3vw,36px); }
+  .demo-intro{ color:#4f493f; font-size:.96rem; line-height:1.65; }
+  .demo-notice{ border-top:0; padding:12px 16px; border-radius:18px; background:rgba(32,29,24,.05); color:#5d574d; font-size:.8rem; line-height:1.55; }
+  .demo-notice-top{ margin:0 0 18px; }
+  .demo-field > span, .demo-field-label, .demo-city-field legend, .demo-section-label{
+    text-transform:none; letter-spacing:.01em; font-size:.84rem; font-weight:600; color:#4f493f;
+  }
+  .demo-city-field legend span{ font-size:.76rem; font-weight:500; letter-spacing:0; color:#7a7366; }
+  .demo-section-label{ font-size:.9rem; }
+  .demo-select, .demo-input{
+    min-height:48px; border:0; border-radius:16px; padding:0 16px; background:#fffdf8;
+    box-shadow:0 0 0 1px rgba(32,29,24,.12), 0 2px 6px rgba(30,25,15,.05); font-size:.92rem;
+    transition:box-shadow .18s ease;
+  }
+  .demo-select{
+    appearance:none; -webkit-appearance:none; padding-right:42px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23201d18' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 16px center;
+  }
+  .demo-select:focus-visible, .demo-input:focus-visible{ outline:0; box-shadow:0 0 0 2px var(--brick); }
+  .demo-input.field-invalid{ box-shadow:0 0 0 2px var(--brick); }
+  .city-choice{
+    min-height:50px; padding:8px 14px; border:0; border-radius:18px; background:#fffdf8;
+    box-shadow:0 0 0 1px rgba(32,29,24,.12); transition:box-shadow .18s ease, background .18s ease;
+  }
+  .city-choice:has(input:checked){ box-shadow:0 0 0 1.5px rgba(178,58,38,.55); background:#fff; }
+  .demo-date-grid > .demo-field{ min-width:0; }
+  .demo-date-grid .demo-input{ padding:0 12px; min-width:0; }
+  .city-choice strong{ font-size:.88rem; }
+  .city-choice small{ font-size:.74rem; }
+  .city-choice input{ width:17px; height:17px; }
+  .demo-button{
+    min-height:48px; border:0; border-radius:999px; padding:0 26px; background:var(--ink); color:#fffdf8;
+    text-transform:none; letter-spacing:.01em; font-size:.94rem; font-weight:600;
+    box-shadow:0 8px 18px rgba(30,25,15,.18); transition:background .2s ease, transform .15s ease, box-shadow .2s ease;
+  }
+  .demo-button:hover{ background:var(--brick); transform:translateY(-1px); box-shadow:0 10px 22px rgba(30,25,15,.22); }
+  .demo-button:active{ transform:scale(.97); }
+  .demo-field-error{ border:0; border-radius:18px; background:rgba(178,58,38,.09); padding:10px 14px; font-size:.84rem; }
+  .demo-inline-fix{ border:0; background:var(--ink); color:#fffdf8; padding:6px 14px; font-weight:600; font-size:.8rem; }
+  .demo-inline-fix:hover{ background:var(--brick); }
+
+  /* results */
+  .route-visual{ border-radius:26px; background:#ecdfc3; min-height:128px; }
+  .route-node::before{ background:#ecdfc3; }
+  .route-node:first-child::before, .route-node:last-child::before{ background:var(--brick); }
+  .route-node small{ font-size:.74rem; color:#5d574d; }
+  .flight-summary{ border:0; gap:10px; }
+  .flight-stat, .flight-stat + .flight-stat{ padding:16px 20px 15px; border:0; border-radius:22px; background:#fffdf8; box-shadow:0 8px 20px rgba(30,25,15,.08); }
+  .flight-stat span, .word-stat span{ text-transform:none; letter-spacing:.01em; font-size:.8rem; color:#5d574d; }
+  .edge-analysis{ gap:14px; }
+  .edge-step{ border-top:0; border-radius:26px; padding:20px 20px 18px; background:#fffdf8; box-shadow:0 10px 26px rgba(30,25,15,.09); }
+  .edge-step-number{
+    display:inline-block; margin-bottom:8px; padding:3px 11px; border-radius:999px; background:rgba(178,58,38,.1);
+    text-transform:none; letter-spacing:.02em; font-size:.74rem; font-weight:600;
+  }
+  .edge-step h3{ font-size:1.15rem; }
+  .edge-step p{ font-size:.8rem; line-height:1.55; color:#5d574d; }
+  .edge-row{ font-size:.82rem; min-height:34px; border-bottom-color:rgba(32,29,24,.07); }
+  .edge-row strong{ font-size:.86rem; }
+  .edge-choice{ font-size:.8rem; padding:9px 0; border-bottom-color:rgba(32,29,24,.07); }
+  .edge-badge{
+    margin-left:8px; padding:1px 9px; border-radius:999px; background:rgba(178,58,38,.1);
+    text-transform:none; letter-spacing:.01em; font-size:.7rem; font-weight:600;
+  }
+  .demo-status{ font-size:.84rem; color:#4f493f; }
+
+  /* WordHunt */
+  .word-cell{ border:0; border-radius:20px; background:#fffdf8; box-shadow:0 6px 16px rgba(30,25,15,.09); }
+  .word-cell.is-path{ background:var(--brick); box-shadow:0 6px 16px rgba(178,58,38,.28); }
+  @keyframes cell-scan{ 0%,100%{ background:#fffdf8; } 50%{ background:#ecdfc3; } }
+  .word-stats{ border:0; gap:10px; }
+  .word-stat, .word-stat:nth-child(even){ padding:14px 16px 12px; border:0; border-radius:20px; background:#fffdf8; box-shadow:0 8px 20px rgba(30,25,15,.08); }
+  .word-result{
+    min-height:38px; padding:0 16px; border:0; border-radius:999px; background:rgba(32,29,24,.07);
+    letter-spacing:.02em; font-size:.82rem; transition:background .18s ease, color .18s ease;
+  }
+  .word-result:hover{ background:rgba(32,29,24,.14); }
+  .word-result.active{ background:var(--brick); color:#fffdf8; }
+  .threshold-row output{ font-size:.88rem; }
+
+  /* UML tab */
+  .uml-view{ padding:24px 28px; }
+  .uml-document-header{ border-bottom:0; }
+  .uml-download{
+    border:0; border-radius:999px; min-height:44px; padding:0 20px; background:var(--ink); color:#fffdf8; transform:none;
+    text-transform:none; letter-spacing:.01em; font:600 .88rem 'IBM Plex Sans','IBM Plex Sans Fallback',sans-serif;
+    box-shadow:0 8px 18px rgba(30,25,15,.18); transition:background .2s ease;
+  }
+  .uml-download:hover{ background:var(--brick); }
+  .uml-toolbar button{ border:0; border-radius:999px; min-width:40px; min-height:38px; padding:0 14px; background:rgba(32,29,24,.07); color:var(--ink); font-size:.86rem; }
+  .uml-toolbar button:hover{ background:var(--ink); color:#fffdf8; }
+  .uml-toolbar output{ font-size:.82rem; }
+  .uml-viewport{ border:0; border-radius:22px; box-shadow:inset 0 0 0 1px rgba(32,29,24,.08); }
+
+  @media (max-width:600px),
+         (max-width:900px) and (hover:none) and (pointer:coarse) and (orientation:portrait){
+    .project-demo-shell, .folder-cover{ border-radius:24px; }
+    .demo-header{ border-radius:24px 24px 0 0; padding:14px 16px 10px; }
+    .folder-paper{ border-radius:0 0 24px 24px; }
+    .folder-tab-physical{ font-size:.72rem; height:26px; padding:6px 16px 0; left:14px; top:-24px; }
+    .dossier-tab{ min-height:38px; padding:0 14px; font-size:.8rem; }
+    .demo-kicker{ font-size:.76rem; }
+    .demo-view{ padding:18px 16px; }
+    .flight-stat, .flight-stat + .flight-stat{ padding:12px 14px; }
+    .edge-step{ padding:16px; }
+    .uml-view{ padding:16px; }
+  }
+
   /* Phase 1 / A-04: iPhone zooms the page when a field under 16px is tapped; on touch screens keep fields at 16px. */
   @media (pointer:coarse){ .demo-input, .demo-select, .pattern-input{ font-size:16px; } }
 </style>
@@ -1695,6 +1868,7 @@
         <span class="pattern-dot"></span><span id="patternLabel">#</span>
       </button>
     </div>
+    <div class="landing-bg" id="landingBg" aria-hidden="true"><div class="landing-glow"></div></div>
     <div class="white-overlay" id="whiteOverlay"></div>
 
     <div class="room-title" id="roomTitle">
@@ -1738,7 +1912,7 @@
       <h2>Currency Map</h2>
       <p>A world map of what one unit of each currency is worth. Switch it to see what a Big Mac costs in each country.</p>
       <span class="meta-line">JavaScript · live exchange rates</span>
-      <a class="cta" href="currency-map.html">Open Currency Map</a>
+      <a class="cta" href="currency-map2.html">Open Currency Map</a>
     </div>
 
     <div class="portal-wash" id="portalWash" aria-hidden="true"></div>
@@ -1829,7 +2003,7 @@
 
 <div class="project-demo-modal" id="projectDemoModal" aria-hidden="true">
   <div class="project-demo-shell" role="dialog" aria-modal="true" aria-labelledby="projectDemoTitle">
-    <div class="folder-tab-physical" aria-hidden="true">AZ / CASE FILE</div>
+    <div class="folder-tab-physical" aria-hidden="true">AZ case file</div>
     <div class="folder-cover" aria-hidden="true">
       <span class="folder-cover-code">PROJECT DOSSIER / EYES ONLY</span>
       <strong>TOP SECRET</strong>
@@ -1841,8 +2015,8 @@
         <h2 id="projectDemoTitle">Project demo</h2>
       </div>
       <div class="dossier-tabs" role="tablist" aria-label="Project dossier views">
-        <button class="dossier-tab active" id="interactiveDemoTab" type="button" role="tab" data-folder-pane="demo" aria-selected="true">Interactive Demo</button>
-        <button class="dossier-tab uml-tab" id="umlDiagramTab" type="button" role="tab" data-folder-pane="uml" aria-selected="false">UML Diagram</button>
+        <button class="dossier-tab active" id="interactiveDemoTab" type="button" role="tab" data-folder-pane="demo" aria-selected="true">Interactive demo</button>
+        <button class="dossier-tab uml-tab" id="umlDiagramTab" type="button" role="tab" data-folder-pane="uml" aria-selected="false">UML diagram</button>
       </div>
       <button class="demo-close" id="projectDemoClose" type="button" aria-label="Close project demo">&times;</button>
     </header>
@@ -1851,15 +2025,16 @@
     <section class="demo-view" id="flightDemo" data-demo-view="flight" hidden>
       <div class="demo-layout">
         <aside class="demo-sidebar">
-          <p class="demo-intro">Find directional price edges instead of choosing a destination first. The optimizer ranks outbound and return fares separately, locks the cheapest valid boundaries, then tests a third city between them.</p>
+          <p class="demo-intro">Instead of picking a destination first, this prices every one-way flight out and every one-way flight back, keeps the cheapest on each side, then looks for a third city that fits in between.</p>
+          <p class="demo-notice demo-notice-top">These are sample fares saved in the page. Changing the dates shifts the snapshot, but nothing here talks to an airline or a live price feed.</p>
           <div class="demo-date-grid">
             <label class="demo-field">
               <span>Depart</span>
-              <input class="demo-input" id="flightStartDate" type="date" value="2026-09-04" aria-describedby="flightDateError">
+              <input class="demo-input" id="flightStartDate" type="date" aria-describedby="flightDateError">
             </label>
             <label class="demo-field">
               <span>Return</span>
-              <input class="demo-input" id="flightEndDate" type="date" value="2026-09-13" aria-describedby="flightDateError">
+              <input class="demo-input" id="flightEndDate" type="date" aria-describedby="flightDateError">
             </label>
           </div>
           <p class="demo-field-error" id="flightDateError" aria-live="polite" hidden>
@@ -1874,15 +2049,14 @@
             <legend>Candidate cities <span>choose at least 3</span></legend>
             <div class="city-choice-grid" id="flightCities"></div>
           </fieldset>
-          <button class="demo-button" id="flightRun" type="button">Find directional edges</button>
-          <p class="demo-notice">Illustrative directional fares are stored locally. Dates adjust the curated snapshot, but no airline inventory or live pricing API is queried.</p>
+          <button class="demo-button" id="flightRun" type="button">Find the cheapest trip</button>
         </aside>
 
         <div class="demo-workspace flight-results" id="flightResults">
-          <p class="demo-section-label" id="flightRouteLabel">Lowest-cost three-city path</p>
+          <p class="demo-section-label" id="flightRouteLabel">Cheapest three-city trip</p>
           <div class="route-visual" id="flightRouteVisual" aria-live="polite"></div>
           <div class="flight-summary" id="flightSummary"></div>
-          <p class="demo-section-label">How the path was selected</p>
+          <p class="demo-section-label">How it picked the trip</p>
           <div class="edge-analysis" id="flightAnalysis"></div>
           <p class="demo-status" id="flightStatus" aria-live="polite"></p>
         </div>
@@ -1892,7 +2066,7 @@
     <section class="demo-view" id="wordhuntDemo" data-demo-view="wordhunt" hidden>
       <div class="demo-layout">
         <aside class="demo-sidebar">
-          <p class="demo-intro">Replay a pruning pass on a curated 4-by-4 board. The threshold changes the estimated search reduction and recall before the stored paths are visualized.</p>
+          <p class="demo-intro">Pick a 4-by-4 board and a pruning threshold, then watch which word paths survive. A stricter threshold searches less but can miss more words.</p>
           <label class="demo-field">
             <span>Board preset</span>
             <select class="demo-select" id="wordBoardPreset"></select>
@@ -1901,22 +2075,22 @@
             <span class="threshold-row"><span>Pruning threshold</span><output id="wordThresholdOutput">0.58</output></span>
             <input class="threshold-range" id="wordThreshold" type="range" min="0.35" max="0.78" value="0.58" step="0.01">
           </label>
-          <button class="demo-button" id="wordRun" type="button">Run neural pass</button>
-          <p class="demo-notice">This is an honest interface simulation driven by replaceable sample outputs, not the original trained model running in the browser.</p>
+          <button class="demo-button" id="wordRun" type="button">Run the pruning pass</button>
+          <p class="demo-notice">This is a replay of saved results, not the trained model running live in your browser.</p>
         </aside>
 
         <div class="wordhunt-workspace">
           <div>
-            <p class="demo-section-label">Search board</p>
+            <p class="demo-section-label">The board</p>
             <div class="word-grid" id="wordGrid" role="grid" aria-label="WordHunt letter board"></div>
           </div>
           <div class="wordhunt-side">
             <div>
-              <p class="demo-section-label">Pass summary</p>
+              <p class="demo-section-label">What the pass found</p>
               <div class="word-stats" id="wordStats"></div>
             </div>
             <div>
-              <p class="demo-section-label">Retained paths</p>
+              <p class="demo-section-label">Words that survived</p>
               <div class="word-results" id="wordResults"></div>
             </div>
             <p class="demo-status" id="wordStatus" aria-live="polite">Choose a preset and run the pass.</p>
@@ -1928,7 +2102,7 @@
     <section class="uml-view" id="projectUmlView" hidden>
       <div class="uml-document-header">
         <div>
-          <span class="demo-kicker">System workflow / activity diagram</span>
+          <span class="demo-kicker">How it works</span>
           <h3 id="projectUmlTitle">Project UML Diagram</h3>
           <p>Use the controls to enlarge the diagram. The source file remains editable in diagrams.net.</p>
         </div>
@@ -2105,6 +2279,123 @@
     var og = out.getContext('2d'); og.imageSmoothingQuality = 'high'; og.drawImage(c, 0, 0, 1600, 1000);
     return makeSeamless(out);
   }
+  // Blue Gem, "case-hardened steel" version: muted olive steel, gold-brown halos, dark purple rims and blue islands.
+  function makeGemBoardSteel(){
+    var gh = 400, gw = 640, c = document.createElement('canvas'); c.width = gw; c.height = gh;
+    var g = c.getContext('2d'), im = g.createImageData(gw, gh), d = im.data;
+    function h(x, y){ var n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); }
+    function vn(x, y){ var xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+      return (h(xi, yi) * (1 - u) + h(xi + 1, yi) * u) * (1 - v) + (h(xi, yi + 1) * (1 - u) + h(xi + 1, yi + 1) * u) * v; }
+    function fbm(x, y, o){ var a = .5, s = 0; for(var i = 0; i < o; i++){ s += a * vn(x, y); x = x * 2.03 + 11.3; y = y * 2.03 + 4.7; a *= .5; } return s; }
+    function mix(a, b, t){ t = Math.max(0, Math.min(1, t)); return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+    function sm(a, b, x){ var t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+    var steel = [100, 104, 96], steelHi = [116, 116, 104], olive = [98, 100, 72], brown = [126, 96, 52], gold = [196, 160, 84], cream = [222, 200, 128],
+        blueDeep = [56, 66, 142], blueMid = [72, 112, 180], blueLite = [96, 148, 206], purple = [72, 48, 80], wine = [96, 62, 66];
+    var S = 12;
+    for(var py = 0; py < gh; py++) for(var px = 0; px < gw; px++){
+      var x = px / gh * S, y = py / gh * S;
+      var wx = fbm(x * .8 + 3.1, y * .8 + 1.7, 3), wy = fbm(x * .8 + 8.4, y * .8 + 5.2, 3);
+      var f = fbm(x * .75 + wx * 1.6, y * .75 + wy * 1.6, 5);
+      var rag = fbm(x * 5 + 40, y * 5 + 17, 4);
+      var t = f + (rag - .5) * .3 - .555;                        // < 0 outside a blue island, > 0 inside
+      var inside = sm(-.004, .012, t);
+      var grain = fbm(x * 22 + 5, y * 22 + 9, 2) - .5;
+      // steel ground: olive-grey, patchy
+      var col = mix(steel, steelHi, fbm(x * 2 + 70, y * 2 + 20, 3) * 1.4 - .4);
+      col = mix(col, olive, sm(.5, .72, fbm(x * 1.6 + 120, y * 1.6 + 7, 3)) * .55);
+      // gold-brown halo hugging every island
+      var halo = sm(-.2, -.015, t) * (1 - inside);
+      var patch = fbm(x * 3 + 200, y * 3 + 90, 3);
+      col = mix(col, brown, halo * (.45 + patch * .55));
+      var shine = sm(-.06, -.005, t) * (1 - inside) * sm(.52, .72, fbm(x * 4 + 300, y * 4 + 50, 3));
+      col = mix(col, gold, shine * .75);
+      col = mix(col, cream, shine * sm(.62, .8, fbm(x * 6 + 15, y * 6 + 300, 3)) * .7);
+      // dark purple / wine rim right at the edge
+      var rim = (1 - sm(0, .045, Math.abs(t - .004))) * (.55 + .45 * fbm(x * 9 + 90, y * 9 + 5, 2) * 2);
+      col = mix(col, wine, rim * .55 * (1 - inside * .3));
+      // blue islands: bright centres, mottled, with dark purple pits towards the edge
+      var mott = fbm(x * 6 + 60, y * 6 + 30, 4);
+      var b = mix(blueDeep, blueMid, sm(.0, .05, t) + (mott - .5) * 1.5);
+      b = mix(b, blueLite, sm(.05, .2, t) * .8 + (mott - .5) * .7);
+      var pits = sm(.5, .64, fbm(x * 9 + 400, y * 9 + 60, 4)) * (1 - sm(.03, .16, t));
+      b = mix(b, purple, pits * .85);
+      col = mix(col, b, inside);
+      var k = (py * gw + px) * 4, gr = grain * 26;
+      d[k] = col[0] + gr; d[k+1] = col[1] + gr; d[k+2] = col[2] + gr; d[k+3] = 255;
+    }
+    g.putImageData(im, 0, 0);
+    var out = document.createElement('canvas'); out.width = 1600; out.height = 1000;
+    var og = out.getContext('2d'); og.imageSmoothingQuality = 'high'; og.drawImage(c, 0, 0, 1600, 1000);
+    return makeSeamless(out);
+  }
+  // Test switch: add ?gem=steel to the address to see the case-hardened steel version of 661. Without it, the original blue gem shows.
+  // 661 modes: default 'photo' (your three photographs). Add ?gem=steel for the generated steel look, ?gem=blue for the first blue version.
+  var GEM_MODE = (new URLSearchParams(location.search).get('gem') || 'photo');
+  var gemPhotos = null, gemPhotoTried = false;
+  var GEM_FILES = { start:'images/gem-start.png', end:'images/gem-end.png', fill:'images/gem-fill.png' };
+  function loadExact(src){ return new Promise(function(res){ var im = new Image(); im.onload = function(){ res(im); }; im.onerror = function(){ res(null); }; im.src = src; }); }
+  function loadGemPhotos(done){
+    Promise.all([loadExact(GEM_FILES.start), loadExact(GEM_FILES.end), loadExact(GEM_FILES.fill)]).then(function(r){
+      if(r[0] && r[1] && r[2]) gemPhotos = { start:r[0], end:r[1], fill:r[2] }; else GEM_MODE = 'steel';   // missing a file? fall back to the generated version
+      done();
+    });
+  }
+  // The photographed pattern: the first photo sits at the opening, the second at the close, and the third (the grey-olive filler)
+  // is tiled in between and feathered around both, so the gold edge of each photo melts into it. The black gallery covers the middle.
+  function makePhotoView(){
+    var k = Math.max(1.3, Math.min(2.1, sheetSize()[0] / 1100));
+    var winW = innerWidth / k, winH = innerHeight / k, travel = 3.4 * innerHeight, span = travel / k;
+    var W = 1920, cy = winH * .6, H = Math.ceil(cy + span + winH * .65);
+    var c = document.createElement('canvas'); c.width = W; c.height = H; var g = c.getContext('2d');
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    // The filler photo is tiny, so instead of repeating it (which shows) it is scattered as many round, softly-edged patches,
+    // each turned and flipped a different way. They overlap and wrap around the left and right edges, so the strip repeats cleanly.
+    var rnd = rng32(661 * 7919 + 5), PS = 270, STEP = 150, fill = gemPhotos.fill;
+    var stamp = document.createElement('canvas'); stamp.width = stamp.height = PS; var sg = stamp.getContext('2d');
+    sg.imageSmoothingQuality = 'high';
+    var ang = 0, flip = 1, sx = 0, sy = 0;
+    function drawPatch(cx, cyy){
+      sg.globalCompositeOperation = 'source-over'; sg.clearRect(0, 0, PS, PS);
+      sg.save(); sg.translate(PS / 2, PS / 2); sg.rotate(ang); sg.scale(flip, 1);
+      var big = PS * 1.5; sg.drawImage(fill, -big / 2 + sx, -big / 2 + sy, big, big); sg.restore();
+      sg.globalCompositeOperation = 'destination-in';
+      var rg = sg.createRadialGradient(PS / 2, PS / 2, 0, PS / 2, PS / 2, PS / 2);
+      rg.addColorStop(0, 'rgba(0,0,0,1)'); rg.addColorStop(.45, 'rgba(0,0,0,.9)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+      sg.fillStyle = rg; sg.fillRect(0, 0, PS, PS);
+      g.drawImage(stamp, cx - PS / 2, cyy - PS / 2);
+    }
+    g.fillStyle = '#6a7478'; g.fillRect(0, 0, W, H);          // the filler's average colour, under everything
+    for(var yy = -PS / 2; yy < H + PS / 2; yy += STEP) for(var xx = 0; xx < W; xx += STEP){
+      ang = rnd() * Math.PI * 2; flip = rnd() < .5 ? -1 : 1; sx = (rnd() - .5) * 30; sy = (rnd() - .5) * 30;
+      var px0 = xx + (rnd() - .5) * 60, py0 = yy + (rnd() - .5) * 60;
+      drawPatch(px0, py0);
+      if(px0 < PS / 2) drawPatch(px0 + W, py0);                  // wrap, so the left and right edges meet
+      if(px0 > W - PS / 2) drawPatch(px0 - W, py0);
+    }
+    function feathered(img, w, h, cx, cyy, f){  // paste a photo with its edges fading into what is underneath
+      var t = document.createElement('canvas'); t.width = Math.ceil(w); t.height = Math.ceil(h);
+      var tg = t.getContext('2d'); tg.imageSmoothingQuality = 'high'; tg.drawImage(img, 0, 0, t.width, t.height);
+      tg.globalCompositeOperation = 'destination-in';
+      var gx = tg.createLinearGradient(0, 0, t.width, 0); gx.addColorStop(0, 'rgba(0,0,0,0)'); gx.addColorStop(f, 'rgba(0,0,0,1)'); gx.addColorStop(1 - f, 'rgba(0,0,0,1)'); gx.addColorStop(1, 'rgba(0,0,0,0)');
+      tg.fillStyle = gx; tg.fillRect(0, 0, t.width, t.height);
+      var gy = tg.createLinearGradient(0, 0, 0, t.height); gy.addColorStop(0, 'rgba(0,0,0,0)'); gy.addColorStop(f, 'rgba(0,0,0,1)'); gy.addColorStop(1 - f, 'rgba(0,0,0,1)'); gy.addColorStop(1, 'rgba(0,0,0,0)');
+      tg.fillStyle = gy; tg.fillRect(0, 0, t.width, t.height);
+      g.drawImage(t, cx - t.width / 2, cyy - t.height / 2);
+    }
+    var a = gemPhotos.start, b = gemPhotos.end;
+    var hA = winH * 1.05, hB = winH * 1.5;
+    feathered(a, hA * a.naturalWidth / a.naturalHeight, hA, W * .45, cy + .14 * span, .22);
+    feathered(b, hB * b.naturalWidth / b.naturalHeight, hB, W * .58, cy + .97 * span, .26);
+    // fine grain, so the enlarged photographs keep a metal-like tooth instead of looking soft
+    var n = document.createElement('canvas'); n.width = n.height = 192; var ng = n.getContext('2d'), nd = ng.createImageData(192, 192);
+    for(var i = 0; i < nd.data.length; i += 4){ var v = 128 + (Math.random() - .5) * 90; nd.data[i] = nd.data[i+1] = nd.data[i+2] = v; nd.data[i+3] = 255; }
+    ng.putImageData(nd, 0, 0);
+    g.globalCompositeOperation = 'soft-light'; g.globalAlpha = .55; g.fillStyle = g.createPattern(n, 'repeat'); g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+    var cs = 1, sn = 0, px = innerWidth / 2, py = innerHeight / 2, cx = W / 2;
+    view = { board: c, k: k, rot: 0, cx: cx, cy: cy, vw: innerWidth, vh: innerHeight, travel: travel,
+             ox: cx - px / k, oy: cy - py / k };
+  }
   // ---- the repeating "board" for each kind of pattern (mirrored at the edges, so it can travel forever) ----
   function cloneBoard(){ var c = document.createElement('canvas'); c.width = mapCanvas.width; c.height = mapCanvas.height; c.getContext('2d').drawImage(mapCanvas, 0, 0); return c; }
   var gemBoard = null, goldBoard = null;
@@ -2147,8 +2438,9 @@
   var view = null, panP = 0, lastPan = -99999, paintQueued = false;
   function makeView(n, tier){
     var rnd = rng32(n * 2654435761 + 12345); rnd(); rnd();
+    if(tier.gem && GEM_MODE === 'photo' && gemPhotos){ makePhotoView(); return; }
     rnd(); var zoom = 1, rot = rnd() * 2 * Math.PI;      // any orientation; one fixed scale per device, so petals are the same size in every pattern
-    var board = tier.gem ? (gemBoard || (gemBoard = makeGemBoard())) : tier.gold ? (goldBoard || (goldBoard = makeGoldBoard())) : mapCanvas;
+    var board = tier.gem ? (gemBoard || (gemBoard = GEM_MODE === 'steel' ? makeGemBoardSteel() : makeGemBoard())) : tier.gold ? (goldBoard || (goldBoard = makeGoldBoard())) : mapCanvas;
     var MW = board.width, MH = board.height;
     var cx = rnd() * 2 * MW, cy = rnd() * 2 * MH;                     // anywhere on the 2x2 mirrored board
     if(tier.sun){ zoom = 1; rot = 0; cx = MW / 2; cy = MH / 2; }
@@ -2169,6 +2461,7 @@
     wall.classList.toggle('is-gem', !!tier.gem); document.body.classList.toggle('gem', !!tier.gem);
     wctx.setTransform(1, 0, 0, 1, 0, 0); wctx.clearRect(0, 0, cw, ch);
     if(!tier.gem && !mapCanvas) return;
+    if(tier.gem && GEM_MODE === 'photo' && !gemPhotos) return;     // wait for the three photographs
     if(!view) makeView(patternSeed, tier);
     var b = view.board, MW = b.width, MH = b.height, k = view.k, rot = view.rot, cs = Math.cos(rot), sn = Math.sin(rot);
     var d = panP * view.travel, ox = view.ox + sn * d / k, oy = view.oy + cs * d / k;
@@ -2193,6 +2486,10 @@
   function setPattern(n){
     patternSeed = n; view = null;
     var tier = patternTier(n), btn = $('patternBtn');
+    if(tier.gem && GEM_MODE === 'photo' && !gemPhotos && !gemPhotoTried){      // fetched the first time 661 is asked for
+      gemPhotoTried = true;
+      loadGemPhotos(function(){ if(patternSeed === n){ view = null; paintWall(); } });
+    }
     if(tier.sun && !sunImg && !sunTried){      // H-02: fetched the first time the Sunflower pattern is asked for
       sunTried = true;
       loadImg(SUNFLOWER_FILE).then(function(im){ sunImg = im; if(im && patternSeed === n){ view = null; paintWall(); } });
@@ -2294,6 +2591,10 @@
   var rzT = 0;
   window.addEventListener('resize', function(){ clearTimeout(rzT); rzT = setTimeout(function(){ if(innerWidth * 1.02 > wallArt.width || innerHeight * 1.04 > wallArt.height) paintWall(); }, 200); });
   var roomTitle = $('roomTitle');
+  var LANDING = new URLSearchParams(location.search).get('landing') || '';
+  if(['night','mesh','veil'].indexOf(LANDING) < 0) LANDING = '';
+  if(LANDING) document.body.setAttribute('data-landing', LANDING);
+  var landingBg = $('landingBg');
   var galleryWrap = $('galleryWrap');
   var galleryPanel = $('cGallery');
   var canvasWrap = $('canvas3dWrap');
@@ -2348,6 +2649,28 @@
   // The opening: both a click and plain scrolling lead in.
   enterBtn.addEventListener('click', function(){ scrollToSceneIndex(0, true); });
   var cueIndex = -2;
+
+  // ---- Remember where you are: the address carries the current scene (#scene-map, ...), so coming back from a project page
+  // (or sharing a link) lands on that scene instead of the landing page. Uses replaceState, so the Back button is not filled with entries.
+  var pendingHash = /^#scene-/.test(location.hash), deepLinkDone = !pendingHash;
+  function jumpToHash(){
+    var m = /^#scene-([\w-]+)/.exec(location.hash); if(!m) return;
+    for(var i = 0; i < SCENES.length; i++){ if(SCENES[i].id === m[1]){ scrollToSceneIndex(i, false); return; } }
+  }
+  function syncHash(idx){
+    if(!deepLinkDone) return;
+    try{
+      var h = idx >= 0 ? '#scene-' + SCENES[idx].id : '';
+      if(location.hash !== h) history.replaceState(null, '', location.pathname + location.search + h);
+    }catch(_){}
+  }
+  if(pendingHash){
+    jumpToHash();
+    window.addEventListener('load', function(){
+      jumpToHash();                                           // once images and fonts have settled the layout
+      setTimeout(function(){ deepLinkDone = true; syncHash(cueIndex); }, 500);
+    });
+  }
   nextCue.addEventListener('click', function(){ if(cueIndex >= 0 && cueIndex < LAST) scrollToSceneIndex(cueIndex + 1, true); });
 
   // ---- Envelopes: how a figure and its card arrive, hold, and leave ----
@@ -2543,6 +2866,9 @@
     whiteOverlay.style.opacity = patternShown ? 0 : whiteFactor;
 
     // ---- the name recedes; the Enter button leaves with it ----
+    var landingVis = LANDING ? 1 - smoothstep(.02, .6, ip) : 0;      // the dark landing lifts as you scroll in, uncovering the wall
+    landingBg.style.opacity = landingVis.toFixed(3);
+    document.body.classList.toggle('landing-on', landingVis > .5);
     var titleOpacity = 1 - smoothstep(0, .45, ip);
     roomTitle.style.opacity = titleOpacity;
     roomTitle.style.visibility = titleOpacity > .01 ? 'visible' : 'hidden';
@@ -2558,6 +2884,7 @@
     });
     if(activeIndex !== cueIndex){
       cueIndex = activeIndex;
+      syncHash(activeIndex);
       if(activeIndex >= 0 && activeIndex < LAST){
         nextCue.textContent = 'Next: ' + SCENES[activeIndex+1].label;
         nextCue.classList.add('is-on');
@@ -2930,6 +3257,6 @@
 </script>
 
 <script src="canvas-viewer.js?v=20261014" defer></script>
-<script src="project-demos.js"></script>
+<script src="project-demos2.js"></script>
 </body>
 </html>
